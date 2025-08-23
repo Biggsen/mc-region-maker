@@ -84,7 +84,7 @@ export function RegionPanel() {
             Drawing: <strong>{drawingRegion.name}</strong>
           </p>
           <p className="text-yellow-300 text-xs mt-1">
-            Click on map to add points. Double-click to finish.
+            Click on map to add points. Click on a previous point to finish.
           </p>
         </div>
       )}

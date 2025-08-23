@@ -1,7 +1,7 @@
 import { Region } from '../types'
 
 export function generateRegionYAML(region: Region): string {
-  const points = region.points.map(point => `    - {x: ${point.x}, z: ${point.z}}`).join('\n')
+  const points = region.points.map(point => `    - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`).join('\n')
   
   return `${region.name}:
   type: poly2d

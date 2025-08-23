@@ -108,21 +108,38 @@ export function MapCanvas() {
     const y = e.clientY - rect.top
 
     if (e.button === 0) { // Left click
-      if (!mapState.originSelected && mapState.image) {
+      if (isSpacePressed) {
+        // Prioritize panning when space is pressed
+        startDragging(x, y)
+      } else if (!mapState.originSelected && mapState.image) {
         // Set origin
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
         setOrigin(imagePos.x, imagePos.y)
-      } else if (drawingRegion && !isSpacePressed) {
-        // Add point to drawing region
+      } else if (drawingRegion) {
+        // Check if clicking near a previous point to close polygon
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
         const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image!.width, mapState.image!.height, mapState.originOffset)
-        addPointToDrawing(worldPos.x, worldPos.z)
-      } else if (isSpacePressed || !drawingRegion) {
-        // Start dragging for panning
-        startDragging(x, y)
+        
+        // Check if clicking near any previous point (within 10 pixels tolerance)
+        const tolerance = 10 / mapState.scale // Convert to world coordinates
+        const isNearPreviousPoint = drawingRegion.points.some(point => {
+          const distance = Math.sqrt(
+            Math.pow(point.x - worldPos.x, 2) + Math.pow(point.z - worldPos.z, 2)
+          )
+          return distance <= tolerance
+        })
+        
+        if (isNearPreviousPoint && drawingRegion.points.length >= 3) {
+          // Close the polygon
+          finishDrawingRegion()
+        } else {
+          // Add point to drawing region
+          addPointToDrawing(worldPos.x, worldPos.z)
+        }
       }
+      // Note: Panning is only allowed when space key is pressed (handled in the first condition)
     }
-  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, setOrigin, addPointToDrawing, startDragging])
+  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, setOrigin, addPointToDrawing, finishDrawingRegion, startDragging])
 
   const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (e.button === 0) {
@@ -153,11 +170,7 @@ export function MapCanvas() {
     handleWheel(e.deltaY, x, y)
   }, [handleWheel])
 
-  const handleDoubleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (drawingRegion) {
-      finishDrawingRegion()
-    }
-  }, [drawingRegion, finishDrawingRegion])
+
 
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -230,7 +243,7 @@ export function MapCanvas() {
         onMouseUp={handleMouseUp}
         onMouseMove={onMouseMove}
         onWheel={onWheel}
-        onDoubleClick={handleDoubleClick}
+
       />
       
       {mapState.image && (
