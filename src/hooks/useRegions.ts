@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Region } from '../types'
+import { Region, EditMode } from '../types'
 import { generateId, generateRegionYAML } from '../utils/polygonUtils'
 import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
 
@@ -8,6 +8,11 @@ export function useRegions() {
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null)
   const [drawingRegion, setDrawingRegion] = useState<Region | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [editMode, setEditMode] = useState<EditMode>({
+    isEditing: false,
+    editingRegionId: null,
+    draggingPointIndex: null
+  })
 
   // Load saved data on mount
   useEffect(() => {
@@ -54,7 +59,15 @@ export function useRegions() {
     if (selectedRegionId === id) {
       setSelectedRegionId(null)
     }
-  }, [selectedRegionId])
+    // Exit edit mode if the deleted region was being edited
+    if (editMode.editingRegionId === id) {
+      setEditMode({
+        isEditing: false,
+        editingRegionId: null,
+        draggingPointIndex: null
+      })
+    }
+  }, [selectedRegionId, editMode.editingRegionId])
 
   const startDrawingRegion = useCallback((name: string) => {
     const newRegion: Region = {
@@ -65,6 +78,12 @@ export function useRegions() {
       maxY: 255
     }
     setDrawingRegion(newRegion)
+    // Exit edit mode when starting to draw
+    setEditMode({
+      isEditing: false,
+      editingRegionId: null,
+      draggingPointIndex: null
+    })
   }, [])
 
   const addPointToDrawing = useCallback((x: number, z: number) => {
@@ -95,10 +114,55 @@ export function useRegions() {
     setRegions(newRegions)
   }, [])
 
+  // Edit mode functions
+  const startEditMode = useCallback((regionId: string) => {
+    setEditMode({
+      isEditing: true,
+      editingRegionId: regionId,
+      draggingPointIndex: null
+    })
+    setSelectedRegionId(regionId)
+  }, [])
+
+  const stopEditMode = useCallback(() => {
+    setEditMode({
+      isEditing: false,
+      editingRegionId: null,
+      draggingPointIndex: null
+    })
+  }, [])
+
+  const startDraggingPoint = useCallback((regionId: string, pointIndex: number) => {
+    setEditMode(prev => ({
+      ...prev,
+      editingRegionId: regionId,
+      draggingPointIndex: pointIndex
+    }))
+  }, [])
+
+  const stopDraggingPoint = useCallback(() => {
+    setEditMode(prev => ({
+      ...prev,
+      draggingPointIndex: null
+    }))
+  }, [])
+
+  const updatePointPosition = useCallback((regionId: string, pointIndex: number, x: number, z: number) => {
+    setRegions(prev => prev.map(region => {
+      if (region.id === regionId) {
+        const newPoints = [...region.points]
+        newPoints[pointIndex] = { x, z }
+        return { ...region, points: newPoints }
+      }
+      return region
+    }))
+  }, [])
+
   return {
     regions,
     selectedRegionId,
     drawingRegion,
+    editMode,
     addRegion,
     updateRegion,
     deleteRegion,
@@ -108,6 +172,11 @@ export function useRegions() {
     addPointToDrawing,
     finishDrawingRegion,
     getSelectedRegion,
-    getRegionYAML
+    getRegionYAML,
+    startEditMode,
+    stopEditMode,
+    startDraggingPoint,
+    stopDraggingPoint,
+    updatePointPosition
   }
 }

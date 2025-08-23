@@ -8,7 +8,16 @@ export function MapCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { mapState: mapStateHook, regions } = useAppContext()
   const { mapState, setImage, setOffset, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
-  const { drawingRegion, addPointToDrawing, finishDrawingRegion, selectedRegionId } = regions
+  const { 
+    drawingRegion, 
+    addPointToDrawing, 
+    finishDrawingRegion, 
+    selectedRegionId,
+    editMode,
+    startDraggingPoint,
+    stopDraggingPoint,
+    updatePointPosition
+  } = regions
   const [isSpacePressed, setIsSpacePressed] = useState(false)
 
   // Debug mapState changes
@@ -49,6 +58,9 @@ export function MapCanvas() {
 
   // Determine cursor style based on current mode
   const getCursorStyle = () => {
+    if (editMode.isEditing) {
+      return editMode.draggingPointIndex !== null ? 'cursor-grabbing' : 'cursor-grab'
+    }
     if (mapState.isDragging && isSpacePressed) {
       return 'cursor-grabbing'
     }
@@ -108,6 +120,11 @@ export function MapCanvas() {
     const y = e.clientY - rect.top
 
     if (e.button === 0) { // Left click
+      // If in edit mode, don't handle other interactions
+      if (editMode.isEditing) {
+        return
+      }
+
       if (isSpacePressed) {
         // Prioritize panning when space is pressed
         startDragging(x, y)
@@ -155,7 +172,7 @@ export function MapCanvas() {
       }
       // Note: Panning is only allowed when space key is pressed (handled in the first condition)
     }
-  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, setOrigin, addPointToDrawing, finishDrawingRegion, startDragging, regions])
+  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, editMode.isEditing, setOrigin, addPointToDrawing, finishDrawingRegion, startDragging, regions])
 
   const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (e.button === 0) {
@@ -186,7 +203,19 @@ export function MapCanvas() {
     handleWheel(e.deltaY, x, y)
   }, [handleWheel])
 
+  // Edit mode handlers
+  const handlePointMouseDown = useCallback((regionId: string, pointIndex: number, event: React.MouseEvent) => {
+    event.preventDefault()
+    startDraggingPoint(regionId, pointIndex)
+  }, [startDraggingPoint])
 
+  const handlePointMouseMove = useCallback((regionId: string, pointIndex: number, x: number, z: number) => {
+    updatePointPosition(regionId, pointIndex, x, z)
+  }, [updatePointPosition])
+
+  const handlePointMouseUp = useCallback(() => {
+    stopDraggingPoint()
+  }, [stopDraggingPoint])
 
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -246,8 +275,6 @@ export function MapCanvas() {
     canvas.height = window.innerHeight - 100 // Leave space for header
   }, [])
 
-
-
   const [imageUrl, setImageUrl] = useState('')
 
   const handleUrlSubmit = (e: React.FormEvent) => {
@@ -305,8 +332,14 @@ export function MapCanvas() {
           Pan Mode (Space)
         </div>
       )}
+
+      {editMode.isEditing && (
+        <div className="absolute top-4 right-4 z-10 bg-orange-600 text-white px-3 py-1 rounded text-sm">
+          Edit Mode
+        </div>
+      )}
       
-      <div className={`absolute top-4 z-10 bg-gray-800 text-white px-3 py-1 rounded text-sm border border-gray-600 ${isSpacePressed ? 'right-32' : 'right-4'}`}>
+      <div className={`absolute top-4 z-10 bg-gray-800 text-white px-3 py-1 rounded text-sm border border-gray-600 ${isSpacePressed || editMode.isEditing ? 'right-32' : 'right-4'}`}>
         {Math.round(mapState.scale * 100)}%
       </div>
       
@@ -317,7 +350,6 @@ export function MapCanvas() {
         onMouseUp={handleMouseUp}
         onMouseMove={onMouseMove}
         onWheel={onWheel}
-
       />
       
       {mapState.image && (
@@ -331,7 +363,11 @@ export function MapCanvas() {
             mapState={mapState}
             drawingRegion={drawingRegion}
             selectedRegionId={selectedRegionId}
+            editMode={editMode}
             regions={regions.regions}
+            onPointMouseDown={handlePointMouseDown}
+            onPointMouseMove={handlePointMouseMove}
+            onPointMouseUp={handlePointMouseUp}
           />
         </>
       )}

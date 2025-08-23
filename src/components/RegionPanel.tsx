@@ -9,11 +9,14 @@ export function RegionPanel() {
     regions: regionsList,
     selectedRegionId,
     drawingRegion,
+    editMode,
     setSelectedRegionId,
     startDrawingRegion,
     deleteRegion,
     updateRegion,
-    getRegionYAML
+    getRegionYAML,
+    startEditMode,
+    stopEditMode
   } = regions
 
   const [newRegionName, setNewRegionName] = useState('')
@@ -45,6 +48,7 @@ export function RegionPanel() {
   }
 
   const selectedRegion = regionsList.find(r => r.id === selectedRegionId)
+  const isEditing = editMode.isEditing && editMode.editingRegionId === selectedRegionId
 
   return (
     <div className="w-full">
@@ -103,6 +107,23 @@ export function RegionPanel() {
           <p className="text-yellow-300 text-xs mt-1">
             Click on map to add points. Click on a previous point to finish.
           </p>
+        </div>
+      )}
+
+      {isEditing && (
+        <div className="mb-4 p-3 bg-green-900 border border-green-600 rounded">
+          <p className="text-green-200 text-sm">
+            Editing: <strong>{selectedRegion?.name}</strong>
+          </p>
+          <p className="text-green-300 text-xs mt-1">
+            Drag points to move them. Click "Save" when done.
+          </p>
+          <button
+            onClick={stopEditMode}
+            className="mt-2 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded"
+          >
+            Save Changes
+          </button>
         </div>
       )}
 
@@ -169,15 +190,29 @@ export function RegionPanel() {
             </div>
           </div>
 
+          <div className="flex space-x-2">
+            <button
+              onClick={() => startEditMode(selectedRegion.id)}
+              disabled={isEditing}
+              className={`flex-1 font-medium py-2 px-4 rounded ${
+                isEditing
+                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  : 'bg-orange-600 hover:bg-orange-700 text-white'
+              }`}
+            >
+              {isEditing ? 'Editing...' : 'Edit Points'}
+            </button>
+            <button
+              onClick={() => handleCopyYAML(selectedRegion.id)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+            >
+              Copy YAML
+            </button>
+          </div>
+
           <div>
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-lg font-semibold text-white">YAML Output</h3>
-              <button
-                onClick={() => handleCopyYAML(selectedRegion.id)}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
-              >
-                Copy
-              </button>
             </div>
             <pre className="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
               {getRegionYAML(selectedRegion.id)}
