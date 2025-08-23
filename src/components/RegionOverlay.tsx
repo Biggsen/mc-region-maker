@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { MapState, Region } from '../types'
 import { worldToPixel, imageToCanvas } from '../utils/coordinateUtils'
 

@@ -55,6 +55,14 @@ export function useMapState() {
     }))
   }, [])
 
+  const setOriginSelected = useCallback((selected: boolean) => {
+    setMapState(prev => ({ ...prev, originSelected: selected }))
+  }, [])
+
+  const setOriginOffset = useCallback((offset: { x: number; y: number } | null) => {
+    setMapState(prev => ({ ...prev, originOffset: offset }))
+  }, [])
+
   const startDragging = useCallback((x: number, y: number) => {
     setMapState(prev => ({
       ...prev,
@@ -115,6 +123,8 @@ export function useMapState() {
     setScale,
     setOffset,
     setOrigin,
+    setOriginSelected,
+    setOriginOffset,
     startDragging,
     stopDragging,
     handleMouseMove,

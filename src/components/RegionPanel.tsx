@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { copyToClipboard } from '../utils/polygonUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
@@ -47,7 +47,7 @@ export function RegionPanel() {
   const selectedRegion = regionsList.find(r => r.id === selectedRegionId)
 
   return (
-    <div className="w-96 bg-gray-800 border-l border-gray-700 p-4 overflow-y-auto">
+    <div className="w-full">
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-white">Regions</h2>

@@ -3,10 +3,6 @@ import { Region } from '../types'
 import { generateId, generateRegionYAML } from '../utils/polygonUtils'
 import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
 
-const STORAGE_KEYS = {
-  REGIONS: 'mc-region-maker-regions'
-}
-
 export function useRegions() {
   const [regions, setRegions] = useState<Region[]>([])
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null)
@@ -95,6 +91,10 @@ export function useRegions() {
     return region ? generateRegionYAML(region) : ''
   }, [regions])
 
+  const replaceRegions = useCallback((newRegions: Region[]) => {
+    setRegions(newRegions)
+  }, [])
+
   return {
     regions,
     selectedRegionId,
@@ -103,6 +103,7 @@ export function useRegions() {
     updateRegion,
     deleteRegion,
     setSelectedRegionId,
+    replaceRegions,
     startDrawingRegion,
     addPointToDrawing,
     finishDrawingRegion,

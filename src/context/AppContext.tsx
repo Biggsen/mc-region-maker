@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react'
+import { createContext, useContext, ReactNode } from 'react'
 import { useRegions } from '../hooks/useRegions'
 import { useMapState } from '../hooks/useMapState'
 

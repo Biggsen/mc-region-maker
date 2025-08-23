@@ -31,7 +31,7 @@ export async function saveMapState(mapState: MapState): Promise<void> {
       const imageSrc = getImageSource(mapState.image)
       // Only save if it's not a file:// URL (which won't work after refresh)
       if (!imageSrc.startsWith('file://')) {
-        stateToSave.image = imageSrc
+        (stateToSave as any).image = imageSrc
       } else {
         // Remove image from saved state if it's a local file
         stateToSave.image = null

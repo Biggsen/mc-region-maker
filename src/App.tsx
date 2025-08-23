@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { AppProvider } from './context/AppContext'
 import { MapCanvas } from './components/MapCanvas'
 import { RegionPanel } from './components/RegionPanel'
+import { ExportImportPanel } from './components/ExportImportPanel'
 import { LoadingOverlay } from './components/LoadingOverlay'
 
 function App() {
@@ -20,7 +21,10 @@ function App() {
     <AppProvider>
       <div className="min-h-screen bg-gray-900 text-white flex">
         <MapCanvas />
-        <RegionPanel />
+        <div className="w-80 bg-gray-800 p-4 overflow-y-auto">
+          <ExportImportPanel />
+          <RegionPanel />
+        </div>
         {isLoading && <LoadingOverlay />}
       </div>
     </AppProvider>
