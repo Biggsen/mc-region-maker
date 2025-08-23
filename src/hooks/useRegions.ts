@@ -158,6 +158,17 @@ export function useRegions() {
     }))
   }, [])
 
+  const addPointToRegion = useCallback((regionId: string, pointIndex: number, x: number, z: number) => {
+    setRegions(prev => prev.map(region => {
+      if (region.id === regionId) {
+        const newPoints = [...region.points]
+        newPoints.splice(pointIndex, 0, { x, z })
+        return { ...region, points: newPoints }
+      }
+      return region
+    }))
+  }, [])
+
   return {
     regions,
     selectedRegionId,
@@ -177,6 +188,7 @@ export function useRegions() {
     stopEditMode,
     startDraggingPoint,
     stopDraggingPoint,
-    updatePointPosition
+    updatePointPosition,
+    addPointToRegion
   }
 }

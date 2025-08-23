@@ -12,6 +12,7 @@ interface RegionOverlayProps {
   onPointMouseDown?: (regionId: string, pointIndex: number, event: React.MouseEvent) => void
   onPointMouseMove?: (regionId: string, pointIndex: number, x: number, z: number) => void
   onPointMouseUp?: () => void
+  onInsertPointClick?: (regionId: string, pointIndex: number, x: number, z: number) => void
 }
 
 export function RegionOverlay({ 
@@ -23,7 +24,8 @@ export function RegionOverlay({
   regions = [],
   onPointMouseDown,
   onPointMouseMove,
-  onPointMouseUp
+  onPointMouseUp,
+  onInsertPointClick
 }: RegionOverlayProps) {
   const overlayRef = useRef<HTMLCanvasElement>(null)
 
@@ -137,6 +139,28 @@ export function RegionOverlay({
       }
     })
 
+    // Draw insertion points between existing points when in edit mode
+    if (isEditing && canvasPoints.length >= 2) {
+      ctx.fillStyle = 'rgba(0, 255, 255, 0.8)'
+      ctx.strokeStyle = 'rgba(0, 255, 255, 1)'
+      ctx.lineWidth = 1
+      
+      for (let i = 0; i < canvasPoints.length; i++) {
+        const currentPoint = canvasPoints[i]
+        const nextPoint = canvasPoints[(i + 1) % canvasPoints.length]
+        
+        // Calculate midpoint between current and next point
+        const midX = (currentPoint.x + nextPoint.x) / 2
+        const midY = (currentPoint.y + nextPoint.y) / 2
+        
+        // Draw insertion point
+        ctx.beginPath()
+        ctx.arc(midX, midY, 4, 0, 2 * Math.PI)
+        ctx.fill()
+        ctx.stroke()
+      }
+    }
+
     // Draw region name
     if (canvasPoints.length > 0) {
       const centerX = canvasPoints.reduce((sum, p) => sum + p.x, 0) / canvasPoints.length
@@ -180,7 +204,33 @@ export function RegionOverlay({
 
       if (distance <= clickRadius) {
         onPointMouseDown(editingRegion.id, i, e)
-        break
+        return
+      }
+    }
+
+    // Check insertion points if we have the callback
+    if (onInsertPointClick && canvasPoints.length >= 2) {
+      for (let i = 0; i < canvasPoints.length; i++) {
+        const currentPoint = canvasPoints[i]
+        const nextPoint = canvasPoints[(i + 1) % canvasPoints.length]
+        
+        // Calculate midpoint between current and next point
+        const midX = (currentPoint.x + nextPoint.x) / 2
+        const midY = (currentPoint.y + nextPoint.y) / 2
+        
+        const distance = Math.sqrt(Math.pow(x - midX, 2) + Math.pow(y - midY, 2))
+        const clickRadius = 8 // Click area for insertion points
+        
+        if (distance <= clickRadius) {
+          // Convert canvas coordinates to world coordinates
+          const imagePos = canvasToImage(midX, midY, mapState.scale, mapState.offsetX, mapState.offsetY)
+          const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+          
+          // Insert point after the current point
+          const insertIndex = (i + 1) % canvasPoints.length
+          onInsertPointClick(editingRegion.id, insertIndex, worldPos.x, worldPos.z)
+          return
+        }
       }
     }
   }

@@ -26,3 +26,9 @@ export type MapState = {
   originSelected: boolean
   originOffset: { x: number; y: number } | null
 }
+
+export type EditMode = {
+  isEditing: boolean
+  editingRegionId: string | null
+  draggingPointIndex: number | null
+}

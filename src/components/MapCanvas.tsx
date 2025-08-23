@@ -16,7 +16,8 @@ export function MapCanvas() {
     editMode,
     startDraggingPoint,
     stopDraggingPoint,
-    updatePointPosition
+    updatePointPosition,
+    addPointToRegion
   } = regions
   const [isSpacePressed, setIsSpacePressed] = useState(false)
 
@@ -217,6 +218,10 @@ export function MapCanvas() {
     stopDraggingPoint()
   }, [stopDraggingPoint])
 
+  const handleInsertPointClick = useCallback((regionId: string, pointIndex: number, x: number, z: number) => {
+    addPointToRegion(regionId, pointIndex, x, z)
+  }, [addPointToRegion])
+
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -368,6 +373,7 @@ export function MapCanvas() {
             onPointMouseDown={handlePointMouseDown}
             onPointMouseMove={handlePointMouseMove}
             onPointMouseUp={handlePointMouseUp}
+            onInsertPointClick={handleInsertPointClick}
           />
         </>
       )}
