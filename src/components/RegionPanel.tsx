@@ -116,7 +116,7 @@ export function RegionPanel() {
             Editing: <strong>{selectedRegion?.name}</strong>
           </p>
           <p className="text-green-300 text-xs mt-1">
-            Drag orange points to move them. Click cyan dots between points to add new points.
+            Drag orange points to move them. Click cyan dots between points to add new points. Double-click orange points to delete them.
           </p>
           <button
             onClick={stopEditMode}

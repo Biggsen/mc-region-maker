@@ -169,6 +169,22 @@ export function useRegions() {
     }))
   }, [])
 
+  const removePointFromRegion = useCallback((regionId: string, pointIndex: number) => {
+    setRegions(prev => prev.map(region => {
+      if (region.id === regionId) {
+        const newPoints = [...region.points]
+        newPoints.splice(pointIndex, 1)
+        // Ensure we have at least 3 points for a valid polygon
+        if (newPoints.length >= 3) {
+          return { ...region, points: newPoints }
+        }
+        // If less than 3 points, don't update (prevent invalid polygon)
+        return region
+      }
+      return region
+    }))
+  }, [])
+
   return {
     regions,
     selectedRegionId,
@@ -189,6 +205,7 @@ export function useRegions() {
     startDraggingPoint,
     stopDraggingPoint,
     updatePointPosition,
-    addPointToRegion
+    addPointToRegion,
+    removePointFromRegion
   }
 }

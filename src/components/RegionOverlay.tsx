@@ -13,6 +13,7 @@ interface RegionOverlayProps {
   onPointMouseMove?: (regionId: string, pointIndex: number, x: number, z: number) => void
   onPointMouseUp?: () => void
   onInsertPointClick?: (regionId: string, pointIndex: number, x: number, z: number) => void
+  onPointDoubleClick?: (regionId: string, pointIndex: number) => void
 }
 
 export function RegionOverlay({ 
@@ -25,7 +26,8 @@ export function RegionOverlay({
   onPointMouseDown,
   onPointMouseMove,
   onPointMouseUp,
-  onInsertPointClick
+  onInsertPointClick,
+  onPointDoubleClick
 }: RegionOverlayProps) {
   const overlayRef = useRef<HTMLCanvasElement>(null)
 
@@ -258,6 +260,38 @@ export function RegionOverlay({
     }
   }
 
+  const handleDoubleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!onPointDoubleClick || !editMode.isEditing || !editMode.editingRegionId) return
+
+    const canvas = overlayRef.current
+    if (!canvas) return
+
+    const rect = canvas.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    // Check if double-clicking on a point
+    const editingRegion = regions.find(r => r.id === editMode.editingRegionId)
+    if (!editingRegion) return
+
+    const canvasPoints = editingRegion.points.map(point => {
+      const pixelPos = worldToPixel(point.x, point.z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+      return imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+    })
+
+    // Check each point for double-click
+    for (let i = 0; i < canvasPoints.length; i++) {
+      const point = canvasPoints[i]
+      const distance = Math.sqrt(Math.pow(x - point.x, 2) + Math.pow(y - point.y, 2))
+      const clickRadius = 12 // Click area for points
+
+      if (distance <= clickRadius) {
+        onPointDoubleClick(editingRegion.id, i)
+        return
+      }
+    }
+  }
+
   if (!canvas || !mapState.image) return null
 
   return (
@@ -268,6 +302,7 @@ export function RegionOverlay({
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onDoubleClick={handleDoubleClick}
     />
   )
 }
