@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react'
+import React, { useRef, useEffect, useCallback, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { canvasToImage, pixelToWorld } from '../utils/coordinateUtils'
 import { GridOverlay } from './GridOverlay'
@@ -9,6 +9,7 @@ export function MapCanvas() {
   const { mapState: mapStateHook, regions } = useAppContext()
   const { mapState, setImage, setOffset, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
   const { drawingRegion, addPointToDrawing, finishDrawingRegion, selectedRegionId } = regions
+  const [isSpacePressed, setIsSpacePressed] = useState(false)
 
   // Debug mapState changes
   useEffect(() => {
@@ -21,6 +22,44 @@ export function MapCanvas() {
       scale: mapState.scale
     })
   }, [mapState.image, mapState.offsetX, mapState.offsetY, mapState.scale])
+
+  // Handle space key for panning mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !isSpacePressed) {
+        e.preventDefault()
+        setIsSpacePressed(true)
+      }
+    }
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        setIsSpacePressed(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [isSpacePressed])
+
+  // Determine cursor style based on current mode
+  const getCursorStyle = () => {
+    if (mapState.isDragging && isSpacePressed) {
+      return 'cursor-grabbing'
+    }
+    if (isSpacePressed) {
+      return 'cursor-grab'
+    }
+    if (drawingRegion) {
+      return 'cursor-crosshair'
+    }
+    return 'cursor-default'
+  }
 
   const drawMap = useCallback(() => {
     const canvas = canvasRef.current
@@ -66,17 +105,17 @@ export function MapCanvas() {
     const y = e.clientY - rect.top
 
     if (e.button === 0) { // Left click
-      if (drawingRegion) {
+      if (drawingRegion && !isSpacePressed) {
         // Add point to drawing region
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
         const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image!.width, mapState.image!.height)
         addPointToDrawing(worldPos.x, worldPos.z)
-      } else {
-        // Start dragging
+      } else if (isSpacePressed || !drawingRegion) {
+        // Start dragging for panning
         startDragging(x, y)
       }
     }
-  }, [drawingRegion, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.image, addPointToDrawing, startDragging])
+  }, [drawingRegion, isSpacePressed, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.image, addPointToDrawing, startDragging])
 
   const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (e.button === 0) {
@@ -161,9 +200,19 @@ export function MapCanvas() {
         />
       </div>
       
+      {isSpacePressed && (
+        <div className="absolute top-4 right-4 z-10 bg-blue-600 text-white px-3 py-1 rounded text-sm">
+          Pan Mode (Space)
+        </div>
+      )}
+      
+      <div className={`absolute top-4 z-10 bg-gray-800 text-white px-3 py-1 rounded text-sm border border-gray-600 ${isSpacePressed ? 'right-32' : 'right-4'}`}>
+        {Math.round(mapState.scale * 100)}%
+      </div>
+      
       <canvas
         ref={canvasRef}
-        className="border border-gray-600 cursor-crosshair"
+        className={`border border-gray-600 ${getCursorStyle()}`}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseMove={onMouseMove}

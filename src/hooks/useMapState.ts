@@ -55,16 +55,23 @@ export function useMapState() {
 
   const handleWheel = useCallback((deltaY: number, x: number, y: number) => {
     const zoomFactor = deltaY > 0 ? 0.9 : 1.1
-    const newScale = mapState.scale * zoomFactor
+    const newScale = Math.max(0.1, Math.min(10, mapState.scale * zoomFactor))
 
-    // Zoom towards mouse position
-    const scaleDiff = newScale - mapState.scale
-    const newOffsetX = mapState.offsetX - (x - mapState.offsetX) * scaleDiff / mapState.scale
-    const newOffsetY = mapState.offsetY - (y - mapState.offsetY) * scaleDiff / mapState.scale
+    // Calculate the point under the mouse before zoom
+    const pointXBeforeZoom = (x - mapState.offsetX) / mapState.scale
+    const pointYBeforeZoom = (y - mapState.offsetY) / mapState.scale
+
+    // Calculate the point under the mouse after zoom
+    const pointXAfterZoom = (x - mapState.offsetX) / newScale
+    const pointYAfterZoom = (y - mapState.offsetY) / newScale
+
+    // Calculate the new offset to keep the same point under the mouse
+    const newOffsetX = mapState.offsetX + (pointXAfterZoom - pointXBeforeZoom) * newScale
+    const newOffsetY = mapState.offsetY + (pointYAfterZoom - pointYBeforeZoom) * newScale
 
     setMapState(prev => ({
       ...prev,
-      scale: Math.max(0.1, Math.min(5, newScale)),
+      scale: newScale,
       offsetX: newOffsetX,
       offsetY: newOffsetY
     }))
