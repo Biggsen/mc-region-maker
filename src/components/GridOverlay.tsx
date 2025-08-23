@@ -31,16 +31,31 @@ export function GridOverlay({ canvas, mapState }: GridOverlayProps) {
     const imageWidth = mapState.image.width
     const imageHeight = mapState.image.height
 
-    // Calculate grid bounds
-    const startX = Math.floor(-imageWidth / 2 / chunkSize) * chunkSize
-    const endX = Math.ceil(imageWidth / 2 / chunkSize) * chunkSize
-    const startZ = Math.floor(-imageHeight / 2 / chunkSize) * chunkSize
-    const endZ = Math.ceil(imageHeight / 2 / chunkSize) * chunkSize
+    // Calculate grid bounds relative to origin (if set) or image center
+    let startX, endX, startZ, endZ
+    if (mapState.originOffset) {
+      // Use origin as reference point - ensure origin aligns with grid intersection
+      const originX = mapState.originOffset.x
+      const originZ = mapState.originOffset.y
+      // Calculate grid bounds so origin falls on a grid intersection
+      const gridRadius = Math.max(imageWidth, imageHeight) / 2
+      // Align grid so origin is at a grid intersection
+      startX = originX - Math.floor(gridRadius / chunkSize) * chunkSize
+      endX = originX + Math.ceil(gridRadius / chunkSize) * chunkSize
+      startZ = originZ - Math.floor(gridRadius / chunkSize) * chunkSize
+      endZ = originZ + Math.ceil(gridRadius / chunkSize) * chunkSize
+    } else {
+      // Fallback to image center
+      startX = Math.floor(-imageWidth / 2 / chunkSize) * chunkSize
+      endX = Math.ceil(imageWidth / 2 / chunkSize) * chunkSize
+      startZ = Math.floor(-imageHeight / 2 / chunkSize) * chunkSize
+      endZ = Math.ceil(imageHeight / 2 / chunkSize) * chunkSize
+    }
 
-    // Draw vertical lines
+    // Draw vertical lines using raw pixel coordinates
     for (let x = startX; x <= endX; x += chunkSize) {
-      const pixelPos = worldToPixel(x, 0, imageWidth, imageHeight, mapState.originOffset)
-      const canvasPos = imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+      const pixelX = x
+      const canvasPos = imageToCanvas(pixelX, 0, mapState.scale, mapState.offsetX, mapState.offsetY)
       
       ctx.beginPath()
       ctx.moveTo(canvasPos.x, 0)
@@ -48,10 +63,10 @@ export function GridOverlay({ canvas, mapState }: GridOverlayProps) {
       ctx.stroke()
     }
 
-    // Draw horizontal lines
+    // Draw horizontal lines using raw pixel coordinates
     for (let z = startZ; z <= endZ; z += chunkSize) {
-      const pixelPos = worldToPixel(0, z, imageWidth, imageHeight, mapState.originOffset)
-      const canvasPos = imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+      const pixelY = z
+      const canvasPos = imageToCanvas(0, pixelY, mapState.scale, mapState.offsetX, mapState.offsetY)
       
       ctx.beginPath()
       ctx.moveTo(0, canvasPos.y)
@@ -63,18 +78,20 @@ export function GridOverlay({ canvas, mapState }: GridOverlayProps) {
     ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)'
     ctx.lineWidth = 2
 
-    const originPixel = worldToPixel(0, 0, imageWidth, imageHeight, mapState.originOffset)
-    const originCanvas = imageToCanvas(originPixel.x, originPixel.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+    // Use the actual origin offset (where user clicked) for origin lines
+    if (mapState.originOffset) {
+      const originCanvas = imageToCanvas(mapState.originOffset.x, mapState.originOffset.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+      
+      ctx.beginPath()
+      ctx.moveTo(originCanvas.x, 0)
+      ctx.lineTo(originCanvas.x, overlay.height)
+      ctx.stroke()
 
-    ctx.beginPath()
-    ctx.moveTo(originCanvas.x, 0)
-    ctx.lineTo(originCanvas.x, overlay.height)
-    ctx.stroke()
-
-    ctx.beginPath()
-    ctx.moveTo(0, originCanvas.y)
-    ctx.lineTo(overlay.width, originCanvas.y)
-    ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(0, originCanvas.y)
+      ctx.lineTo(overlay.width, originCanvas.y)
+      ctx.stroke()
+    }
 
   }, [canvas, mapState])
 

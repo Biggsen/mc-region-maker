@@ -10,14 +10,14 @@ export function pixelToWorld(
   if (!originOffset) {
     // Fallback to center if no origin is selected
     return {
-      x: pixelX - Math.floor(imageWidth / 2),
-      z: pixelY - Math.floor(imageHeight / 2)
+      x: (pixelX - Math.floor(imageWidth / 2)) * 8,
+      z: (pixelY - Math.floor(imageHeight / 2)) * 8
     }
   }
   
   return {
-    x: pixelX - originOffset.x,
-    z: pixelY - originOffset.y
+    x: (pixelX - originOffset.x) * 8,
+    z: (pixelY - originOffset.y) * 8
   }
 }
 
@@ -31,14 +31,14 @@ export function worldToPixel(
   if (!originOffset) {
     // Fallback to center if no origin is selected
     return {
-      x: worldX + Math.floor(imageWidth / 2),
-      y: worldZ + Math.floor(imageHeight / 2)
+      x: (worldX / 8) + Math.floor(imageWidth / 2),
+      y: (worldZ / 8) + Math.floor(imageHeight / 2)
     }
   }
   
   return {
-    x: worldX + originOffset.x,
-    y: worldZ + originOffset.y
+    x: (worldX / 8) + originOffset.x,
+    y: (worldZ / 8) + originOffset.y
   }
 }
 

@@ -286,7 +286,7 @@ export function MapCanvas() {
     canvas.height = window.innerHeight - 100 // Leave space for header
   }, [])
 
-  const [imageUrl, setImageUrl] = useState('')
+  const [imageUrl, setImageUrl] = useState('http://localhost:3000/mc-map.png')
 
   const handleUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault()
