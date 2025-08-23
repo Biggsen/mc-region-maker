@@ -67,3 +67,25 @@ export function imageToCanvas(
     y: imageY * scale + offsetY
   }
 }
+
+export function isPointInPolygon(
+  point: WorldCoordinate,
+  polygon: WorldCoordinate[]
+): boolean {
+  if (polygon.length < 3) return false
+  
+  let inside = false
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i].x
+    const zi = polygon[i].z
+    const xj = polygon[j].x
+    const zj = polygon[j].z
+    
+    if (((zi > point.z) !== (zj > point.z)) &&
+        (point.x < (xj - xi) * (point.z - zi) / (zj - zi) + xi)) {
+      inside = !inside
+    }
+  }
+  
+  return inside
+}

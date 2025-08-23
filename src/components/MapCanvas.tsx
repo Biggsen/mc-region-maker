@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { canvasToImage, pixelToWorld } from '../utils/coordinateUtils'
+import { canvasToImage, pixelToWorld, isPointInPolygon } from '../utils/coordinateUtils'
 import { GridOverlay } from './GridOverlay'
 import { RegionOverlay } from './RegionOverlay'
 
@@ -136,10 +136,26 @@ export function MapCanvas() {
           // Add point to drawing region
           addPointToDrawing(worldPos.x, worldPos.z)
         }
+      } else if (mapState.image && mapState.originSelected) {
+        // Check if clicking on a region
+        const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
+        const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image.width, mapState.image.height, mapState.originOffset)
+        
+        // Check each region to see if the click is inside
+        for (let i = regions.regions.length - 1; i >= 0; i--) {
+          const region = regions.regions[i]
+          if (isPointInPolygon(worldPos, region.points)) {
+            regions.setSelectedRegionId(region.id)
+            return // Stop checking once we find a region
+          }
+        }
+        
+        // If no region was clicked, deselect
+        regions.setSelectedRegionId(null)
       }
       // Note: Panning is only allowed when space key is pressed (handled in the first condition)
     }
-  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, setOrigin, addPointToDrawing, finishDrawingRegion, startDragging])
+  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, setOrigin, addPointToDrawing, finishDrawingRegion, startDragging, regions])
 
   const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (e.button === 0) {
