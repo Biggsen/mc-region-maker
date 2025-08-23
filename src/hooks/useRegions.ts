@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Region, EditMode } from '../types'
+import { Region, EditMode, HighlightMode } from '../types'
 import { generateId, generateRegionYAML } from '../utils/polygonUtils'
 import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
 
@@ -12,6 +12,9 @@ export function useRegions() {
     isEditing: false,
     editingRegionId: null,
     draggingPointIndex: null
+  })
+  const [highlightMode, setHighlightMode] = useState<HighlightMode>({
+    highlightAll: false
   })
 
   // Load saved data on mount
@@ -185,11 +188,16 @@ export function useRegions() {
     }))
   }, [])
 
+  const toggleHighlightAll = useCallback(() => {
+    setHighlightMode(prev => ({ highlightAll: !prev.highlightAll }))
+  }, [])
+
   return {
     regions,
     selectedRegionId,
     drawingRegion,
     editMode,
+    highlightMode,
     addRegion,
     updateRegion,
     deleteRegion,
@@ -206,6 +214,7 @@ export function useRegions() {
     stopDraggingPoint,
     updatePointPosition,
     addPointToRegion,
-    removePointFromRegion
+    removePointFromRegion,
+    toggleHighlightAll
   }
 }

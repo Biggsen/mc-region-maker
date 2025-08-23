@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { MapState, Region, EditMode } from '../types'
+import { MapState, Region, EditMode, HighlightMode } from '../types'
 import { worldToPixel, imageToCanvas, canvasToImage, pixelToWorld } from '../utils/coordinateUtils'
 
 interface RegionOverlayProps {
@@ -8,6 +8,7 @@ interface RegionOverlayProps {
   drawingRegion: Region | null
   selectedRegionId: string | null
   editMode: EditMode
+  highlightMode: HighlightMode
   regions?: Region[]
   onPointMouseDown?: (regionId: string, pointIndex: number, event: React.MouseEvent) => void
   onPointMouseMove?: (regionId: string, pointIndex: number, x: number, z: number) => void
@@ -22,6 +23,7 @@ export function RegionOverlay({
   drawingRegion, 
   selectedRegionId,
   editMode,
+  highlightMode,
   regions = [],
   onPointMouseDown,
   onPointMouseMove,
@@ -48,15 +50,16 @@ export function RegionOverlay({
     regions.forEach(region => {
       const isSelected = region.id === selectedRegionId
       const isEditing = editMode.isEditing && editMode.editingRegionId === region.id
-      drawRegion(ctx, region, mapState, isSelected, false, isEditing)
+      const isHighlighted = highlightMode.highlightAll
+      drawRegion(ctx, region, mapState, isSelected, false, isEditing, isHighlighted)
     })
 
     // Draw drawing region
     if (drawingRegion && drawingRegion.points.length > 0) {
-      drawRegion(ctx, drawingRegion, mapState, false, true, false)
+      drawRegion(ctx, drawingRegion, mapState, false, true, false, false)
     }
 
-  }, [canvas, mapState, drawingRegion, selectedRegionId, editMode, regions])
+  }, [canvas, mapState, drawingRegion, selectedRegionId, editMode, highlightMode, regions])
 
   const drawRegion = (
     ctx: CanvasRenderingContext2D, 
@@ -64,7 +67,8 @@ export function RegionOverlay({
     mapState: MapState, 
     isSelected: boolean = false,
     isDrawing: boolean = false,
-    isEditing: boolean = false
+    isEditing: boolean = false,
+    isHighlighted: boolean = false
   ) => {
     if (region.points.length < 2) return
 
@@ -79,7 +83,9 @@ export function RegionOverlay({
       ? 'rgba(0, 255, 0, 0.3)' 
       : isDrawing 
         ? 'rgba(255, 255, 0, 0.2)'
-        : 'rgba(0, 100, 255, 0.2)'
+        : isHighlighted
+          ? 'rgba(255, 255, 0, 0.4)'
+          : 'rgba(0, 100, 255, 0.2)'
     
     ctx.beginPath()
     ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y)
@@ -94,8 +100,10 @@ export function RegionOverlay({
       ? 'rgba(0, 255, 0, 0.8)' 
       : isDrawing 
         ? 'rgba(255, 255, 0, 0.8)'
-        : 'rgba(0, 100, 255, 0.8)'
-    ctx.lineWidth = isSelected ? 3 : 2
+        : isHighlighted
+          ? 'rgba(255, 255, 0, 1)'
+          : 'rgba(0, 100, 255, 0.8)'
+    ctx.lineWidth = isSelected ? 3 : isHighlighted ? 4 : 2
     
     ctx.beginPath()
     ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y)
@@ -127,7 +135,9 @@ export function RegionOverlay({
           ? 'rgba(255, 255, 0, 1)'
           : isEditing
             ? 'rgba(255, 100, 0, 1)'
-            : 'rgba(0, 100, 255, 1)'
+            : isHighlighted
+              ? 'rgba(255, 255, 0, 1)'
+              : 'rgba(0, 100, 255, 1)'
       
       ctx.beginPath()
       ctx.arc(point.x, point.y, pointSize, 0, 2 * Math.PI)

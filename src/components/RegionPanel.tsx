@@ -10,13 +10,15 @@ export function RegionPanel() {
     selectedRegionId,
     drawingRegion,
     editMode,
+    highlightMode,
     setSelectedRegionId,
     startDrawingRegion,
     deleteRegion,
     updateRegion,
     getRegionYAML,
     startEditMode,
-    stopEditMode
+    stopEditMode,
+    toggleHighlightAll
   } = regions
 
   const [newRegionName, setNewRegionName] = useState('')
@@ -55,13 +57,26 @@ export function RegionPanel() {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-white">Regions</h2>
-          <button
-            onClick={handleClearData}
-            className="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded border border-red-400 hover:border-red-300"
-            title="Clear all saved data"
-          >
-            Clear Data
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={toggleHighlightAll}
+              className={`text-sm px-2 py-1 rounded border ${
+                highlightMode.highlightAll
+                  ? 'bg-yellow-600 text-white border-yellow-500'
+                  : 'text-yellow-400 hover:text-yellow-300 border-yellow-400 hover:border-yellow-300'
+              }`}
+              title="Highlight all regions"
+            >
+              {highlightMode.highlightAll ? 'Hide' : 'Highlight'} All
+            </button>
+            <button
+              onClick={handleClearData}
+              className="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded border border-red-400 hover:border-red-300"
+              title="Clear all saved data"
+            >
+              Clear Data
+            </button>
+          </div>
         </div>
         
         {!showNewRegionForm ? (

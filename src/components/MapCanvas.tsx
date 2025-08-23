@@ -14,6 +14,7 @@ export function MapCanvas() {
     finishDrawingRegion, 
     selectedRegionId,
     editMode,
+    highlightMode,
     startDraggingPoint,
     stopDraggingPoint,
     updatePointPosition,
@@ -374,6 +375,7 @@ export function MapCanvas() {
             drawingRegion={drawingRegion}
             selectedRegionId={selectedRegionId}
             editMode={editMode}
+            highlightMode={highlightMode}
             regions={regions.regions}
             onPointMouseDown={handlePointMouseDown}
             onPointMouseMove={handlePointMouseMove}

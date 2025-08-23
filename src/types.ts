@@ -32,3 +32,7 @@ export type EditMode = {
   editingRegionId: string | null
   draggingPointIndex: number | null
 }
+
+export type HighlightMode = {
+  highlightAll: boolean
+}
