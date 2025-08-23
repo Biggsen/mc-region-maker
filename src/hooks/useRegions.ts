@@ -1,11 +1,41 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Region } from '../types'
 import { generateId, generateRegionYAML } from '../utils/polygonUtils'
+import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
+
+const STORAGE_KEYS = {
+  REGIONS: 'mc-region-maker-regions'
+}
 
 export function useRegions() {
   const [regions, setRegions] = useState<Region[]>([])
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null)
   const [drawingRegion, setDrawingRegion] = useState<Region | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Load saved data on mount
+  useEffect(() => {
+    const savedRegions = loadRegions()
+    const savedSelectedRegion = loadSelectedRegion()
+    
+    setRegions(savedRegions)
+    setSelectedRegionId(savedSelectedRegion)
+    setIsInitialized(true)
+  }, [])
+
+  // Save regions whenever they change (but not during initial load)
+  useEffect(() => {
+    if (isInitialized) {
+      saveRegions(regions)
+    }
+  }, [regions, isInitialized])
+
+  // Save selected region whenever it changes (but not during initial load)
+  useEffect(() => {
+    if (isInitialized) {
+      saveSelectedRegion(selectedRegionId)
+    }
+  }, [selectedRegionId, isInitialized])
 
   const addRegion = useCallback((region: Omit<Region, 'id'>) => {
     const newRegion: Region = {

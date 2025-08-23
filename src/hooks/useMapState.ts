@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { MapState } from '../types'
+import { saveMapState, loadMapState } from '../utils/persistenceUtils'
 
 export function useMapState() {
   const [mapState, setMapState] = useState<MapState>({
@@ -12,6 +13,27 @@ export function useMapState() {
     originSelected: false,
     originOffset: null
   })
+
+  // Load saved state on mount
+  useEffect(() => {
+    const loadSavedState = async () => {
+      const savedState = await loadMapState()
+      if (savedState) {
+        setMapState(savedState)
+      }
+    }
+    loadSavedState()
+  }, [])
+
+  // Save state whenever it changes (but not during initial load)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      // Always save map state, even without image (to preserve zoom/position)
+      saveMapState(mapState)
+    }, 100) // Small delay to avoid saving during initial load
+    
+    return () => clearTimeout(timeoutId)
+  }, [mapState])
 
   const setImage = useCallback((image: HTMLImageElement) => {
     setMapState(prev => ({ ...prev, image }))
