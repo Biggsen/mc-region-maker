@@ -1,0 +1,113 @@
+import { MapState, Region } from '../types'
+
+const STORAGE_KEYS = {
+  MAP_STATE: 'mc-region-maker-map-state',
+  REGIONS: 'mc-region-maker-regions',
+  SELECTED_REGION: 'mc-region-maker-selected-region'
+}
+
+// Get image source URL for storage
+export function getImageSource(image: HTMLImageElement): string {
+  return image.src
+}
+
+// Load image from source URL
+export function loadImageFromSource(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = reject
+    image.src = src
+  })
+}
+
+// Save map state to localStorage
+export async function saveMapState(mapState: MapState): Promise<void> {
+  try {
+    const stateToSave = { ...mapState }
+    
+    // Store image source URL instead of base64
+    if (mapState.image) {
+      const imageSrc = getImageSource(mapState.image)
+      // Only save if it's not a file:// URL (which won't work after refresh)
+      if (!imageSrc.startsWith('file://')) {
+        stateToSave.image = imageSrc
+      } else {
+        // Remove image from saved state if it's a local file
+        stateToSave.image = null
+      }
+    }
+    
+    localStorage.setItem(STORAGE_KEYS.MAP_STATE, JSON.stringify(stateToSave))
+  } catch (error) {
+    console.error('Failed to save map state:', error)
+  }
+}
+
+// Load map state from localStorage
+export async function loadMapState(): Promise<MapState | null> {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.MAP_STATE)
+    if (!saved) return null
+    
+    const parsed = JSON.parse(saved)
+    
+    // Load image from source URL if it exists
+    if (parsed.image && typeof parsed.image === 'string') {
+      parsed.image = await loadImageFromSource(parsed.image)
+    }
+    
+    return parsed
+  } catch (error) {
+    console.error('Failed to load map state:', error)
+    return null
+  }
+}
+
+// Save regions to localStorage
+export function saveRegions(regions: Region[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.REGIONS, JSON.stringify(regions))
+  } catch (error) {
+    console.error('Failed to save regions:', error)
+  }
+}
+
+// Load regions from localStorage
+export function loadRegions(): Region[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.REGIONS)
+    const regions = saved ? JSON.parse(saved) : []
+    return regions
+  } catch (error) {
+    console.error('Failed to load regions:', error)
+    return []
+  }
+}
+
+// Save selected region ID
+export function saveSelectedRegion(regionId: string | null): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.SELECTED_REGION, JSON.stringify(regionId))
+  } catch (error) {
+    console.error('Failed to save selected region:', error)
+  }
+}
+
+// Load selected region ID
+export function loadSelectedRegion(): string | null {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.SELECTED_REGION)
+    return saved ? JSON.parse(saved) : null
+  } catch (error) {
+    console.error('Failed to load selected region:', error)
+    return null
+  }
+}
+
+// Clear all saved data
+export function clearSavedData(): void {
+  Object.values(STORAGE_KEYS).forEach(key => {
+    localStorage.removeItem(key)
+  })
+}
