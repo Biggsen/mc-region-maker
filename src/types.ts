@@ -23,4 +23,6 @@ export type MapState = {
   offsetY: number
   isDragging: boolean
   lastMousePos: { x: number; y: number } | null
+  originSelected: boolean
+  originOffset: { x: number; y: number } | null
 }

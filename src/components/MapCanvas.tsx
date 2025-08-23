@@ -7,7 +7,7 @@ import { RegionOverlay } from './RegionOverlay'
 export function MapCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { mapState: mapStateHook, regions } = useAppContext()
-  const { mapState, setImage, setOffset, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
+  const { mapState, setImage, setOffset, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
   const { drawingRegion, addPointToDrawing, finishDrawingRegion, selectedRegionId } = regions
   const [isSpacePressed, setIsSpacePressed] = useState(false)
 
@@ -54,6 +54,9 @@ export function MapCanvas() {
     }
     if (isSpacePressed) {
       return 'cursor-grab'
+    }
+    if (!mapState.originSelected && mapState.image) {
+      return 'cursor-crosshair'
     }
     if (drawingRegion) {
       return 'cursor-crosshair'
@@ -105,17 +108,21 @@ export function MapCanvas() {
     const y = e.clientY - rect.top
 
     if (e.button === 0) { // Left click
-      if (drawingRegion && !isSpacePressed) {
+      if (!mapState.originSelected && mapState.image) {
+        // Set origin
+        const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
+        setOrigin(imagePos.x, imagePos.y)
+      } else if (drawingRegion && !isSpacePressed) {
         // Add point to drawing region
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
-        const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image!.width, mapState.image!.height)
+        const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image!.width, mapState.image!.height, mapState.originOffset)
         addPointToDrawing(worldPos.x, worldPos.z)
       } else if (isSpacePressed || !drawingRegion) {
         // Start dragging for panning
         startDragging(x, y)
       }
     }
-  }, [drawingRegion, isSpacePressed, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.image, addPointToDrawing, startDragging])
+  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, setOrigin, addPointToDrawing, startDragging])
 
   const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (e.button === 0) {
@@ -199,6 +206,12 @@ export function MapCanvas() {
           className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
         />
       </div>
+      
+      {mapState.image && !mapState.originSelected && (
+        <div className="absolute top-16 left-4 z-10 bg-blue-600 text-white px-4 py-2 rounded text-sm shadow-lg">
+          Choose the world center (0,0) - Click on the compass or known reference point
+        </div>
+      )}
       
       {isSpacePressed && (
         <div className="absolute top-4 right-4 z-10 bg-blue-600 text-white px-3 py-1 rounded text-sm">

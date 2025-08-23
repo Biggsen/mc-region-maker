@@ -8,7 +8,9 @@ export function useMapState() {
     offsetX: 0,
     offsetY: 0,
     isDragging: false,
-    lastMousePos: null
+    lastMousePos: null,
+    originSelected: false,
+    originOffset: null
   })
 
   const setImage = useCallback((image: HTMLImageElement) => {
@@ -21,6 +23,14 @@ export function useMapState() {
 
   const setOffset = useCallback((offsetX: number, offsetY: number) => {
     setMapState(prev => ({ ...prev, offsetX, offsetY }))
+  }, [])
+
+  const setOrigin = useCallback((originX: number, originY: number) => {
+    setMapState(prev => ({ 
+      ...prev, 
+      originSelected: true, 
+      originOffset: { x: originX, y: originY } 
+    }))
   }, [])
 
   const startDragging = useCallback((x: number, y: number) => {
@@ -82,6 +92,7 @@ export function useMapState() {
     setImage,
     setScale,
     setOffset,
+    setOrigin,
     startDragging,
     stopDragging,
     handleMouseMove,

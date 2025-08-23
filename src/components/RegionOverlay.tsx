@@ -53,12 +53,9 @@ export function RegionOverlay({
   ) => {
     if (region.points.length < 2) return
 
-    const imageWidth = mapState.image!.width
-    const imageHeight = mapState.image!.height
-
     // Convert world coordinates to canvas coordinates
     const canvasPoints = region.points.map(point => {
-      const pixelPos = worldToPixel(point.x, point.z, imageWidth, imageHeight)
+      const pixelPos = worldToPixel(point.x, point.z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
       return imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
     })
 

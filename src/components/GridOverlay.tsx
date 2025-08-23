@@ -12,7 +12,7 @@ export function GridOverlay({ canvas, mapState }: GridOverlayProps) {
 
   useEffect(() => {
     const overlay = overlayRef.current
-    if (!overlay || !canvas || !mapState.image) return
+    if (!overlay || !canvas || !mapState.image || !mapState.originSelected) return
 
     overlay.width = canvas.width
     overlay.height = canvas.height
@@ -39,7 +39,7 @@ export function GridOverlay({ canvas, mapState }: GridOverlayProps) {
 
     // Draw vertical lines
     for (let x = startX; x <= endX; x += chunkSize) {
-      const pixelPos = worldToPixel(x, 0, imageWidth, imageHeight)
+      const pixelPos = worldToPixel(x, 0, imageWidth, imageHeight, mapState.originOffset)
       const canvasPos = imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
       
       ctx.beginPath()
@@ -50,7 +50,7 @@ export function GridOverlay({ canvas, mapState }: GridOverlayProps) {
 
     // Draw horizontal lines
     for (let z = startZ; z <= endZ; z += chunkSize) {
-      const pixelPos = worldToPixel(0, z, imageWidth, imageHeight)
+      const pixelPos = worldToPixel(0, z, imageWidth, imageHeight, mapState.originOffset)
       const canvasPos = imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
       
       ctx.beginPath()
@@ -63,7 +63,7 @@ export function GridOverlay({ canvas, mapState }: GridOverlayProps) {
     ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)'
     ctx.lineWidth = 2
 
-    const originPixel = worldToPixel(0, 0, imageWidth, imageHeight)
+    const originPixel = worldToPixel(0, 0, imageWidth, imageHeight, mapState.originOffset)
     const originCanvas = imageToCanvas(originPixel.x, originPixel.y, mapState.scale, mapState.offsetX, mapState.offsetY)
 
     ctx.beginPath()
@@ -78,7 +78,7 @@ export function GridOverlay({ canvas, mapState }: GridOverlayProps) {
 
   }, [canvas, mapState])
 
-  if (!canvas || !mapState.image) return null
+  if (!canvas || !mapState.image || !mapState.originSelected) return null
 
   return (
     <canvas
