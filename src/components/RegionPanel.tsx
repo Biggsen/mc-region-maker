@@ -25,6 +25,7 @@ export function RegionPanel() {
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
   const [showYAML, setShowYAML] = useState(false)
+  const [showAllRegions, setShowAllRegions] = useState(false)
 
   // Generate a random name when the form is shown
   useEffect(() => {
@@ -69,7 +70,7 @@ export function RegionPanel() {
     <div className="w-full">
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">Regions</h2>
+          <h2 className="text-xl font-bold text-white">Regions ({regionsList.length})</h2>
           <div className="flex space-x-2">
             <button
               onClick={toggleHighlightAll}
@@ -165,7 +166,7 @@ export function RegionPanel() {
       )}
 
       <div className="space-y-2 mb-6">
-        {regionsList.map(region => (
+        {(showAllRegions ? [...regionsList].reverse() : regionsList.slice(-10).reverse()).map(region => (
           <div
             key={region.id}
             className={`p-3 rounded cursor-pointer border ${
@@ -189,6 +190,15 @@ export function RegionPanel() {
             </div>
           </div>
         ))}
+        
+        {regionsList.length > 10 && (
+          <button
+            onClick={() => setShowAllRegions(!showAllRegions)}
+            className="w-full text-blue-400 hover:text-blue-300 text-sm py-2 border border-blue-400 hover:border-blue-300 rounded"
+          >
+            {showAllRegions ? 'Show Less' : `Show All (${regionsList.length - 10} more)`}
+          </button>
+        )}
       </div>
 
       {selectedRegion && (

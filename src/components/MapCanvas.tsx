@@ -140,8 +140,8 @@ export function MapCanvas() {
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
         const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image!.width, mapState.image!.height, mapState.originOffset)
         
-        // Check if clicking near any previous point (within 10 pixels tolerance)
-        const tolerance = 10 / mapState.scale // Convert to world coordinates
+        // Check if clicking near any previous point (within 20 pixels tolerance)
+        const tolerance = 20 / mapState.scale // Convert to world coordinates
         const isNearPreviousPoint = drawingRegion.points.some(point => {
           const distance = Math.sqrt(
             Math.pow(point.x - worldPos.x, 2) + Math.pow(point.z - worldPos.z, 2)
