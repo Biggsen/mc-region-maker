@@ -61,18 +61,26 @@ export function ExportImportPanel() {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-      <h3 className="text-lg font-semibold mb-3 text-gray-800">Export & Import</h3>
+      <h3 className="text-lg font-semibold mb-3 text-gray-800">Export & Import Map Data</h3>
       
-      <div className="space-y-3">
-        <button
-          onClick={handleExport}
-          disabled={regions.regions.length === 0}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-        >
-          Export Map Data ({regions.regions.length} regions)
-        </button>
+      <div className="space-y-2">
+        <div className="flex space-x-2">
+          <button
+            onClick={handleExport}
+            disabled={regions.regions.length === 0}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          >
+            Export
+          </button>
 
-        <div className="relative">
+          <button
+            onClick={triggerFileInput}
+            disabled={isImporting}
+            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          >
+            {isImporting ? 'Importing...' : 'Import'}
+          </button>
+          
           <input
             ref={fileInputRef}
             type="file"
@@ -80,13 +88,6 @@ export function ExportImportPanel() {
             onChange={handleImport}
             className="hidden"
           />
-          <button
-            onClick={triggerFileInput}
-            disabled={isImporting}
-            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-          >
-            {isImporting ? 'Importing...' : 'Import Map Data'}
-          </button>
         </div>
 
         {importError && (
@@ -94,11 +95,6 @@ export function ExportImportPanel() {
             {importError}
           </div>
         )}
-
-        <div className="text-xs text-gray-600 mt-2">
-          <p>Export saves your regions and map view to a JSON file.</p>
-          <p>Import loads regions and map view from a previously exported file.</p>
-        </div>
       </div>
     </div>
   )

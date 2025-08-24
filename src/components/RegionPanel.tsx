@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { copyToClipboard } from '../utils/polygonUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
+import { generateMedievalName } from '../utils/nameGenerator'
 
 export function RegionPanel() {
   const { regions } = useAppContext()
@@ -23,6 +24,18 @@ export function RegionPanel() {
 
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
+  const [showYAML, setShowYAML] = useState(false)
+
+  // Generate a random name when the form is shown
+  useEffect(() => {
+    if (showNewRegionForm && !newRegionName) {
+      setNewRegionName(generateMedievalName())
+    }
+  }, [showNewRegionForm, newRegionName])
+
+  const handleGenerateNewName = () => {
+    setNewRegionName(generateMedievalName())
+  }
 
   const handleStartDrawing = () => {
     if (newRegionName.trim()) {
@@ -88,14 +101,23 @@ export function RegionPanel() {
           </button>
         ) : (
           <div className="space-y-2">
-            <input
-              type="text"
-              value={newRegionName}
-              onChange={(e) => setNewRegionName(e.target.value)}
-              placeholder="Region name"
-              className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-              onKeyPress={(e) => e.key === 'Enter' && handleStartDrawing()}
-            />
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={newRegionName}
+                onChange={(e) => setNewRegionName(e.target.value)}
+                placeholder="Region name"
+                className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                onKeyPress={(e) => e.key === 'Enter' && handleStartDrawing()}
+              />
+              <button
+                onClick={handleGenerateNewName}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded border border-purple-500 focus:outline-none"
+                title="Generate random medieval name"
+              >
+                🎲
+              </button>
+            </div>
             <div className="flex space-x-2">
               <button
                 onClick={handleStartDrawing}
@@ -165,9 +187,6 @@ export function RegionPanel() {
                 ×
               </button>
             </div>
-            <p className="text-gray-400 text-xs mt-1">
-              {region.points.length} points
-            </p>
           </div>
         ))}
       </div>
@@ -182,6 +201,9 @@ export function RegionPanel() {
               onChange={(e) => updateRegion(selectedRegion.id, { name: e.target.value })}
               className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
             />
+            <p className="text-gray-400 text-xs mt-1">
+              {selectedRegion.points.length} points
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
@@ -228,10 +250,18 @@ export function RegionPanel() {
           <div>
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-lg font-semibold text-white">YAML Output</h3>
+              <button
+                onClick={() => setShowYAML(!showYAML)}
+                className="text-blue-400 hover:text-blue-300 text-sm"
+              >
+                {showYAML ? 'Hide' : 'Show'}
+              </button>
             </div>
-            <pre className="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
-              {getRegionYAML(selectedRegion.id)}
-            </pre>
+            {showYAML && (
+              <pre className="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
+                {getRegionYAML(selectedRegion.id)}
+              </pre>
+            )}
           </div>
         </div>
       )}
