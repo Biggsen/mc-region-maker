@@ -7,6 +7,8 @@ export function generateRegionYAML(region: Region): string {
   type: poly2d
   min-y: ${region.minY}
   max-y: ${region.maxY}
+  priority: 0
+  flags: {greeting: Welcome to ${region.name}!, farewell: Leaving ${region.name}.}
   points:
 ${points}`
 }
