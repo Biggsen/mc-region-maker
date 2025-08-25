@@ -3,6 +3,7 @@ import { AppProvider } from './context/AppContext'
 import { MapCanvas } from './components/MapCanvas'
 import { RegionPanel } from './components/RegionPanel'
 import { ExportImportPanel } from './components/ExportImportPanel'
+import { VillageImportPanel } from './components/VillageImportPanel'
 import { LoadingOverlay } from './components/LoadingOverlay'
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <MapCanvas />
         <div className="w-80 bg-gray-800 p-4 overflow-y-auto">
           <ExportImportPanel />
+          <VillageImportPanel />
           <RegionPanel />
         </div>
         {isLoading && <LoadingOverlay />}

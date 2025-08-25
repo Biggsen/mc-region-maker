@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { MapState, Region, EditMode, HighlightMode } from '../types'
+import { MapState, Region, EditMode, HighlightMode, Subregion } from '../types'
 import { worldToPixel, imageToCanvas, canvasToImage, pixelToWorld } from '../utils/coordinateUtils'
 
 interface RegionOverlayProps {
@@ -46,7 +46,18 @@ export function RegionOverlay({
     // Clear overlay
     ctx.clearRect(0, 0, overlay.width, overlay.height)
 
-    // Draw all regions
+    // Draw villages first (so they appear behind region labels)
+    if (highlightMode.showVillages) {
+      regions.forEach(region => {
+        if (region.subregions) {
+          region.subregions.forEach(subregion => {
+            drawVillage(ctx, subregion, mapState, region.id === selectedRegionId)
+          })
+        }
+      })
+    }
+
+    // Draw all regions (with labels on top)
     regions.forEach(region => {
       const isSelected = region.id === selectedRegionId
       const isEditing = editMode.isEditing && editMode.editingRegionId === region.id
@@ -186,6 +197,46 @@ export function RegionOverlay({
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.fillText(region.name, centerX, centerY)
+    }
+  }
+
+  const drawVillage = (
+    ctx: CanvasRenderingContext2D,
+    subregion: Subregion,
+    mapState: MapState,
+    isParentSelected: boolean = false
+  ) => {
+    // Convert village world coordinates to canvas coordinates
+    const pixelPos = worldToPixel(subregion.x, subregion.z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+    const canvasPos = imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+    
+    // Draw village center point
+    ctx.fillStyle = isParentSelected 
+      ? 'rgba(255, 255, 255, 1)' // White center
+      : 'rgba(255, 255, 255, 0.8)' // White center
+    
+    ctx.strokeStyle = isParentSelected 
+      ? 'rgba(0, 0, 0, 1)' // Black border
+      : 'rgba(0, 0, 0, 0.8)' // Black border
+    
+    ctx.lineWidth = 2
+    
+    // Draw village marker (small circle)
+    ctx.beginPath()
+    ctx.arc(canvasPos.x, canvasPos.y, 6, 0, 2 * Math.PI)
+    ctx.fill()
+    ctx.stroke()
+    
+    // Draw village name
+    if (isParentSelected) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+      ctx.fillRect(canvasPos.x - 40, canvasPos.y - 25, 80, 20)
+      
+      ctx.fillStyle = 'white'
+      ctx.font = '10px Arial'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(subregion.name, canvasPos.x, canvasPos.y - 15)
     }
   }
 

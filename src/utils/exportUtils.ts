@@ -1,4 +1,5 @@
 import { Region, MapState } from '../types'
+import { generateRegionYAML } from './polygonUtils'
 
 export interface ExportData {
   version: string
@@ -47,19 +48,12 @@ export function exportRegionsYAML(regions: Region[]): void {
 
   let yamlContent = 'regions:\n'
   
-  regions.forEach(region => {
-    const points = region.points.map(point => 
-      `    - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`
-    ).join('\n')
-    
-    yamlContent += `  ${region.name}:\n`
-    yamlContent += `    type: poly2d\n`
-    yamlContent += `    min-y: ${region.minY}\n`
-    yamlContent += `    max-y: ${region.maxY}\n`
-    yamlContent += `    priority: 0\n`
-    yamlContent += `    flags: {greeting: Welcome to ${region.name}!, farewell: Leaving ${region.name}.}\n`
-    yamlContent += `    points:\n`
-    yamlContent += `${points}\n`
+  regions.forEach((region, index) => {
+    yamlContent += generateRegionYAML(region)
+    // Add a blank line between regions (except after the last one)
+    if (index < regions.length - 1) {
+      yamlContent += '\n'
+    }
   })
 
   const dataBlob = new Blob([yamlContent], { type: 'text/yaml' })

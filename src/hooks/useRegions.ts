@@ -1,7 +1,9 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Region, EditMode, HighlightMode } from '../types'
+import { Region, EditMode, HighlightMode, Subregion } from '../types'
 import { generateId, generateRegionYAML } from '../utils/polygonUtils'
 import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
+import { parseVillageCSV, createVillageSubregion, findParentRegion } from '../utils/villageUtils'
+import { generateVillageName } from '../utils/nameGenerator'
 
 export function useRegions() {
   const [regions, setRegions] = useState<Region[]>([])
@@ -14,7 +16,8 @@ export function useRegions() {
     draggingPointIndex: null
   })
   const [highlightMode, setHighlightMode] = useState<HighlightMode>({
-    highlightAll: false
+    highlightAll: false,
+    showVillages: true
   })
 
   // Load saved data on mount
@@ -189,7 +192,73 @@ export function useRegions() {
   }, [])
 
   const toggleHighlightAll = useCallback(() => {
-    setHighlightMode(prev => ({ highlightAll: !prev.highlightAll }))
+    setHighlightMode(prev => ({ ...prev, highlightAll: !prev.highlightAll }))
+  }, [])
+
+  const toggleShowVillages = useCallback(() => {
+    setHighlightMode(prev => ({ ...prev, showVillages: !prev.showVillages }))
+  }, [])
+
+  const importVillagesFromCSV = useCallback((csvContent: string) => {
+    try {
+      const villages = parseVillageCSV(csvContent)
+      const results = {
+        added: 0,
+        skipped: 0,
+        orphaned: 0
+      }
+      
+      villages.forEach((village, index) => {
+        const parentRegion = findParentRegion(village, regions)
+        
+        if (parentRegion) {
+          const subregion = createVillageSubregion(village, index, parentRegion.id)
+          
+          setRegions(prev => prev.map(region => 
+            region.id === parentRegion.id 
+              ? { 
+                  ...region, 
+                  subregions: [...(region.subregions || []), subregion] 
+                }
+              : region
+          ))
+          results.added++
+        } else {
+          results.orphaned++
+        }
+      })
+      
+      return results
+    } catch (error) {
+      console.error('Failed to import villages:', error)
+      throw new Error('Failed to parse village CSV data')
+    }
+  }, [regions])
+
+  const removeSubregionFromRegion = useCallback((regionId: string, subregionId: string) => {
+    setRegions(prev => prev.map(region => 
+      region.id === regionId 
+        ? { 
+            ...region, 
+            subregions: (region.subregions || []).filter(sub => sub.id !== subregionId) 
+          }
+        : region
+    ))
+  }, [])
+
+  const regenerateVillageNames = useCallback(() => {
+    setRegions(prev => prev.map(region => {
+      if (region.subregions && region.subregions.length > 0) {
+        return {
+          ...region,
+          subregions: region.subregions.map(subregion => ({
+            ...subregion,
+            name: generateVillageName()
+          }))
+        }
+      }
+      return region
+    }))
   }, [])
 
   return {
@@ -215,6 +284,10 @@ export function useRegions() {
     updatePointPosition,
     addPointToRegion,
     removePointFromRegion,
-    toggleHighlightAll
+    toggleHighlightAll,
+    toggleShowVillages,
+    importVillagesFromCSV,
+    removeSubregionFromRegion,
+    regenerateVillageNames
   }
 }

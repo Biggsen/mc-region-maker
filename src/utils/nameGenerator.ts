@@ -37,6 +37,116 @@ const complexSyllables = [
   'thu', 'fro', 'bur', 'eme', 'sap', 'rub', 'dia', 'iro', 'ste', 'bro', 'obs', 'gra', 'mar', 'jad', 'ara', 'val', 'nor', 'eas', 'wes', 'sou'
 ]
 
+// Medieval village name generator - Clean historical place names
+const namePrefixes = [
+  'Ram', 'Nar', 'Aln', 'Ilf', 'Tim', 'Aber', 'Auch', 'Wolf', 'Wind', 'Kel',
+  'Leur', 'Bor', 'Por', 'Aqu', 'Brad', 'Gray', 'Rother', 'Abing', 'Wave',
+  'North', 'South', 'East', 'West', 'Little', 'Great', 'Old', 'New', 'High',
+  'Low', 'Upper', 'Lower', 'Middle', 'Far', 'Near', 'Long', 'Short', 'Broad',
+  'Narrow', 'Deep', 'Shallow', 'Wide', 'Tiny', 'Big', 'Small', 'Black', 'White',
+  'Red', 'Green', 'Blue', 'Golden', 'Silver', 'Iron', 'Stone', 'Wood', 'Water',
+  'Ash', 'Oak', 'Elm', 'Beech', 'Pine', 'Cedar', 'Maple', 'Birch', 'Willow', 'Hazel',
+  'Thorn', 'Bramble', 'Heather', 'Fern', 'Moss', 'Ivy', 'Rose', 'Lily', 'Daisy', 'Violet',
+  'Fox', 'Hare', 'Deer', 'Stag', 'Hawk', 'Eagle', 'Raven', 'Crow', 'Swan', 'Duck',
+  'Badger', 'Otter', 'Weasel', 'Mole', 'Hedgehog', 'Squirrel', 'Mouse', 'Rat', 'Cat', 'Dog',
+  'Cold', 'Warm', 'Bright', 'Dark', 'Clear', 'Misty', 'Foggy', 'Stormy', 'Calm', 'Wild',
+  'Swift', 'Slow', 'Quick', 'Steady', 'Gentle', 'Rough', 'Smooth', 'Sharp', 'Blunt', 'Soft',
+  'Fair', 'Foul', 'Sweet', 'Sour', 'Fresh', 'Stale', 'Clean', 'Dirty', 'Rich', 'Poor',
+  'Happy', 'Sad', 'Merry', 'Gloomy', 'Cheerful', 'Somber', 'Lively', 'Quiet', 'Busy', 'Still',
+  'Bla', 'Whi', 'Re', 'Gre', 'Blu', 'Gol', 'Sil', 'Iro', 'Sto', 'Woo', 'Wat',
+  'As', 'Oa', 'El', 'Be', 'Pi', 'Ce', 'Ma', 'Bi', 'Wi', 'Ha',
+  'Tho', 'Bra', 'Hea', 'Fe', 'Mo', 'Iv', 'Ro', 'Li', 'Da', 'Vi',
+  'Fo', 'Ha', 'De', 'Sta', 'Haw', 'Eag', 'Rav', 'Cro', 'Swa', 'Du',
+  'Bad', 'Ott', 'Wea', 'Mol', 'Hed', 'Squ', 'Mou', 'Ra', 'Ca', 'Do'
+]
+
+const nameRoots = [
+  'horn', 'wick', 'mouth', 'combe', 'ford', 'ston', 'uthven', 'vercraig',
+  'dinny', 'pine', 'rip', 'd', 'bost', 'oughton', 'folk', 'thaethwy', 'arine',
+  'ford', 'cott', 'hithe', 'don', 'meet', 'brook', 'bruk', 'dale', 'bridge', 'mill',
+  'church', 'cross', 'stone', 'wood', 'field', 'meadow', 'hill', 'moor',
+  'marsh', 'fen', 'heath', 'ridge', 'valley', 'spring', 'well', 'pond',
+  'lake', 'river', 'stream', 'creek', 'bay', 'harbor', 'port', 'town',
+  'village', 'hamlet', 'stead', 'wick', 'by', 'thorpe', 'ton', 'ham', 'ley',
+  'den', 'hurst', 'combe', 'bury', 'castle', 'tower', 'keep', 'hall', 'manor',
+  'grange', 'farm', 'cottage', 'house', 'inn', 'tavern', 'market', 'fair',
+  'gate', 'wall', 'bank', 'side', 'end', 'head', 'foot', 'top', 'bottom',
+  'cliff', 'peak', 'summit', 'crest', 'slope', 'bank', 'shore', 'shor', 'beach', 'coast', 'island',
+  'peninsula', 'cape', 'point', 'spit', 'bar', 'reef', 'shoal', 'sand', 'gravel', 'clay',
+  'chalk', 'flint', 'granite', 'marble', 'slate', 'limestone', 'sandstone', 'basalt', 'obsidian', 'quartz',
+  'copper', 'tin', 'lead', 'zinc', 'nickel', 'cobalt', 'manganese', 'chromium', 'tungsten', 'molybdenum',
+  'amber', 'jade', 'opal', 'agate', 'onyx', 'jasper', 'carnelian', 'chalcedony', 'malachite', 'azurite',
+  'thistle', 'nettle', 'dock', 'plantain', 'dandelion', 'clover', 'vetch', 'trefoil', 'sorrel', 'chickweed',
+  'bracken', 'reed', 'rush', 'sedge', 'grass', 'wheat', 'barley', 'oats', 'rye', 'corn',
+  'apple', 'pear', 'plum', 'cherry', 'berry', 'nut', 'acorn', 'chestnut', 'walnut', 'hazelnut',
+  'yerd', 'cort', 'lene', 'shor', 'bruk', 'fild', 'meed', 'hil', 'mor', 'marsh',
+  'fen', 'heth', 'ridg', 'valy', 'sprng', 'wel', 'pond', 'lak', 'rivr', 'strem',
+  'crik', 'bay', 'harb', 'prt', 'twn', 'vill', 'hamlt', 'sted', 'wik', 'bi', 'thorp', 'ton', 'ham', 'ley',
+  'den', 'hurst', 'comb', 'buri', 'castl', 'towr', 'kep', 'hal', 'manr', 'grang', 'frm', 'cottg', 'hous', 'in', 'taver', 'markt', 'fayr', 'gat', 'wal', 'ban', 'sid', 'end', 'hed', 'fut', 'top', 'botm'
+]
+
+const nameSuffixes = [
+  'by', 'ton', 'ham', 'wick', 'ford', 'bridge', 'mill', 'church', 'cross',
+  'stone', 'wood', 'field', 'meadow', 'hill', 'moor', 'marsh', 'fen', 'heath',
+  'ridge', 'valley', 'spring', 'well', 'pond', 'lake', 'river', 'stream',
+  'creek', 'bay', 'harbor', 'port', 'town', 'village', 'hamlet', 'stead',
+  'thorpe', 'ley', 'den', 'hurst', 'combe', 'bury', 'castle', 'tower', 'keep',
+  'hall', 'manor', 'grange', 'farm', 'cottage', 'house', 'inn', 'tavern',
+  'market', 'fair', 'gate', 'wall', 'bank', 'side', 'end', 'head', 'foot',
+  'top', 'bottom', 'mouth', 'combe', 'ford', 'wick', 'by', 'ton', 'ham',
+  'land', 'shire', 'mere', 'water', 'pool', 'beck', 'burn', 'gill', 'hope', 'law',
+  'crag', 'scar', 'edge', 'side', 'way', 'path', 'road', 'street', 'lane', 'lene', 'alley',
+  'yard', 'yerd', 'close', 'court', 'cort', 'square', 'place', 'row', 'terrace', 'avenue', 'drive', 'crescent',
+  'park', 'garden', 'orchard', 'grove', 'copse', 'spinney', 'thicket', 'brake', 'shaw', 'holt',
+  'fold', 'stall', 'barn', 'shed', 'store', 'warehouse', 'shop', 'market', 'fair', 'mart',
+  'forge', 'furnace', 'kiln', 'oven', 'hearth', 'fire', 'flame', 'ember', 'spark', 'glow',
+  'fild', 'meed', 'hil', 'mor', 'marsh', 'fen', 'heth', 'ridg', 'valy', 'sprng', 'wel', 'pond', 'lak', 'rivr', 'strem',
+  'crik', 'bay', 'harb', 'prt', 'twn', 'vill', 'hamlt', 'sted', 'wik', 'bi', 'thorp', 'ton', 'ham', 'ley',
+  'den', 'hurst', 'comb', 'buri', 'castl', 'towr', 'kep', 'hal', 'manr', 'grang', 'frm', 'cottg', 'hous', 'in', 'taver', 'markt', 'fayr', 'gat', 'wal', 'ban', 'sid', 'end', 'hed', 'fut', 'top', 'botm'
+]
+
+const authenticVillageNames = [
+  'Carniga', 'Flauch', 'Weimich', 'Sloat', 'Maceria', 'Bracken', 'Thornby',
+  'Marshwood', 'Stonebridge', 'Windermere', 'Blackwater', 'Whitehaven',
+  'Redcliffe', 'Greenfield', 'Bluebell', 'Goldenbrook', 'Silverdale',
+  'Ironforge', 'Woodhaven', 'Waterford', 'Northwich', 'Southport',
+  'Eastbourne', 'Westminster', 'Littlehampton', 'Great Yarmouth',
+  'Oldham', 'Newcastle', 'Highbury', 'Lowestoft', 'Upper Heyford',
+  'Lower Hutt', 'Middlewich', 'Farnham', 'Nearby', 'Longford',
+  'Shortwood', 'Broadstairs', 'Narrowgate', 'Deepdale', 'Shallowford',
+  'Widecombe', 'Tinybrook', 'Bigbury', 'Smallbridge', 'Ramshorn',
+  'Alnwick', 'Ilfracombe', 'Wolford', 'Timeston', 'Aberuthven',
+  'Travercraig', 'Auchendinny', 'Wolfpine', 'Windrip', 'Keld',
+  'Leurbost', 'Boroughton', 'Narfolk', 'Porthaethwy', 'Aquarine',
+  'Bradford', 'Graycott', 'Rotherhithe', 'Abingdon', 'Wavemeet',
+  'Ashford', 'Oakdale', 'Elmwood', 'Beecham', 'Pinehurst', 'Cedarbrook', 'Mapleton', 'Birchfield', 'Willowby', 'Hazelton',
+  'Thornhill', 'Brambleford', 'Heatherfield', 'Fernbrook', 'Mossley', 'Ivybridge', 'Rosewood', 'Lilydale', 'Daisyfield', 'Violetbank',
+  'Foxcroft', 'Harefield', 'Deerbrook', 'Stagford', 'Hawksworth', 'Eaglebrook', 'Ravencliff', 'Crowborough', 'Swansea', 'Duckmarsh',
+  'Badgerford', 'Otterburn', 'Weaselton', 'Molehill', 'Hedgeford', 'Squirrelton', 'Mousehole', 'Rathole', 'Catford', 'Dogwood',
+  'Coldbrook', 'Warmley', 'Brighton', 'Darkwater', 'Clearwell', 'Mistley', 'Foggybottom', 'Stormbridge', 'Calmwater', 'Wildwood',
+  'Swiftford', 'Slowbrook', 'Quickley', 'Steadyford', 'Gentlebrook', 'Roughwater', 'Smoothley', 'Sharphill', 'Bluntford', 'Softwater',
+  'Fairfield', 'Foulbridge', 'Sweetwater', 'Sourbrook', 'Freshford', 'Stalebridge', 'Cleanwater', 'Dirtybrook', 'Richford', 'Poorwater',
+  'Happybrook', 'Sadford', 'Merrywater', 'Gloomybrook', 'Cheerford', 'Somberwater', 'Livelybrook', 'Quietford', 'Busywater', 'Stillbrook',
+  'Amberford', 'Jadebrook', 'Opalwater', 'Agateford', 'Onyxbrook', 'Jasperwater', 'Carnelianford', 'Chalcedonybrook', 'Malachitewater', 'Azuriteford',
+  'Thistlebrook', 'Nettleford', 'Dockwater', 'Plantainbrook', 'Dandelionford', 'Cloverwater', 'Vetchbrook', 'Trefoilford', 'Sorrelwater', 'Chickweedbrook',
+  'Brackenford', 'Reedwater', 'Rushbrook', 'Sedgeford', 'Grasswater', 'Wheatbrook', 'Barleyford', 'Oatswater', 'Ryebrook', 'Cornford',
+  'Applebrook', 'Pearford', 'Plumwater', 'Cherrybrook', 'Berryford', 'Nutwater', 'Acornbrook', 'Chestnutford', 'Walnutwater', 'Hazelnutbrook'
+]
+
+const quirkyElements = [
+  'Whispering', 'Laughing', 'Sleeping', 'Dancing', 'Singing', 'Weeping',
+  'Hidden', 'Forgotten', 'Ancient', 'Mysterious', 'Enchanted', 'Blessed',
+  'Cursed', 'Golden', 'Silver', 'Iron', 'Copper', 'Bronze', 'Crystal',
+  'Emerald', 'Ruby', 'Sapphire', 'Amber', 'Jade', 'Pearl', 'Diamond'
+]
+
+const animalElements = [
+  'Fox', 'Wolf', 'Bear', 'Deer', 'Hare', 'Rabbit', 'Owl', 'Eagle', 'Hawk',
+  'Crow', 'Raven', 'Swan', 'Duck', 'Goose', 'Horse', 'Cow', 'Sheep', 'Pig',
+  'Cat', 'Dog', 'Mouse', 'Rat', 'Snake', 'Fish', 'Frog', 'Toad', 'Bee',
+  'Butterfly', 'Dragon', 'Phoenix', 'Griffin', 'Unicorn'
+]
+
 export function generateMedievalName(): string {
   const random = Math.random()
   
@@ -66,5 +176,26 @@ export function generateMedievalName(): string {
     const theme1 = themes[Math.floor(Math.random() * themes.length)]
     const theme2 = themes[Math.floor(Math.random() * themes.length)]
     return `${theme1} of ${theme2}`
+  }
+}
+
+export function generateVillageName(): string {
+  const random = Math.random()
+  
+  if (random < 0.4) {
+    // Use authentic village names (already capitalized)
+    return authenticVillageNames[Math.floor(Math.random() * authenticVillageNames.length)]
+  } else if (random < 0.7) {
+    // Combine prefix + root (clean, no internal caps)
+    const prefix = namePrefixes[Math.floor(Math.random() * namePrefixes.length)]
+    const root = nameRoots[Math.floor(Math.random() * nameRoots.length)]
+    const combinedName = `${prefix}${root}`
+    return combinedName.charAt(0).toUpperCase() + combinedName.slice(1)
+  } else {
+    // Combine root + suffix (clean, no internal caps)
+    const root = nameRoots[Math.floor(Math.random() * nameRoots.length)]
+    const suffix = nameSuffixes[Math.floor(Math.random() * nameSuffixes.length)]
+    const combinedName = `${root}${suffix}`
+    return combinedName.charAt(0).toUpperCase() + combinedName.slice(1)
   }
 }

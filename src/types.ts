@@ -4,6 +4,20 @@ export type Region = {
   points: { x: number; z: number }[]
   minY: number
   maxY: number
+  subregions?: Subregion[]
+}
+
+export type Subregion = {
+  id: string
+  name: string
+  x: number
+  z: number
+  radius: number
+  type: 'village' | 'structure'
+  details?: string
+  minY: number
+  maxY: number
+  parentRegionId?: string
 }
 
 export type WorldCoordinate = {
@@ -35,4 +49,5 @@ export type EditMode = {
 
 export type HighlightMode = {
   highlightAll: boolean
+  showVillages: boolean
 }

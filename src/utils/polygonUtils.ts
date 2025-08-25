@@ -1,16 +1,27 @@
 import { Region } from '../types'
+import { generateSubregionYAML } from './villageUtils'
 
 export function generateRegionYAML(region: Region): string {
-  const points = region.points.map(point => `    - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`).join('\n')
+  const points = region.points.map(point => `      - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`).join('\n')
   
-  return `${region.name}:
-  type: poly2d
-  min-y: ${region.minY}
-  max-y: ${region.maxY}
-  priority: 0
-  flags: {greeting: Welcome to ${region.name}!, farewell: Leaving ${region.name}.}
-  points:
+  let yaml = `  ${region.name}:
+    type: poly2d
+    min-y: ${region.minY}
+    max-y: ${region.maxY}
+    priority: 0
+    flags: {greeting: Welcome to ${region.name}!, farewell: Leaving ${region.name}., passthrough: allow}
+    points:
 ${points}`
+
+  // Add subregions if they exist
+  if (region.subregions && region.subregions.length > 0) {
+    yaml += '\n\n'
+    yaml += region.subregions.map(subregion => 
+      generateSubregionYAML(subregion, region.name)
+    ).join('\n\n')
+  }
+  
+  return yaml
 }
 
 export function copyToClipboard(text: string): Promise<void> {

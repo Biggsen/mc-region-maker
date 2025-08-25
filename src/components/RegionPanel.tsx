@@ -19,7 +19,9 @@ export function RegionPanel() {
     getRegionYAML,
     startEditMode,
     stopEditMode,
-    toggleHighlightAll
+    toggleHighlightAll,
+    toggleShowVillages,
+    removeSubregionFromRegion
   } = regions
 
   const [newRegionName, setNewRegionName] = useState('')
@@ -82,6 +84,17 @@ export function RegionPanel() {
               title="Highlight all regions"
             >
               {highlightMode.highlightAll ? 'Hide' : 'Highlight'} All
+            </button>
+            <button
+              onClick={toggleShowVillages}
+              className={`text-sm px-2 py-1 rounded border ${
+                highlightMode.showVillages
+                  ? 'bg-orange-600 text-white border-orange-500'
+                  : 'text-orange-400 hover:text-orange-300 border-orange-400 hover:border-orange-300'
+              }`}
+              title="Show/hide villages on map"
+            >
+              {highlightMode.showVillages ? 'Hide' : 'Show'} Villages
             </button>
             <button
               onClick={handleClearData}
@@ -273,6 +286,30 @@ export function RegionPanel() {
               </pre>
             )}
           </div>
+
+          {selectedRegion.subregions && selectedRegion.subregions.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium mb-2">Villages ({selectedRegion.subregions.length})</h4>
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {selectedRegion.subregions.map(subregion => (
+                  <div key={subregion.id} className="bg-gray-600 rounded p-2 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span>{subregion.name}</span>
+                      <button
+                        onClick={() => removeSubregionFromRegion(selectedRegion.id, subregion.id)}
+                        className="text-red-400 hover:text-red-300 text-xs"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <div className="text-gray-400 text-xs">
+                      ({subregion.x}, {subregion.z}) - {subregion.details}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
