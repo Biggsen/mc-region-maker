@@ -1,20 +1,47 @@
 import { Region } from '../types'
 import { generateSubregionYAML } from './villageUtils'
 
-export function generateRegionYAML(region: Region): string {
+// Mob list for random spawn generation
+const MOB_LIST = [
+  'ZOMBIE', 'ZOMBIE_VILLAGER', 'HUSK', 'DROWNED', 'SKELETON', 'STRAY', 'BOGGED', 
+  'CREEPER', 'SPIDER', 'CAVE_SPIDER', 'ENDERMAN', 'WITCH', 'SLIME', 'PHANTOM', 
+  'SILVERFISH', 'PILLAGER', 'VINDICATOR', 'EVOKER', 'VEX', 'RAVAGER', 'ILLUSIONER', 
+  'GUARDIAN', 'ELDER_GUARDIAN', 'DOLPHIN', 'SQUID', 'GLOW_SQUID', 'COD', 'SALMON', 
+  'TROPICAL_FISH', 'PUFFERFISH', 'AXOLOTL', 'TURTLE', 'VILLAGER', 'WANDERING_TRADER', 
+  'IRON_GOLEM', 'SNOW_GOLEM', 'ALLAY', 'SHEEP', 'COW', 'MUSHROOM_COW', 'PIG', 
+  'CHICKEN', 'RABBIT', 'HORSE', 'DONKEY', 'MULE', 'LLAMA', 'TRADER_LLAMA', 'CAMEL', 
+  'CAT', 'OCELOT', 'WOLF', 'FOX', 'PANDA', 'POLAR_BEAR', 'GOAT', 'SNIFFER', 
+  'ARMADILLO', 'PARROT', 'BAT', 'BEE', 'FROG', 'TADPOLE'
+]
+
+// Generate a random list of mobs for deny-spawn
+function generateRandomMobList(): string[] {
+  const count = Math.floor(Math.random() * 8) + 1 // 1 to 8 mobs
+  const shuffled = [...MOB_LIST].sort(() => 0.5 - Math.random())
+  return shuffled.slice(0, count)
+}
+
+export function generateRegionYAML(region: Region, includeVillages: boolean = true, randomMobSpawn: boolean = false): string {
   const points = region.points.map(point => `      - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`).join('\n')
   
+  // Generate deny-spawn flag if randomMobSpawn is enabled
+  let flags = `{greeting-title: Welcome to ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow}`
+  if (randomMobSpawn) {
+    const randomMobs = generateRandomMobList()
+    flags = `{greeting-title: Welcome to ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow, deny-spawn: [${randomMobs.join(',')}]}`
+  }
+
   let yaml = `  ${region.name}:
     type: poly2d
     min-y: ${region.minY}
     max-y: ${region.maxY}
     priority: 0
-    flags: {greeting: Welcome to ${region.name}!, farewell: Leaving ${region.name}., passthrough: allow}
+    flags: ${flags}
     points:
 ${points}`
 
-  // Add subregions if they exist
-  if (region.subregions && region.subregions.length > 0) {
+  // Add subregions if they exist and includeVillages is true
+  if (includeVillages && region.subregions && region.subregions.length > 0) {
     yaml += '\n\n'
     yaml += region.subregions.map(subregion => 
       generateSubregionYAML(subregion, region.name)

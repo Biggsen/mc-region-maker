@@ -111,9 +111,9 @@ export function useRegions() {
     return regions.find(region => region.id === selectedRegionId) || null
   }, [regions, selectedRegionId])
 
-  const getRegionYAML = useCallback((regionId: string) => {
+  const getRegionYAML = useCallback((regionId: string, includeVillages: boolean = true) => {
     const region = regions.find(r => r.id === regionId)
-    return region ? generateRegionYAML(region) : ''
+    return region ? generateRegionYAML(region, includeVillages) : ''
   }, [regions])
 
   const replaceRegions = useCallback((newRegions: Region[]) => {

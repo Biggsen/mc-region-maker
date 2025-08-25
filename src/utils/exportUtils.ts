@@ -40,7 +40,7 @@ export function exportMapData(regions: Region[], mapState: MapState): void {
 }
 
 // Export all regions to YAML file in WorldGuard format
-export function exportRegionsYAML(regions: Region[]): void {
+export function exportRegionsYAML(regions: Region[], includeVillages: boolean = true, randomMobSpawn: boolean = false): void {
   if (regions.length === 0) {
     alert('No regions to export')
     return
@@ -49,7 +49,7 @@ export function exportRegionsYAML(regions: Region[]): void {
   let yamlContent = 'regions:\n'
   
   regions.forEach((region, index) => {
-    yamlContent += generateRegionYAML(region)
+    yamlContent += generateRegionYAML(region, includeVillages, randomMobSpawn)
     // Add a blank line between regions (except after the last one)
     if (index < regions.length - 1) {
       yamlContent += '\n'

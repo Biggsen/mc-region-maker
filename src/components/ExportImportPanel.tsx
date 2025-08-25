@@ -1,19 +1,25 @@
 import React, { useRef, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { exportMapData, exportRegionsYAML, importMapData, loadImageFromSrc } from '../utils/exportUtils'
+import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
   const { regions, mapState } = useAppContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
+  const [showExportDialog, setShowExportDialog] = useState(false)
 
   const handleExport = () => {
     exportMapData(regions.regions, mapState.mapState)
   }
 
   const handleExportYAML = () => {
-    exportRegionsYAML(regions.regions)
+    setShowExportDialog(true)
+  }
+
+  const handleExportYAMLWithOptions = (includeVillages: boolean, randomMobSpawn: boolean) => {
+    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn)
   }
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +69,8 @@ export function ExportImportPanel() {
     fileInputRef.current?.click()
   }
 
+  const hasVillages = regions.regions.some(region => region.subregions && region.subregions.length > 0)
+
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-4">
       <h3 className="text-lg font-semibold mb-3 text-gray-800">Export & Import Map Data</h3>
@@ -108,6 +116,13 @@ export function ExportImportPanel() {
           </div>
         )}
       </div>
+
+      <ExportDialog
+        isOpen={showExportDialog}
+        onClose={() => setShowExportDialog(false)}
+        onExport={handleExportYAMLWithOptions}
+        hasVillages={hasVillages}
+      />
     </div>
   )
 }
