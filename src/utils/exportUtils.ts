@@ -38,6 +38,40 @@ export function exportMapData(regions: Region[], mapState: MapState): void {
   URL.revokeObjectURL(link.href)
 }
 
+// Export all regions to YAML file in WorldGuard format
+export function exportRegionsYAML(regions: Region[]): void {
+  if (regions.length === 0) {
+    alert('No regions to export')
+    return
+  }
+
+  let yamlContent = 'regions:\n'
+  
+  regions.forEach(region => {
+    const points = region.points.map(point => 
+      `    - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`
+    ).join('\n')
+    
+    yamlContent += `  ${region.name}:\n`
+    yamlContent += `    type: poly2d\n`
+    yamlContent += `    min-y: ${region.minY}\n`
+    yamlContent += `    max-y: ${region.maxY}\n`
+    yamlContent += `    priority: 0\n`
+    yamlContent += `    flags: {greeting: Welcome to ${region.name}!, farewell: Leaving ${region.name}.}\n`
+    yamlContent += `    points:\n`
+    yamlContent += `${points}\n`
+  })
+
+  const dataBlob = new Blob([yamlContent], { type: 'text/yaml' })
+  
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(dataBlob)
+  link.download = `regions.yml`
+  link.click()
+  
+  URL.revokeObjectURL(link.href)
+}
+
 // Import map data from JSON file
 export function importMapData(file: File): Promise<ExportData> {
   return new Promise((resolve, reject) => {

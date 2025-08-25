@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { exportMapData, importMapData, loadImageFromSrc } from '../utils/exportUtils'
+import { exportMapData, exportRegionsYAML, importMapData, loadImageFromSrc } from '../utils/exportUtils'
 
 export function ExportImportPanel() {
   const { regions, mapState } = useAppContext()
@@ -10,6 +10,10 @@ export function ExportImportPanel() {
 
   const handleExport = () => {
     exportMapData(regions.regions, mapState.mapState)
+  }
+
+  const handleExportYAML = () => {
+    exportRegionsYAML(regions.regions)
   }
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +74,15 @@ export function ExportImportPanel() {
             disabled={regions.regions.length === 0}
             className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
           >
-            Export
+            Export JSON
+          </button>
+
+          <button
+            onClick={handleExportYAML}
+            disabled={regions.regions.length === 0}
+            className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          >
+            Export YAML
           </button>
 
           <button
