@@ -78,7 +78,7 @@ export function generateSubregionYAML(subregion: Subregion, parentRegionName: st
     max-y: ${subregion.maxY}
     priority: 0
     parent: ${parentRegionName}
-    flags: {greeting: Welcome to ${subregion.name} village!, farewell: Leaving ${subregion.name} village., passthrough: allow}
+    flags: {greeting-title: Welcome to ${subregion.name} village, farewell-title: Leaving ${subregion.name} village., passthrough: allow}
     min: {x: ${subregion.x - subregion.radius}, y: ${subregion.minY}, z: ${subregion.z - subregion.radius}}
     max: {x: ${subregion.x + subregion.radius}, y: ${subregion.maxY}, z: ${subregion.z + subregion.radius}}`
 }
