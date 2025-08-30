@@ -78,168 +78,177 @@ export function RegionPanel() {
 
   return (
     <div className="w-full">
-             <div className="mb-6">
-         <h2 className="text-xl font-bold text-white mb-4">Regions ({regionsList.length})</h2>
-         
-                   {hasVillages && (
-            <h3 className="text-lg font-semibold text-white mb-4">Villages ({totalVillages})</h3>
-          )}
-         
-         <div className="flex space-x-2 mb-4">
-          <button
-            onClick={toggleHighlightAll}
-            className={`text-sm px-2 py-1 rounded border ${
-              highlightMode.highlightAll
-                ? 'bg-yellow-600 text-white border-yellow-500'
-                : 'text-yellow-400 hover:text-yellow-300 border-yellow-400 hover:border-yellow-300'
-            }`}
-            title="Highlight all regions"
-          >
-            {highlightMode.highlightAll ? 'Hide' : 'Highlight'} All
-          </button>
-          <button
-            onClick={toggleShowVillages}
-            className={`text-sm px-2 py-1 rounded border ${
-              highlightMode.showVillages
-                ? 'bg-orange-600 text-white border-orange-500'
-                : 'text-orange-400 hover:text-orange-300 border-orange-400 hover:border-orange-300'
-            }`}
-            title="Show/hide villages on map"
-          >
-            {highlightMode.showVillages ? 'Hide' : 'Show'} Villages
-          </button>
-          <button
-            onClick={handleClearData}
-            className="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded border border-red-400 hover:border-red-300"
-            title="Clear all saved data"
-          >
-            Clear Data
-          </button>
-        </div>
-        
-        {/* Search Input */}
-        <div className="mb-4">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search regions..."
-            className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-          />
-        </div>
-        
-        {!showNewRegionForm ? (
-          <button
-            onClick={() => setShowNewRegionForm(true)}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
-          >
-            Create New Region
-          </button>
-        ) : (
-          <div className="space-y-2">
-            <div className="flex space-x-2">
+      {!selectedRegion ? (
+        // Region List View
+        <>
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-white mb-4">Regions ({regionsList.length})</h2>
+            
+            {hasVillages && (
+              <h3 className="text-lg font-semibold text-white mb-4">Villages ({totalVillages})</h3>
+            )}
+            
+            <div className="flex space-x-2 mb-4">
+              <button
+                onClick={toggleHighlightAll}
+                className={`text-sm px-2 py-1 rounded border ${
+                  highlightMode.highlightAll
+                    ? 'bg-yellow-600 text-white border-yellow-500'
+                    : 'text-yellow-400 hover:text-yellow-300 border-yellow-400 hover:border-yellow-300'
+                }`}
+                title="Highlight all regions"
+              >
+                {highlightMode.highlightAll ? 'Hide' : 'Highlight'} All
+              </button>
+              <button
+                onClick={toggleShowVillages}
+                className={`text-sm px-2 py-1 rounded border ${
+                  highlightMode.showVillages
+                    ? 'bg-orange-600 text-white border-orange-500'
+                    : 'text-orange-400 hover:text-orange-300 border-orange-400 hover:border-orange-300'
+                }`}
+                title="Show/hide villages on map"
+              >
+                {highlightMode.showVillages ? 'Hide' : 'Show'} Villages
+              </button>
+              <button
+                onClick={handleClearData}
+                className="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded border border-red-400 hover:border-red-300"
+                title="Clear all saved data"
+              >
+                Clear Data
+              </button>
+            </div>
+            
+            {/* Search Input */}
+            <div className="mb-4">
               <input
                 type="text"
-                value={newRegionName}
-                onChange={(e) => setNewRegionName(e.target.value)}
-                placeholder="Region name"
-                className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-                onKeyPress={(e) => e.key === 'Enter' && handleStartDrawing()}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search regions..."
+                className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
               />
-              <button
-                onClick={handleGenerateNewName}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded border border-purple-500 focus:outline-none"
-                title="Generate random medieval name"
-              >
-                🎲
-              </button>
             </div>
-            <div className="flex space-x-2">
+            
+            {!showNewRegionForm ? (
               <button
-                onClick={handleStartDrawing}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
+                onClick={() => setShowNewRegionForm(true)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
               >
-                Start Drawing
+                Create New Region
               </button>
-              <button
-                onClick={() => setShowNewRegionForm(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded"
-              >
-                Cancel
-              </button>
-            </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={newRegionName}
+                    onChange={(e) => setNewRegionName(e.target.value)}
+                    placeholder="Region name"
+                    className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                    onKeyPress={(e) => e.key === 'Enter' && handleStartDrawing()}
+                  />
+                  <button
+                    onClick={handleGenerateNewName}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded border border-purple-500 focus:outline-none"
+                    title="Generate random medieval name"
+                  >
+                    🎲
+                  </button>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleStartDrawing}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
+                  >
+                    Start Drawing
+                  </button>
+                  <button
+                    onClick={() => setShowNewRegionForm(false)}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {drawingRegion && (
-        <div className="mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded">
-          <p className="text-yellow-200 text-sm">
-            Drawing: <strong>{drawingRegion.name}</strong>
-          </p>
-          <p className="text-yellow-300 text-xs mt-1">
-            Click on map to add points. Click on a previous point to finish.
-          </p>
-        </div>
-      )}
-
-      {isEditing && (
-        <div className="mb-4 p-3 bg-green-900 border border-green-600 rounded">
-          <p className="text-green-200 text-sm">
-            Editing: <strong>{selectedRegion?.name}</strong>
-          </p>
-          <p className="text-green-300 text-xs mt-1">
-            Drag orange points to move them. Click cyan dots between points to add new points. Double-click orange points to delete them.
-          </p>
-          <button
-            onClick={stopEditMode}
-            className="mt-2 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded"
-          >
-            Save Changes
-          </button>
-        </div>
-      )}
-
-      <div className="space-y-2 mb-6">
-        {(showAllRegions ? [...filteredRegions].reverse() : filteredRegions.slice(-10).reverse()).map(region => (
-          <div
-            key={region.id}
-            className={`p-3 rounded cursor-pointer border ${
-              region.id === selectedRegionId
-                ? 'bg-green-900 border-green-600'
-                : 'bg-gray-700 border-gray-600 hover:bg-gray-600'
-            }`}
-            onClick={() => setSelectedRegionId(region.id)}
-          >
-            <div className="flex justify-between items-center">
-              <span className="text-white font-medium">{region.name}</span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  deleteRegion(region.id)
-                }}
-                className="text-red-400 hover:text-red-300 text-sm"
-              >
-                ×
-              </button>
+          {drawingRegion && (
+            <div className="mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded">
+              <p className="text-yellow-200 text-sm">
+                Drawing: <strong>{drawingRegion.name}</strong>
+              </p>
+              <p className="text-yellow-300 text-xs mt-1">
+                Click on map to add points. Click on a previous point to finish.
+              </p>
             </div>
-          </div>
-        ))}
-        
-        {filteredRegions.length > 10 && (
-          <button
-            onClick={() => setShowAllRegions(!showAllRegions)}
-            className="w-full text-blue-400 hover:text-blue-300 text-sm py-2 border border-blue-400 hover:border-blue-300 rounded"
-          >
-            {showAllRegions ? 'Show Less' : `Show All (${filteredRegions.length - 10} more)`}
-          </button>
-        )}
-      </div>
+          )}
 
-      {selectedRegion && (
+          <div className="space-y-2 mb-6">
+            {(showAllRegions ? [...filteredRegions].reverse() : filteredRegions.slice(-10).reverse()).map(region => (
+              <div
+                key={region.id}
+                className="p-3 rounded cursor-pointer border bg-gray-700 border-gray-600 hover:bg-gray-600"
+                onClick={() => setSelectedRegionId(region.id)}
+              >
+                <div className="flex justify-between items-center">
+                  <span className="text-white font-medium">{region.name}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      deleteRegion(region.id)
+                    }}
+                    className="text-red-400 hover:text-red-300 text-sm"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            ))}
+            
+            {filteredRegions.length > 10 && (
+              <button
+                onClick={() => setShowAllRegions(!showAllRegions)}
+                className="w-full text-blue-400 hover:text-blue-300 text-sm py-2 border border-blue-400 hover:border-blue-300 rounded"
+              >
+                {showAllRegions ? 'Show Less' : `Show All (${filteredRegions.length - 10} more)`}
+              </button>
+            )}
+          </div>
+        </>
+      ) : (
+        // Region Details View
         <div className="space-y-4">
+          <div className="flex items-center mb-4">
+            <button
+              onClick={() => setSelectedRegionId(null)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded border border-blue-500 text-sm mr-3 transition-colors"
+            >
+              ← Back
+            </button>
+            <h2 className="text-xl font-bold text-white">Region Details</h2>
+          </div>
+
+          {isEditing && (
+            <div className="mb-4 p-3 bg-green-900 border border-green-600 rounded">
+              <p className="text-green-200 text-sm">
+                Editing: <strong>{selectedRegion.name}</strong>
+              </p>
+              <p className="text-green-300 text-xs mt-1">
+                Drag orange points to move them. Click cyan dots between points to add new points. Double-click orange points to delete them.
+              </p>
+              <button
+                onClick={stopEditMode}
+                className="mt-2 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded"
+              >
+                Save Changes
+              </button>
+            </div>
+          )}
+
           <div>
-            <h3 className="text-lg font-semibold text-white mb-2">Region Details</h3>
             <input
               type="text"
               value={selectedRegion.name}
