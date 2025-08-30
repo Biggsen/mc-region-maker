@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { copyToClipboard } from '../utils/polygonUtils'
+import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/polygonUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
 import { generateMedievalName } from '../utils/nameGenerator'
 
@@ -70,6 +70,8 @@ export function RegionPanel() {
   const isEditing = editMode.isEditing && editMode.editingRegionId === selectedRegionId
   const hasVillages = regionsList.some(region => region.subregions && region.subregions.length > 0)
   const totalVillages = regionsList.reduce((total, region) => total + (region.subregions?.length || 0), 0)
+  
+
   
   // Filter regions based on search query
   const filteredRegions = regionsList.filter(region =>
@@ -187,26 +189,34 @@ export function RegionPanel() {
           )}
 
           <div className="space-y-2 mb-6">
-            {(showAllRegions ? [...filteredRegions].reverse() : filteredRegions.slice(-10).reverse()).map(region => (
-              <div
-                key={region.id}
-                className="p-3 rounded cursor-pointer border bg-gray-700 border-gray-600 hover:bg-gray-600"
-                onClick={() => setSelectedRegionId(region.id)}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="text-white font-medium">{region.name}</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      deleteRegion(region.id)
-                    }}
-                    className="text-red-400 hover:text-red-300 text-sm"
-                  >
-                    ×
-                  </button>
+            {(showAllRegions ? [...filteredRegions].reverse() : filteredRegions.slice(-10).reverse()).map(region => {
+              const area = calculatePolygonArea(region.points)
+              return (
+                <div
+                  key={region.id}
+                  className="p-3 rounded cursor-pointer border bg-gray-700 border-gray-600 hover:bg-gray-600"
+                  onClick={() => setSelectedRegionId(region.id)}
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="text-white font-medium">{region.name}</span>
+                      <div className="text-gray-400 text-xs mt-1">
+                        {formatArea(area)}
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        deleteRegion(region.id)
+                      }}
+                      className="text-red-400 hover:text-red-300 text-sm"
+                    >
+                      ×
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
             
             {filteredRegions.length > 10 && (
               <button
@@ -255,9 +265,14 @@ export function RegionPanel() {
               onChange={(e) => updateRegion(selectedRegion.id, { name: e.target.value })}
               className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
             />
-            <p className="text-gray-400 text-xs mt-1">
-              {selectedRegion.points.length} points
-            </p>
+            <div className="flex justify-between items-center mt-1">
+              <p className="text-gray-400 text-xs">
+                {selectedRegion.points.length} points
+              </p>
+              <p className="text-blue-400 text-xs">
+                {formatArea(calculatePolygonArea(selectedRegion.points))}
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2">

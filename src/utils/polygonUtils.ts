@@ -74,3 +74,37 @@ export function isPointInPolygon(
   }
   return inside
 }
+
+/**
+ * Calculate the area of a polygon using the shoelace formula
+ * @param points Array of polygon points with x and z coordinates
+ * @returns Area in square blocks (since each block = 1 unit)
+ */
+export function calculatePolygonArea(points: { x: number; z: number }[]): number {
+  if (points.length < 3) return 0
+  
+  let area = 0
+  for (let i = 0; i < points.length; i++) {
+    const j = (i + 1) % points.length
+    area += points[i].x * points[j].z
+    area -= points[j].x * points[i].z
+  }
+  
+  return Math.abs(area) / 2
+}
+
+/**
+ * Format area for display with appropriate units
+ * @param areaInBlocks Area in square blocks
+ * @returns Formatted string with area in hectares when available
+ */
+export function formatArea(areaInBlocks: number): string {
+  const squareMeters = areaInBlocks // 1 block ≈ 1 square meter in Minecraft
+  
+  if (squareMeters >= 10000) {
+    const hectares = squareMeters / 10000
+    return `${Math.round(hectares)} ha`
+  } else {
+    return `${Math.round(areaInBlocks).toLocaleString()} blocks²`
+  }
+}
