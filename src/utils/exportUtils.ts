@@ -94,12 +94,12 @@ export function generateAchievementsYAML(regions: Region[]): void {
       region.subregions.forEach(subregion => {
         if (subregion.type === 'village') {
           const villageKey = subregion.name.replace(/\s+/g, '')
-          const villageAchievementKey = `discover${regionKey}${villageKey}`
+          const villageAchievementKey = `discover${villageKey}`
           
           yamlContent += `  ${villageAchievementKey}:\n`
           yamlContent += `    Goal: Discover ${subregion.name} Village\n`
           yamlContent += `    Message: You discovered the village of ${subregion.name}\n`
-          yamlContent += `    Name: discover_${region.name.toLowerCase().replace(/\s+/g, '_')}_${subregion.name.toLowerCase().replace(/\s+/g, '_')}\n`
+          yamlContent += `    Name: discover_${subregion.name.toLowerCase().replace(/\s+/g, '_')}\n`
           yamlContent += `    DisplayName: Village Discovery\n`
           yamlContent += `    Type: normal\n`
           achievementCount++
@@ -144,7 +144,7 @@ export function generateEventConditionsYAML(regions: Region[]): void {
     yamlContent += `      default:\n`
     yamlContent += `        - 'console_command: aach give discover${region.name.replace(/\s+/g, '')} %player%'\n`
     yamlContent += `        - 'console_command: aach add 1 Custom.regions_discovered %player%'\n`
-    yamlContent += `        - 'console_command: cc give virtual AdvancedExample 1 %player%'\n`
+    yamlContent += `        - 'console_command: cc give virtual RegionCrate 1 %player%'\n`
     yamlContent += `      one_time:\n`
     eventCount++
 
@@ -153,18 +153,18 @@ export function generateEventConditionsYAML(regions: Region[]): void {
       region.subregions.forEach(subregion => {
         if (subregion.type === 'village') {
           const villageKey = subregion.name.toLowerCase().replace(/\s+/g, '_')
-          const villageEventKey = `${regionKey}_${villageKey}_discover_once`
+          const villageEventKey = `${villageKey}_discover_once`
           
           yamlContent += `  ${villageEventKey}:\n`
           yamlContent += `    type: wgevents_region_enter\n`
           yamlContent += `    conditions:\n`
-          yamlContent += `      - '%region% == ${region.name.toLowerCase().replace(/\s+/g, '_')}_${subregion.name.toLowerCase().replace(/\s+/g, '_')}'\n`
+          yamlContent += `      - '%region% == ${subregion.name.toLowerCase().replace(/\s+/g, '_')}'\n`
           yamlContent += `    one_time: true\n`
           yamlContent += `    actions:\n`
           yamlContent += `      default:\n`
-          yamlContent += `        - 'console_command: aach give discover${region.name.replace(/\s+/g, '')}${subregion.name.replace(/\s+/g, '')} %player%'\n`
+          yamlContent += `        - 'console_command: aach give discover${subregion.name.replace(/\s+/g, '')} %player%'\n`
           yamlContent += `        - 'console_command: aach add 1 Custom.villages_discovered %player%'\n`
-          yamlContent += `        - 'console_command: cc give virtual CrateExample 1 %player%'\n`
+          yamlContent += `        - 'console_command: cc give virtual VillageCrate 1 %player%'\n`
           yamlContent += `      one_time:\n`
           eventCount++
         }

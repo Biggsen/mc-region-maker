@@ -70,13 +70,13 @@ export function createVillageSubregion(village: VillageData, index: number, pare
 }
 
 export function generateSubregionYAML(subregion: Subregion, parentRegionName: string): string {
-  const subregionName = `${parentRegionName}_${subregion.name.toLowerCase().replace(/\s+/g, '_')}`
+  const subregionName = subregion.name.toLowerCase().replace(/\s+/g, '_')
   
   return `  ${subregionName}:
     type: cuboid
     min-y: ${subregion.minY}
     max-y: ${subregion.maxY}
-    priority: 0
+    priority: 10
     parent: ${parentRegionName}
     flags: {greeting-title: Welcome to ${subregion.name} village, farewell-title: Leaving ${subregion.name} village., passthrough: allow}
     min: {x: ${subregion.x - subregion.radius}, y: ${subregion.minY}, z: ${subregion.z - subregion.radius}}

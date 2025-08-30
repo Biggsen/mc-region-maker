@@ -8,16 +8,16 @@ Events:
       default:
         - 'console_command: aach give discoverThuhaven %player%'
         - 'console_command: aach add 1 Custom.regions_discovered %player%'
-        - 'console_command: cc give virtual AdvancedExample 1 %player%'
+        - 'console_command: cc give virtual RegionCrate 1 %player%'
       one_time:
-  thuhaven_biglak_discover_once:
+  biglak_discover_once:
     type: wgevents_region_enter
     conditions:
-      - '%region% == thuhaven_biglak'         
+      - '%region% == biglak'         
     one_time: true  
     actions:
       default:
-        - 'console_command: aach give discoverThuhavenBiglak %player%'
+        - 'console_command: aach give discoverBiglak %player%'
         - 'console_command: aach add 1 Custom.villages_discovered %player%'
-        - 'console_command: cc give virtual CrateExample 1 %player%'
+        - 'console_command: cc give virtual VillageCrate 1 %player%'
       one_time:

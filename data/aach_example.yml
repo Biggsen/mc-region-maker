@@ -5,9 +5,9 @@ Commands:
     Name: discover_thuhaven
     DisplayName: Region Discovery
     Type: normal
-  discoverThuhavenBiglak:
+  discoverBiglak:
     Goal: Discover Biglak Village
     Message: You discovered the village of Biglak
-    Name: discover_thuhaven_biglak
+    Name: discover_biglak
     DisplayName: Village Discovery
     Type: normal
