@@ -321,7 +321,7 @@ export function RegionPanel() {
           {selectedRegion.subregions && selectedRegion.subregions.length > 0 && (
             <div>
               <h4 className="text-sm font-medium mb-2">Villages ({selectedRegion.subregions.length})</h4>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
+              <div className="space-y-2">
                 {selectedRegion.subregions.map(subregion => (
                   <div key={subregion.id} className="bg-gray-600 rounded p-2 text-sm">
                     <div className="flex justify-between items-center">
