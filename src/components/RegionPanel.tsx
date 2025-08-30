@@ -28,6 +28,7 @@ export function RegionPanel() {
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
   const [showYAML, setShowYAML] = useState(false)
   const [showAllRegions, setShowAllRegions] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Generate a random name when the form is shown
   useEffect(() => {
@@ -69,6 +70,11 @@ export function RegionPanel() {
   const isEditing = editMode.isEditing && editMode.editingRegionId === selectedRegionId
   const hasVillages = regionsList.some(region => region.subregions && region.subregions.length > 0)
   const totalVillages = regionsList.reduce((total, region) => total + (region.subregions?.length || 0), 0)
+  
+  // Filter regions based on search query
+  const filteredRegions = regionsList.filter(region =>
+    region.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
     <div className="w-full">
@@ -109,6 +115,17 @@ export function RegionPanel() {
           >
             Clear Data
           </button>
+        </div>
+        
+        {/* Search Input */}
+        <div className="mb-4">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search regions..."
+            className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+          />
         </div>
         
         {!showNewRegionForm ? (
@@ -184,7 +201,7 @@ export function RegionPanel() {
       )}
 
       <div className="space-y-2 mb-6">
-        {(showAllRegions ? [...regionsList].reverse() : regionsList.slice(-10).reverse()).map(region => (
+        {(showAllRegions ? [...filteredRegions].reverse() : filteredRegions.slice(-10).reverse()).map(region => (
           <div
             key={region.id}
             className={`p-3 rounded cursor-pointer border ${
@@ -209,12 +226,12 @@ export function RegionPanel() {
           </div>
         ))}
         
-        {regionsList.length > 10 && (
+        {filteredRegions.length > 10 && (
           <button
             onClick={() => setShowAllRegions(!showAllRegions)}
             className="w-full text-blue-400 hover:text-blue-300 text-sm py-2 border border-blue-400 hover:border-blue-300 rounded"
           >
-            {showAllRegions ? 'Show Less' : `Show All (${regionsList.length - 10} more)`}
+            {showAllRegions ? 'Show Less' : `Show All (${filteredRegions.length - 10} more)`}
           </button>
         )}
       </div>

@@ -21,7 +21,7 @@ function App() {
     <AppProvider>
       <div className="min-h-screen bg-gray-900 text-white flex">
         <MapCanvas />
-        <div className="w-80 bg-gray-800 p-4 overflow-y-auto">
+        <div className="w-80 bg-gray-800 p-4 overflow-y-auto h-screen">
           <ExportImportPanel />
           <RegionPanel />
         </div>
