@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Region, EditMode, HighlightMode, Subregion } from '../types'
+import { Region, EditMode, HighlightMode } from '../types'
 import { generateId, generateRegionYAML } from '../utils/polygonUtils'
 import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
 import { parseVillageCSV, createVillageSubregion, findParentRegion } from '../utils/villageUtils'
@@ -205,8 +205,15 @@ export function useRegions() {
       const results = {
         added: 0,
         skipped: 0,
-        orphaned: 0
+        orphaned: 0,
+        orphanedVillages: [] as { x: number; z: number; details: string; type: string }[]
       }
+      
+      // Clear existing villages first
+      setRegions(prev => prev.map(region => ({
+        ...region,
+        subregions: (region.subregions || []).filter(sub => sub.type !== 'village')
+      })))
       
       villages.forEach((village, index) => {
         const parentRegion = findParentRegion(village, regions)
@@ -225,6 +232,12 @@ export function useRegions() {
           results.added++
         } else {
           results.orphaned++
+          results.orphanedVillages.push({
+            x: village.x,
+            z: village.z,
+            details: village.details,
+            type: village.type
+          })
         }
       })
       

@@ -86,6 +86,24 @@ export function ExportImportPanel() {
     const file = event.target.files?.[0]
     if (!file) return
 
+    // Check if there are existing villages
+    const existingVillages = regions.regions.some(region => 
+      region.subregions && region.subregions.some(sub => sub.type === 'village')
+    )
+
+    if (existingVillages) {
+      const confirmed = confirm(
+        'You already have villages imported. Importing new villages will replace all existing villages. Continue?'
+      )
+      if (!confirmed) {
+        // Clear the file input
+        if (villageFileInputRef.current) {
+          villageFileInputRef.current.value = ''
+        }
+        return
+      }
+    }
+
     setIsImportingVillages(true)
     setVillageImportError(null)
 
@@ -96,6 +114,13 @@ export function ExportImportPanel() {
       let message = `Imported ${results.added} villages into regions.`
       if (results.orphaned > 0) {
         message += `\n${results.orphaned} villages were outside all regions and skipped.`
+        
+        if (results.orphanedVillages && results.orphanedVillages.length > 0) {
+          message += '\n\nOrphaned village coordinates:'
+          results.orphanedVillages.forEach(village => {
+            message += `\n• ${village.type} at (${village.x}, ${village.z}) - ${village.details}`
+          })
+        }
       }
       
       alert(message)
