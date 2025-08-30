@@ -1,0 +1,13 @@
+Commands:
+  discoverThuhaven:
+    Goal: Discover Thuhaven Region
+    Message: You discovered the region of Thuhaven
+    Name: discover_thuhaven
+    DisplayName: Region Discovery
+    Type: normal
+  discoverThuhavenBiglak:
+    Goal: Discover Biglak Village
+    Message: You discovered the village of Biglak
+    Name: discover_thuhaven_biglak
+    DisplayName: Village Discovery
+    Type: normal
