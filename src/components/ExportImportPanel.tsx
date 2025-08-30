@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { exportMapData, exportRegionsYAML, importMapData, loadImageFromSrc } from '../utils/exportUtils'
+import { exportMapData, exportRegionsYAML, importMapData, loadImageFromSrc, generateAchievementsYAML, generateEventConditionsYAML } from '../utils/exportUtils'
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
@@ -20,6 +20,14 @@ export function ExportImportPanel() {
 
   const handleExportYAMLWithOptions = (includeVillages: boolean, randomMobSpawn: boolean) => {
     exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn)
+  }
+
+  const handleGenerateAchievements = () => {
+    generateAchievementsYAML(regions.regions)
+  }
+
+  const handleGenerateEventConditions = () => {
+    generateEventConditionsYAML(regions.regions)
   }
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,6 +117,22 @@ export function ExportImportPanel() {
             className="hidden"
           />
         </div>
+
+        <button
+          onClick={handleGenerateAchievements}
+          disabled={regions.regions.length === 0}
+          className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+        >
+          Generate Achievements
+        </button>
+
+        <button
+          onClick={handleGenerateEventConditions}
+          disabled={regions.regions.length === 0}
+          className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+        >
+          Generate Event Conditions
+        </button>
 
         {importError && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-md text-sm">

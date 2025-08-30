@@ -66,6 +66,124 @@ export function exportRegionsYAML(regions: Region[], includeVillages: boolean = 
   URL.revokeObjectURL(link.href)
 }
 
+// Generate achievements YAML for regions and villages
+export function generateAchievementsYAML(regions: Region[]): void {
+  if (regions.length === 0) {
+    alert('No regions to generate achievements for')
+    return
+  }
+
+  let yamlContent = 'Commands:\n'
+  let achievementCount = 0
+
+  // Generate achievements for each region
+  regions.forEach(region => {
+    const regionKey = region.name.replace(/\s+/g, '')
+    const achievementKey = `discover${regionKey}`
+    
+    yamlContent += `  ${achievementKey}:\n`
+    yamlContent += `    Goal: Discover ${region.name} Region\n`
+    yamlContent += `    Message: You discovered the region of ${region.name}\n`
+    yamlContent += `    Name: discover_${region.name.toLowerCase().replace(/\s+/g, '_')}\n`
+    yamlContent += `    DisplayName: Region Discovery\n`
+    yamlContent += `    Type: normal\n`
+    achievementCount++
+
+    // Generate achievements for villages in this region
+    if (region.subregions && region.subregions.length > 0) {
+      region.subregions.forEach(subregion => {
+        if (subregion.type === 'village') {
+          const villageKey = subregion.name.replace(/\s+/g, '')
+          const villageAchievementKey = `discover${regionKey}${villageKey}`
+          
+          yamlContent += `  ${villageAchievementKey}:\n`
+          yamlContent += `    Goal: Discover ${subregion.name} Village\n`
+          yamlContent += `    Message: You discovered the village of ${subregion.name}\n`
+          yamlContent += `    Name: discover_${region.name.toLowerCase().replace(/\s+/g, '_')}_${subregion.name.toLowerCase().replace(/\s+/g, '_')}\n`
+          yamlContent += `    DisplayName: Village Discovery\n`
+          yamlContent += `    Type: normal\n`
+          achievementCount++
+        }
+      })
+    }
+  })
+
+  const dataBlob = new Blob([yamlContent], { type: 'text/yaml' })
+  
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(dataBlob)
+  link.download = `achievements.yml`
+  link.click()
+  
+  URL.revokeObjectURL(link.href)
+  
+  alert(`Generated ${achievementCount} achievements`)
+}
+
+// Generate event conditions YAML for regions and villages
+export function generateEventConditionsYAML(regions: Region[]): void {
+  if (regions.length === 0) {
+    alert('No regions to generate event conditions for')
+    return
+  }
+
+  let yamlContent = 'Events:\n'
+  let eventCount = 0
+
+  // Generate event conditions for each region
+  regions.forEach(region => {
+    const regionKey = region.name.toLowerCase().replace(/\s+/g, '_')
+    const eventKey = `${regionKey}_discover_once`
+    
+    yamlContent += `  ${eventKey}:\n`
+    yamlContent += `    type: wgevents_region_enter\n`
+    yamlContent += `    conditions:\n`
+    yamlContent += `      - '%region% == ${region.name.toLowerCase().replace(/\s+/g, '_')}'\n`
+    yamlContent += `    one_time: true\n`
+    yamlContent += `    actions:\n`
+    yamlContent += `      default:\n`
+    yamlContent += `        - 'console_command: aach give discover${region.name.replace(/\s+/g, '')} %player%'\n`
+    yamlContent += `        - 'console_command: aach add 1 Custom.regions_discovered %player%'\n`
+    yamlContent += `        - 'console_command: cc give virtual AdvancedExample 1 %player%'\n`
+    yamlContent += `      one_time:\n`
+    eventCount++
+
+    // Generate event conditions for villages in this region
+    if (region.subregions && region.subregions.length > 0) {
+      region.subregions.forEach(subregion => {
+        if (subregion.type === 'village') {
+          const villageKey = subregion.name.toLowerCase().replace(/\s+/g, '_')
+          const villageEventKey = `${regionKey}_${villageKey}_discover_once`
+          
+          yamlContent += `  ${villageEventKey}:\n`
+          yamlContent += `    type: wgevents_region_enter\n`
+          yamlContent += `    conditions:\n`
+          yamlContent += `      - '%region% == ${region.name.toLowerCase().replace(/\s+/g, '_')}_${subregion.name.toLowerCase().replace(/\s+/g, '_')}'\n`
+          yamlContent += `    one_time: true\n`
+          yamlContent += `    actions:\n`
+          yamlContent += `      default:\n`
+          yamlContent += `        - 'console_command: aach give discover${region.name.replace(/\s+/g, '')}${subregion.name.replace(/\s+/g, '')} %player%'\n`
+          yamlContent += `        - 'console_command: aach add 1 Custom.villages_discovered %player%'\n`
+          yamlContent += `        - 'console_command: cc give virtual CrateExample 1 %player%'\n`
+          yamlContent += `      one_time:\n`
+          eventCount++
+        }
+      })
+    }
+  })
+
+  const dataBlob = new Blob([yamlContent], { type: 'text/yaml' })
+  
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(dataBlob)
+  link.download = `event_conditions.yml`
+  link.click()
+  
+  URL.revokeObjectURL(link.href)
+  
+  alert(`Generated ${eventCount} event conditions`)
+}
+
 // Import map data from JSON file
 export function importMapData(file: File): Promise<ExportData> {
   return new Promise((resolve, reject) => {
