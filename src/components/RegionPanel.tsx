@@ -67,43 +67,48 @@ export function RegionPanel() {
 
   const selectedRegion = regionsList.find(r => r.id === selectedRegionId)
   const isEditing = editMode.isEditing && editMode.editingRegionId === selectedRegionId
+  const hasVillages = regionsList.some(region => region.subregions && region.subregions.length > 0)
+  const totalVillages = regionsList.reduce((total, region) => total + (region.subregions?.length || 0), 0)
 
   return (
     <div className="w-full">
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">Regions ({regionsList.length})</h2>
-          <div className="flex space-x-2">
-            <button
-              onClick={toggleHighlightAll}
-              className={`text-sm px-2 py-1 rounded border ${
-                highlightMode.highlightAll
-                  ? 'bg-yellow-600 text-white border-yellow-500'
-                  : 'text-yellow-400 hover:text-yellow-300 border-yellow-400 hover:border-yellow-300'
-              }`}
-              title="Highlight all regions"
-            >
-              {highlightMode.highlightAll ? 'Hide' : 'Highlight'} All
-            </button>
-            <button
-              onClick={toggleShowVillages}
-              className={`text-sm px-2 py-1 rounded border ${
-                highlightMode.showVillages
-                  ? 'bg-orange-600 text-white border-orange-500'
-                  : 'text-orange-400 hover:text-orange-300 border-orange-400 hover:border-orange-300'
-              }`}
-              title="Show/hide villages on map"
-            >
-              {highlightMode.showVillages ? 'Hide' : 'Show'} Villages
-            </button>
-            <button
-              onClick={handleClearData}
-              className="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded border border-red-400 hover:border-red-300"
-              title="Clear all saved data"
-            >
-              Clear Data
-            </button>
-          </div>
+             <div className="mb-6">
+         <h2 className="text-xl font-bold text-white mb-4">Regions ({regionsList.length})</h2>
+         
+                   {hasVillages && (
+            <h3 className="text-lg font-semibold text-white mb-4">Villages ({totalVillages})</h3>
+          )}
+         
+         <div className="flex space-x-2 mb-4">
+          <button
+            onClick={toggleHighlightAll}
+            className={`text-sm px-2 py-1 rounded border ${
+              highlightMode.highlightAll
+                ? 'bg-yellow-600 text-white border-yellow-500'
+                : 'text-yellow-400 hover:text-yellow-300 border-yellow-400 hover:border-yellow-300'
+            }`}
+            title="Highlight all regions"
+          >
+            {highlightMode.highlightAll ? 'Hide' : 'Highlight'} All
+          </button>
+          <button
+            onClick={toggleShowVillages}
+            className={`text-sm px-2 py-1 rounded border ${
+              highlightMode.showVillages
+                ? 'bg-orange-600 text-white border-orange-500'
+                : 'text-orange-400 hover:text-orange-300 border-orange-400 hover:border-orange-300'
+            }`}
+            title="Show/hide villages on map"
+          >
+            {highlightMode.showVillages ? 'Hide' : 'Show'} Villages
+          </button>
+          <button
+            onClick={handleClearData}
+            className="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded border border-red-400 hover:border-red-300"
+            title="Clear all saved data"
+          >
+            Clear Data
+          </button>
         </div>
         
         {!showNewRegionForm ? (
