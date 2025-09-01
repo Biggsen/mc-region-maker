@@ -209,6 +209,9 @@ export function useRegions() {
         orphanedVillages: [] as { x: number; z: number; details: string; type: string }[]
       }
       
+      // Track existing village names to ensure uniqueness
+      const existingVillageNames = new Set<string>()
+      
       // Clear existing villages first
       setRegions(prev => prev.map(region => ({
         ...region,
@@ -219,7 +222,10 @@ export function useRegions() {
         const parentRegion = findParentRegion(village, regions)
         
         if (parentRegion) {
-          const subregion = createVillageSubregion(village, index, parentRegion.id)
+          const subregion = createVillageSubregion(village, index, parentRegion.id, existingVillageNames)
+          
+          // Add the new village name to our tracking set
+          existingVillageNames.add(subregion.name)
           
           setRegions(prev => prev.map(region => 
             region.id === parentRegion.id 
@@ -260,18 +266,52 @@ export function useRegions() {
   }, [])
 
   const regenerateVillageNames = useCallback(() => {
-    setRegions(prev => prev.map(region => {
-      if (region.subregions && region.subregions.length > 0) {
-        return {
-          ...region,
-          subregions: region.subregions.map(subregion => ({
-            ...subregion,
-            name: generateVillageName()
-          }))
+    setRegions(prev => {
+      // Track existing village names to ensure uniqueness
+      const existingVillageNames = new Set<string>()
+      
+      return prev.map(region => {
+        if (region.subregions && region.subregions.length > 0) {
+          return {
+            ...region,
+            subregions: region.subregions.map(subregion => {
+              if (subregion.type === 'village') {
+                // Generate a unique name for this village
+                let newName = generateVillageName()
+                let attempts = 0
+                const maxAttempts = 100
+                
+                // Keep generating names until we find a unique one
+                while (existingVillageNames.has(newName) && attempts < maxAttempts) {
+                  newName = generateVillageName()
+                  attempts++
+                }
+                
+                // If we still have a duplicate after max attempts, append a number
+                if (existingVillageNames.has(newName)) {
+                  let counter = 1
+                  let baseName = newName
+                  while (existingVillageNames.has(newName) && counter < 1000) {
+                    newName = `${baseName} ${counter}`
+                    counter++
+                  }
+                }
+                
+                // Add the new name to our tracking set
+                existingVillageNames.add(newName)
+                
+                return {
+                  ...subregion,
+                  name: newName
+                }
+              }
+              return subregion
+            })
+          }
         }
-      }
-      return region
-    }))
+        return region
+      })
+    })
   }, [])
 
   return {

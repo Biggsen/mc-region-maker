@@ -52,8 +52,26 @@ export function findParentRegion(village: VillageData, regions: Region[]): Regio
   return null
 }
 
-export function createVillageSubregion(village: VillageData, index: number, parentRegionId?: string): Subregion {
-  const generatedName = generateVillageName()
+export function createVillageSubregion(village: VillageData, index: number, parentRegionId?: string, existingNames: Set<string> = new Set()): Subregion {
+  let generatedName = generateVillageName()
+  let attempts = 0
+  const maxAttempts = 100 // Prevent infinite loops
+  
+  // Keep generating names until we find a unique one
+  while (existingNames.has(generatedName) && attempts < maxAttempts) {
+    generatedName = generateVillageName()
+    attempts++
+  }
+  
+  // If we still have a duplicate after max attempts, append a number
+  if (existingNames.has(generatedName)) {
+    let counter = 1
+    let baseName = generatedName
+    while (existingNames.has(generatedName) && counter < 1000) {
+      generatedName = `${baseName} ${counter}`
+      counter++
+    }
+  }
   
   return {
     id: `village_${index}`,
