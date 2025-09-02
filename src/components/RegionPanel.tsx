@@ -21,7 +21,8 @@ export function RegionPanel() {
     stopEditMode,
     toggleHighlightAll,
     toggleShowVillages,
-    removeSubregionFromRegion
+    removeSubregionFromRegion,
+    updateSubregionName
   } = regions
 
   const [newRegionName, setNewRegionName] = useState('')
@@ -29,6 +30,8 @@ export function RegionPanel() {
   const [showYAML, setShowYAML] = useState(false)
   const [showAllRegions, setShowAllRegions] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [editingVillageId, setEditingVillageId] = useState<string | null>(null)
+  const [editingVillageName, setEditingVillageName] = useState('')
 
   // Generate a random name when the form is shown
   useEffect(() => {
@@ -64,6 +67,24 @@ export function RegionPanel() {
       clearSavedData()
       window.location.reload()
     }
+  }
+
+  const handleStartVillageRename = (villageId: string, currentName: string) => {
+    setEditingVillageId(villageId)
+    setEditingVillageName(currentName)
+  }
+
+  const handleSaveVillageRename = () => {
+    if (editingVillageId && selectedRegion && editingVillageName.trim()) {
+      updateSubregionName(selectedRegion.id, editingVillageId, editingVillageName.trim())
+      setEditingVillageId(null)
+      setEditingVillageName('')
+    }
+  }
+
+  const handleCancelVillageRename = () => {
+    setEditingVillageId(null)
+    setEditingVillageName('')
   }
 
   const selectedRegion = regionsList.find(r => r.id === selectedRegionId)
@@ -339,18 +360,65 @@ export function RegionPanel() {
               <div className="space-y-2">
                 {selectedRegion.subregions.map(subregion => (
                   <div key={subregion.id} className="bg-gray-600 rounded p-2 text-sm">
-                    <div className="flex justify-between items-center">
-                      <span>{subregion.name}</span>
-                      <button
-                        onClick={() => removeSubregionFromRegion(selectedRegion.id, subregion.id)}
-                        className="text-red-400 hover:text-red-300 text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                    <div className="text-gray-400 text-xs">
-                      ({subregion.x}, {subregion.z}) - {subregion.details}
-                    </div>
+                    {editingVillageId === subregion.id ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-1">
+                          <input
+                            type="text"
+                            value={editingVillageName}
+                            onChange={(e) => setEditingVillageName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleSaveVillageRename()
+                              } else if (e.key === 'Escape') {
+                                handleCancelVillageRename()
+                              }
+                            }}
+                            className="flex-1 bg-gray-700 text-white text-xs px-2 py-1 rounded border border-gray-500 focus:outline-none focus:border-blue-400"
+                            autoFocus
+                          />
+                          <button
+                            onClick={handleSaveVillageRename}
+                            className="text-green-400 hover:text-green-300 text-xs px-1"
+                            title="Save"
+                          >
+                            ✓
+                          </button>
+                          <button
+                            onClick={handleCancelVillageRename}
+                            className="text-gray-400 hover:text-gray-300 text-xs px-1"
+                            title="Cancel"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <div className="text-gray-400 text-xs">
+                          ({subregion.x}, {subregion.z}) - {subregion.details}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex justify-between items-center">
+                          <span 
+                            className="cursor-pointer hover:text-blue-300 transition-colors"
+                            onClick={() => handleStartVillageRename(subregion.id, subregion.name)}
+                            title="Click to rename"
+                          >
+                            {subregion.name}
+                          </span>
+                          <button
+                            onClick={() => removeSubregionFromRegion(selectedRegion.id, subregion.id)}
+                            className="text-red-400 hover:text-red-300 text-xs"
+                            title="Remove village"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <div className="text-gray-400 text-xs">
+                          ({subregion.x}, {subregion.z}) - {subregion.details}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

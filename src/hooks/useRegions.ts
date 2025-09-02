@@ -265,6 +265,46 @@ export function useRegions() {
     ))
   }, [])
 
+  const updateSubregionName = useCallback((regionId: string, subregionId: string, newName: string) => {
+    // Check if the new name is unique among all villages
+    const existingVillageNames = new Set<string>()
+    
+    // Collect all existing village names except the one being renamed
+    regions.forEach(region => {
+      if (region.subregions) {
+        region.subregions.forEach(subregion => {
+          if (subregion.type === 'village' && subregion.id !== subregionId) {
+            existingVillageNames.add(subregion.name)
+          }
+        })
+      }
+    })
+    
+    // If the new name already exists, append a number to make it unique
+    let finalName = newName
+    if (existingVillageNames.has(newName)) {
+      let counter = 1
+      let baseName = newName
+      while (existingVillageNames.has(finalName) && counter < 1000) {
+        finalName = `${baseName} ${counter}`
+        counter++
+      }
+    }
+    
+    setRegions(prev => prev.map(region => 
+      region.id === regionId 
+        ? { 
+            ...region, 
+            subregions: (region.subregions || []).map(sub => 
+              sub.id === subregionId 
+                ? { ...sub, name: finalName }
+                : sub
+            )
+          }
+        : region
+    ))
+  }, [regions])
+
   const regenerateVillageNames = useCallback(() => {
     setRegions(prev => {
       // Track existing village names to ensure uniqueness
@@ -341,6 +381,7 @@ export function useRegions() {
     toggleShowVillages,
     importVillagesFromCSV,
     removeSubregionFromRegion,
+    updateSubregionName,
     regenerateVillageNames
   }
 }
