@@ -159,5 +159,9 @@ export function calculatePolygonCenter(points: { x: number; z: number }[]): { x:
  * @returns Center point coordinates {x, z}
  */
 export function calculateRegionCenter(region: Region): { x: number; z: number } {
+  // Use custom center point if set, otherwise calculate from polygon
+  if (region.centerPoint) {
+    return region.centerPoint
+  }
   return calculatePolygonCenter(region.points)
 }

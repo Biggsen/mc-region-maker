@@ -65,11 +65,21 @@ export function RegionOverlay({
       const isEditing = editMode.isEditing && editMode.editingRegionId === region.id
       const isHighlighted = highlightMode.highlightAll
       drawRegion(ctx, region, mapState, isSelected, false, isEditing, isHighlighted)
+      
+      // Draw center point for each region
+      if (highlightMode.showCenterPoints) {
+        drawCenterPoint(ctx, region, mapState, isSelected)
+      }
     })
 
     // Draw drawing region
     if (drawingRegion && drawingRegion.points.length > 0) {
       drawRegion(ctx, drawingRegion, mapState, false, true, false, false)
+      
+      // Draw center point for drawing region
+      if (highlightMode.showCenterPoints) {
+        drawCenterPoint(ctx, drawingRegion, mapState, false)
+      }
     }
 
     // Draw spawn point
@@ -204,6 +214,51 @@ export function RegionOverlay({
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.fillText(region.name, centerX, centerY)
+    }
+  }
+
+  const drawCenterPoint = (
+    ctx: CanvasRenderingContext2D,
+    region: Region,
+    mapState: MapState,
+    isSelected: boolean = false
+  ) => {
+    // Only draw center points for regions with custom center points
+    if (!region.centerPoint) return
+
+    // Convert world coordinates to canvas coordinates
+    const pixelPos = worldToPixel(region.centerPoint.x, region.centerPoint.z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+    const canvasPos = imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+
+    // Draw center point marker (smaller size)
+    const markerSize = isSelected ? 6 : 4
+    
+    // Draw outer ring (white background)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
+    ctx.beginPath()
+    ctx.arc(canvasPos.x, canvasPos.y, markerSize + 1, 0, 2 * Math.PI)
+    ctx.fill()
+    
+    // Draw center point (purple for custom center points)
+    ctx.fillStyle = 'rgba(255, 0, 255, 1)'
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)'
+    ctx.lineWidth = 1
+    
+    ctx.beginPath()
+    ctx.arc(canvasPos.x, canvasPos.y, markerSize, 0, 2 * Math.PI)
+    ctx.fill()
+    ctx.stroke()
+
+    // Draw center point label only for selected regions
+    if (isSelected) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+      ctx.fillRect(canvasPos.x - 40, canvasPos.y - markerSize - 20, 80, 16)
+      
+      ctx.fillStyle = 'white'
+      ctx.font = '9px Arial'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('Center', canvasPos.x, canvasPos.y - markerSize - 12)
     }
   }
 

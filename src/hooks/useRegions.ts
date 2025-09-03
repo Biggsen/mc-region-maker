@@ -17,7 +17,8 @@ export function useRegions() {
   })
   const [highlightMode, setHighlightMode] = useState<HighlightMode>({
     highlightAll: false,
-    showVillages: true
+    showVillages: true,
+    showCenterPoints: true
   })
 
   // Load saved data on mount
@@ -25,7 +26,13 @@ export function useRegions() {
     const savedRegions = loadRegions()
     const savedSelectedRegion = loadSelectedRegion()
     
-    setRegions(savedRegions)
+    // Migrate existing regions to include centerPoint property
+    const migratedRegions = savedRegions.map(region => ({
+      ...region,
+      centerPoint: region.centerPoint || null
+    }))
+    
+    setRegions(migratedRegions)
     setSelectedRegionId(savedSelectedRegion)
     setIsInitialized(true)
   }, [])
@@ -81,7 +88,8 @@ export function useRegions() {
       name,
       points: [],
       minY: 0,
-      maxY: 255
+      maxY: 255,
+      centerPoint: null
     }
     setDrawingRegion(newRegion)
     // Exit edit mode when starting to draw
@@ -197,6 +205,10 @@ export function useRegions() {
 
   const toggleShowVillages = useCallback(() => {
     setHighlightMode(prev => ({ ...prev, showVillages: !prev.showVillages }))
+  }, [])
+
+  const toggleShowCenterPoints = useCallback(() => {
+    setHighlightMode(prev => ({ ...prev, showCenterPoints: !prev.showCenterPoints }))
   }, [])
 
   const importVillagesFromCSV = useCallback((csvContent: string) => {
@@ -354,6 +366,12 @@ export function useRegions() {
     })
   }, [])
 
+  const setCustomCenterPoint = useCallback((regionId: string, centerPoint: { x: number; z: number } | null) => {
+    setRegions(prev => prev.map(region => 
+      region.id === regionId ? { ...region, centerPoint } : region
+    ))
+  }, [])
+
   return {
     regions,
     selectedRegionId,
@@ -379,9 +397,11 @@ export function useRegions() {
     removePointFromRegion,
     toggleHighlightAll,
     toggleShowVillages,
+    toggleShowCenterPoints,
     importVillagesFromCSV,
     removeSubregionFromRegion,
     updateSubregionName,
-    regenerateVillageNames
+    regenerateVillageNames,
+    setCustomCenterPoint
   }
 }

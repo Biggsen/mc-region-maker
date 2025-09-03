@@ -4,6 +4,7 @@ export type Region = {
   points: { x: number; z: number }[]
   minY: number
   maxY: number
+  centerPoint?: { x: number; z: number } | null
   subregions?: Subregion[]
 }
 
@@ -56,4 +57,5 @@ export type EditMode = {
 export type HighlightMode = {
   highlightAll: boolean
   showVillages: boolean
+  showCenterPoints: boolean
 }

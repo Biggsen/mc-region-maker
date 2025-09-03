@@ -6,7 +6,7 @@ import { RegionOverlay } from './RegionOverlay'
 
 export function MapCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { mapState: mapStateHook, regions, spawn } = useAppContext()
+  const { mapState: mapStateHook, regions, spawn, mapCanvas } = useAppContext()
   const { mapState, setImage, setOffset, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
   const { 
     drawingRegion, 
@@ -22,6 +22,7 @@ export function MapCanvas() {
     removePointFromRegion
   } = regions
   const { spawnState, setSpawnCoordinates } = spawn
+  const { isSettingCenterPoint, centerPointRegionId, stopSettingCenterPoint } = mapCanvas
   const [isSpacePressed, setIsSpacePressed] = useState(false)
   const [mouseCoordinates, setMouseCoordinates] = useState<{ x: number; z: number } | null>(null)
 
@@ -71,6 +72,9 @@ export function MapCanvas() {
     }
     if (isSpacePressed) {
       return 'cursor-grab'
+    }
+    if (isSettingCenterPoint) {
+      return 'cursor-crosshair'
     }
     if (spawnState.isPlacing) {
       return 'cursor-crosshair'
@@ -165,6 +169,15 @@ export function MapCanvas() {
         } else {
           // Add point to drawing region
           addPointToDrawing(worldPos.x, worldPos.z)
+        }
+      } else if (isSettingCenterPoint && mapState.image && mapState.originSelected) {
+        // Set custom center point for the selected region
+        const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
+        const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image.width, mapState.image.height, mapState.originOffset)
+        
+        if (centerPointRegionId) {
+          regions.setCustomCenterPoint(centerPointRegionId, worldPos)
+          stopSettingCenterPoint()
         }
       } else if (mapState.image && mapState.originSelected) {
         // Check if clicking on a region
@@ -297,6 +310,8 @@ export function MapCanvas() {
     img.src = url
   }, [setImage, setOffset])
 
+
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -369,6 +384,12 @@ export function MapCanvas() {
         </div>
       )}
       
+      {isSettingCenterPoint && (
+        <div className="absolute top-4 right-4 z-10 bg-purple-600 text-white px-3 py-1 rounded text-sm">
+          Set Center Point Mode
+        </div>
+      )}
+      
       {spawnState.isPlacing && (
         <div className="absolute top-4 right-4 z-10 bg-red-600 text-white px-3 py-1 rounded text-sm">
           Spawn Placement Mode
@@ -381,7 +402,7 @@ export function MapCanvas() {
         </div>
       )}
       
-      <div className={`absolute top-4 z-10 bg-gray-800 text-white px-3 py-1 rounded text-sm border border-gray-600 ${isSpacePressed || editMode.isEditing ? 'right-32' : 'right-4'}`}>
+      <div className={`absolute top-4 z-10 bg-gray-800 text-white px-3 py-1 rounded text-sm border border-gray-600 ${isSpacePressed || editMode.isEditing || isSettingCenterPoint ? 'right-32' : 'right-4'}`}>
         {Math.round(mapState.scale * 100)}%
       </div>
       

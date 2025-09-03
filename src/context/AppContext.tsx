@@ -3,12 +3,14 @@ import { useRegions } from '../hooks/useRegions'
 import { useMapState } from '../hooks/useMapState'
 import { useWorldName } from '../hooks/useWorldName'
 import { useSpawn } from '../hooks/useSpawn'
+import { useMapCanvas } from '../hooks/useMapCanvas'
 
 interface AppContextType {
   regions: ReturnType<typeof useRegions>
   mapState: ReturnType<typeof useMapState>
   worldName: ReturnType<typeof useWorldName>
   spawn: ReturnType<typeof useSpawn>
+  mapCanvas: ReturnType<typeof useMapCanvas>
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -18,9 +20,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const mapState = useMapState()
   const worldName = useWorldName()
   const spawn = useSpawn()
+  const mapCanvas = useMapCanvas()
 
   return (
-    <AppContext.Provider value={{ regions, mapState, worldName, spawn }}>
+    <AppContext.Provider value={{ regions, mapState, worldName, spawn, mapCanvas }}>
       {children}
     </AppContext.Provider>
   )

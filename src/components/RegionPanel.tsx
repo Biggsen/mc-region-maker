@@ -21,9 +21,13 @@ export function RegionPanel() {
     stopEditMode,
     toggleHighlightAll,
     toggleShowVillages,
+    toggleShowCenterPoints,
     removeSubregionFromRegion,
-    updateSubregionName
+    updateSubregionName,
+    setCustomCenterPoint
   } = regions
+
+  const { startSettingCenterPoint, stopSettingCenterPoint } = useAppContext().mapCanvas
 
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
@@ -32,6 +36,9 @@ export function RegionPanel() {
   const [searchQuery, setSearchQuery] = useState('')
   const [editingVillageId, setEditingVillageId] = useState<string | null>(null)
   const [editingVillageName, setEditingVillageName] = useState('')
+  const [customCenterX, setCustomCenterX] = useState('')
+  const [customCenterZ, setCustomCenterZ] = useState('')
+  const [showCustomCenterForm, setShowCustomCenterForm] = useState(false)
 
   // Generate a random name when the form is shown
   useEffect(() => {
@@ -87,6 +94,39 @@ export function RegionPanel() {
     setEditingVillageName('')
   }
 
+  const handleSetCustomCenter = () => {
+    if (selectedRegion && customCenterX && customCenterZ) {
+      const x = parseInt(customCenterX)
+      const z = parseInt(customCenterZ)
+      if (!isNaN(x) && !isNaN(z)) {
+        setCustomCenterPoint(selectedRegion.id, { x, z })
+        setCustomCenterX('')
+        setCustomCenterZ('')
+        setShowCustomCenterForm(false)
+      }
+    }
+  }
+
+  const handleUseCalculatedCenter = () => {
+    if (selectedRegion) {
+      setCustomCenterPoint(selectedRegion.id, null)
+      setCustomCenterX('')
+      setCustomCenterZ('')
+      setShowCustomCenterForm(false)
+    }
+  }
+
+  const handleShowCustomCenterForm = () => {
+    if (selectedRegion?.centerPoint) {
+      setCustomCenterX(selectedRegion.centerPoint.x.toString())
+      setCustomCenterZ(selectedRegion.centerPoint.z.toString())
+    } else {
+      setCustomCenterX('')
+      setCustomCenterZ('')
+    }
+    setShowCustomCenterForm(true)
+  }
+
   const selectedRegion = regionsList.find(r => r.id === selectedRegionId)
   const isEditing = editMode.isEditing && editMode.editingRegionId === selectedRegionId
   const hasVillages = regionsList.some(region => region.subregions && region.subregions.length > 0)
@@ -133,6 +173,17 @@ export function RegionPanel() {
                 title="Show/hide villages on map"
               >
                 {highlightMode.showVillages ? 'Hide' : 'Show'} Villages
+              </button>
+              <button
+                onClick={toggleShowCenterPoints}
+                className={`text-sm px-2 py-1 rounded border ${
+                  highlightMode.showCenterPoints
+                    ? 'bg-purple-600 text-white border-purple-500'
+                    : 'text-purple-400 hover:text-purple-300 border-purple-400 hover:border-purple-300'
+                }`}
+                title="Show/hide center points on map"
+              >
+                {highlightMode.showCenterPoints ? 'Hide' : 'Show'} Centers
               </button>
               <button
                 onClick={handleClearData}
@@ -294,24 +345,7 @@ export function RegionPanel() {
                 {formatArea(calculatePolygonArea(selectedRegion.points))}
               </p>
             </div>
-            {selectedRegion.points.length >= 3 && (
-              <div className="mt-1 flex items-center justify-between">
-                <p className="text-gray-400 text-xs">
-                  Center: X: {Math.round(calculateRegionCenter(selectedRegion).x)}, Z: {Math.round(calculateRegionCenter(selectedRegion).z)}
-                </p>
-                <button
-                  onClick={() => {
-                    const center = calculateRegionCenter(selectedRegion)
-                    const tpCommand = `/tp @s ${Math.round(center.x)} ~ ${Math.round(center.z)}`
-                    navigator.clipboard.writeText(tpCommand)
-                  }}
-                  className="text-blue-400 hover:text-blue-300 text-xs px-2 py-1 rounded hover:bg-gray-700 transition-colors"
-                  title="Copy /tp command to clipboard"
-                >
-                  Copy /tp
-                </button>
-              </div>
-            )}
+
           </div>
 
           <div className="grid grid-cols-2 gap-2">
@@ -333,6 +367,112 @@ export function RegionPanel() {
                 className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
               />
             </div>
+          </div>
+
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm text-gray-300">Center Point</label>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => {
+                    if (showCustomCenterForm) {
+                      setShowCustomCenterForm(false)
+                    } else {
+                      startSettingCenterPoint(selectedRegion.id)
+                    }
+                  }}
+                  className="text-blue-400 hover:text-blue-300 text-sm px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+                  title="Click on map to set center point"
+                >
+                  Click Map
+                </button>
+                <button
+                  onClick={handleShowCustomCenterForm}
+                  className="text-gray-400 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+                  title="Manually enter coordinates"
+                >
+                  Manual
+                </button>
+              </div>
+            </div>
+            
+            {!showCustomCenterForm ? (
+              <div className="bg-gray-700 p-3 rounded border border-gray-600">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm">
+                    <span className="text-gray-400">Current: </span>
+                    <span className="text-white">
+                      X: {Math.round(calculateRegionCenter(selectedRegion).x)}, Z: {Math.round(calculateRegionCenter(selectedRegion).z)}
+                    </span>
+                    {selectedRegion.centerPoint && (
+                      <span className="text-blue-400 text-xs ml-2">(Custom)</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      const center = calculateRegionCenter(selectedRegion)
+                      const tpCommand = `/tp @s ${Math.round(center.x)} ~ ${Math.round(center.z)}`
+                      navigator.clipboard.writeText(tpCommand)
+                    }}
+                    className="text-blue-400 hover:text-blue-300 text-xs px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+                    title="Copy /tp command to clipboard"
+                  >
+                    Copy /tp
+                  </button>
+                </div>
+                {useAppContext().mapCanvas.isSettingCenterPoint && useAppContext().mapCanvas.centerPointRegionId === selectedRegion.id && (
+                  <div className="mt-2 p-2 bg-purple-900 border border-purple-600 rounded text-xs text-purple-200">
+                    Click anywhere on the map to set the center point for this region
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-gray-700 p-3 rounded border border-gray-600 space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">X Coordinate</label>
+                    <input
+                      type="number"
+                      value={customCenterX}
+                      onChange={(e) => setCustomCenterX(e.target.value)}
+                      placeholder="X"
+                      className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-blue-400 focus:outline-none text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Z Coordinate</label>
+                    <input
+                      type="number"
+                      value={customCenterZ}
+                      onChange={(e) => setCustomCenterZ(e.target.value)}
+                      placeholder="Z"
+                      className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-blue-400 focus:outline-none text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleSetCustomCenter}
+                    disabled={!customCenterX || !customCenterZ}
+                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:text-gray-400 text-white text-sm px-2 py-1 rounded"
+                  >
+                    Set Center
+                  </button>
+                  <button
+                    onClick={handleUseCalculatedCenter}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white text-sm px-2 py-1 rounded"
+                  >
+                    Use Calculated
+                  </button>
+                  <button
+                    onClick={() => setShowCustomCenterForm(false)}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white text-sm px-2 py-1 rounded"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex space-x-2">
