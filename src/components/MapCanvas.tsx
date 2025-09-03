@@ -342,7 +342,7 @@ export function MapCanvas() {
       </div>
       
       {!mapState.image && regions.regions.length > 0 && (
-        <div className="absolute top-16 left-4 z-10 bg-yellow-600 text-white px-4 py-2 rounded text-sm shadow-lg max-w-md">
+        <div className="absolute top-32 left-4 z-10 bg-yellow-600 text-white px-4 py-2 rounded text-sm shadow-lg max-w-md">
           <div className="font-semibold mb-1">Image Required</div>
           <div className="text-xs">
             Your regions have been saved, but the image needs to be reloaded. 

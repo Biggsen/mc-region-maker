@@ -3,19 +3,21 @@ import React, { useState } from 'react'
 interface ExportDialogProps {
   isOpen: boolean
   onClose: () => void
-  onExport: (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean) => void
+  onExport: (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean, includeSpawnRegion: boolean) => void
   hasVillages: boolean
+  hasSpawn: boolean
 }
 
-export function ExportDialog({ isOpen, onClose, onExport, hasVillages }: ExportDialogProps) {
+export function ExportDialog({ isOpen, onClose, onExport, hasVillages, hasSpawn }: ExportDialogProps) {
   const [includeVillages, setIncludeVillages] = useState(true)
   const [randomMobSpawn, setRandomMobSpawn] = useState(false)
   const [includeHeartRegions, setIncludeHeartRegions] = useState(true)
+  const [includeSpawnRegion, setIncludeSpawnRegion] = useState(true)
 
   if (!isOpen) return null
 
   const handleExport = () => {
-    onExport(includeVillages, randomMobSpawn, includeHeartRegions)
+    onExport(includeVillages, randomMobSpawn, includeHeartRegions, includeSpawnRegion)
     onClose()
   }
 
@@ -61,6 +63,20 @@ export function ExportDialog({ isOpen, onClose, onExport, hasVillages }: ExportD
             />
             <label htmlFor="randomMobSpawn" className="ml-2 text-white">
               Random mob spawn
+            </label>
+          </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="includeSpawnRegion"
+              checked={includeSpawnRegion}
+              onChange={(e) => setIncludeSpawnRegion(e.target.checked)}
+              disabled={!hasSpawn}
+              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+            />
+            <label htmlFor="includeSpawnRegion" className="ml-2 text-white">
+              Include Spawn Region
+              {!hasSpawn && <span className="text-gray-400 ml-1">(No spawn point set)</span>}
             </label>
           </div>
         </div>

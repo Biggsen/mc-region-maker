@@ -28,8 +28,8 @@ export function ExportImportPanel() {
     setShowExportDialog(true)
   }
 
-  const handleExportYAMLWithOptions = (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean) => {
-    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions)
+  const handleExportYAMLWithOptions = (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean, includeSpawnRegion: boolean) => {
+    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, includeSpawnRegion, spawn.spawnState.coordinates, spawn.spawnState.radius)
   }
 
   const handleGenerateAchievements = () => {
@@ -285,6 +285,7 @@ export function ExportImportPanel() {
          onClose={() => setShowExportDialog(false)}
          onExport={handleExportYAMLWithOptions}
          hasVillages={computedHasVillages}
+         hasSpawn={!!spawn.spawnState.coordinates}
        />
      </div>
    )

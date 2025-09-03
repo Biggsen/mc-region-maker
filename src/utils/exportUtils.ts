@@ -45,13 +45,29 @@ export function exportMapData(regions: Region[], mapState: MapState, worldName: 
 }
 
 // Export all regions to YAML file in WorldGuard format
-export function exportRegionsYAML(regions: Region[], includeVillages: boolean = true, randomMobSpawn: boolean = false, includeHeartRegions: boolean = true): void {
-  if (regions.length === 0) {
+export function exportRegionsYAML(
+  regions: Region[], 
+  includeVillages: boolean = true, 
+  randomMobSpawn: boolean = false, 
+  includeHeartRegions: boolean = true,
+  includeSpawnRegion: boolean = false,
+  spawnCoordinates?: { x: number; z: number; radius?: number } | null
+): void {
+  if (regions.length === 0 && !includeSpawnRegion) {
     alert('No regions to export')
     return
   }
 
   let yamlContent = 'regions:\n'
+  
+  // Add spawn region if requested and coordinates exist
+  if (includeSpawnRegion && spawnCoordinates && spawnCoordinates.radius) {
+    const spawnRegion = generateSpawnRegionYAML(spawnCoordinates)
+    yamlContent += spawnRegion
+    if (regions.length > 0) {
+      yamlContent += '\n'
+    }
+  }
   
   regions.forEach((region, index) => {
     yamlContent += generateRegionYAML(region, includeVillages, randomMobSpawn, includeHeartRegions)
@@ -69,6 +85,31 @@ export function exportRegionsYAML(regions: Region[], includeVillages: boolean = 
   link.click()
   
   URL.revokeObjectURL(link.href)
+}
+
+// Generate spawn region YAML
+function generateSpawnRegionYAML(spawnCoordinates: { x: number; z: number; radius: number }): string {
+  const { x, z, radius } = spawnCoordinates
+  
+  // Calculate cuboid bounds based on spawn point and radius
+  const minX = x - radius
+  const maxX = x + radius
+  const minZ = z - radius
+  const maxZ = z + radius
+  
+  let yaml = `  spawn:\n`
+  yaml += `    min: {x: ${minX}, y: 0, z: ${minZ}}\n`
+  yaml += `    max: {x: ${maxX}, y: 255, z: ${maxZ}}\n`
+  yaml += `    members: {}\n`
+  yaml += `    flags:\n`
+  yaml += `      build: deny\n`
+  yaml += `      pvp: deny\n`
+  yaml += `      mob-spawning: deny\n`
+  yaml += `    owners: {}\n`
+  yaml += `    type: cuboid\n`
+  yaml += `    priority: 10\n`
+  
+  return yaml
 }
 
 // Generate achievements YAML for regions and villages
