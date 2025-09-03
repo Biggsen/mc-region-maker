@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { MapState, Region, EditMode, HighlightMode, Subregion } from '../types'
+import { MapState, Region, EditMode, HighlightMode, Subregion, WorldCoordinate } from '../types'
 import { worldToPixel, imageToCanvas, canvasToImage, pixelToWorld } from '../utils/coordinateUtils'
 
 interface RegionOverlayProps {
@@ -10,6 +10,7 @@ interface RegionOverlayProps {
   editMode: EditMode
   highlightMode: HighlightMode
   regions?: Region[]
+  spawnCoordinates?: WorldCoordinate | null
   onPointMouseDown?: (regionId: string, pointIndex: number, event: React.MouseEvent) => void
   onPointMouseMove?: (regionId: string, pointIndex: number, x: number, z: number) => void
   onPointMouseUp?: () => void
@@ -25,6 +26,7 @@ export function RegionOverlay({
   editMode,
   highlightMode,
   regions = [],
+  spawnCoordinates,
   onPointMouseDown,
   onPointMouseMove,
   onPointMouseUp,
@@ -70,7 +72,12 @@ export function RegionOverlay({
       drawRegion(ctx, drawingRegion, mapState, false, true, false, false)
     }
 
-  }, [canvas, mapState, drawingRegion, selectedRegionId, editMode, highlightMode, regions])
+    // Draw spawn point
+    if (spawnCoordinates) {
+      drawSpawnPoint(ctx, spawnCoordinates, mapState)
+    }
+
+  }, [canvas, mapState, drawingRegion, selectedRegionId, editMode, highlightMode, regions, spawnCoordinates])
 
   const drawRegion = (
     ctx: CanvasRenderingContext2D, 
@@ -238,6 +245,30 @@ export function RegionOverlay({
       ctx.textBaseline = 'middle'
       ctx.fillText(subregion.name, canvasPos.x, canvasPos.y - 15)
     }
+  }
+
+  const drawSpawnPoint = (
+    ctx: CanvasRenderingContext2D,
+    spawnCoordinates: WorldCoordinate,
+    mapState: MapState
+  ) => {
+    const pixelPos = worldToPixel(spawnCoordinates.x, spawnCoordinates.z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+    const canvasPos = imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+
+    ctx.fillStyle = 'rgba(255, 0, 0, 1)' // Red spawn point
+    ctx.strokeStyle = 'rgba(0, 0, 0, 1)' // Black border
+    ctx.lineWidth = 2
+
+    ctx.beginPath()
+    ctx.arc(canvasPos.x, canvasPos.y, 8, 0, 2 * Math.PI)
+    ctx.fill()
+    ctx.stroke()
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+    ctx.font = '10px Arial'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('Spawn', canvasPos.x, canvasPos.y + 10)
   }
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {

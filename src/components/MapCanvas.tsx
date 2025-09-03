@@ -6,7 +6,7 @@ import { RegionOverlay } from './RegionOverlay'
 
 export function MapCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { mapState: mapStateHook, regions } = useAppContext()
+  const { mapState: mapStateHook, regions, spawn } = useAppContext()
   const { mapState, setImage, setOffset, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
   const { 
     drawingRegion, 
@@ -21,6 +21,7 @@ export function MapCanvas() {
     addPointToRegion,
     removePointFromRegion
   } = regions
+  const { spawnState, setSpawnCoordinates } = spawn
   const [isSpacePressed, setIsSpacePressed] = useState(false)
   const [mouseCoordinates, setMouseCoordinates] = useState<{ x: number; z: number } | null>(null)
 
@@ -70,6 +71,9 @@ export function MapCanvas() {
     }
     if (isSpacePressed) {
       return 'cursor-grab'
+    }
+    if (spawnState.isPlacing) {
+      return 'cursor-crosshair'
     }
     if (!mapState.originSelected && mapState.image) {
       return 'cursor-crosshair'
@@ -136,6 +140,11 @@ export function MapCanvas() {
         // Set origin
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
         setOrigin(imagePos.x, imagePos.y)
+      } else if (spawnState.isPlacing && mapState.image && mapState.originSelected) {
+        // Place spawn point
+        const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
+        const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image.width, mapState.image.height, mapState.originOffset)
+        setSpawnCoordinates(worldPos)
       } else if (drawingRegion) {
         // Check if clicking near a previous point to close polygon
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
@@ -176,7 +185,7 @@ export function MapCanvas() {
       }
       // Note: Panning is only allowed when space key is pressed (handled in the first condition)
     }
-  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, editMode.isEditing, setOrigin, addPointToDrawing, finishDrawingRegion, startDragging, regions])
+  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, editMode.isEditing, setOrigin, addPointToDrawing, finishDrawingRegion, startDragging, regions, spawnState.isPlacing, setSpawnCoordinates])
 
   const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (e.button === 0) {
@@ -360,6 +369,12 @@ export function MapCanvas() {
         </div>
       )}
       
+      {spawnState.isPlacing && (
+        <div className="absolute top-4 right-4 z-10 bg-red-600 text-white px-3 py-1 rounded text-sm">
+          Spawn Placement Mode
+        </div>
+      )}
+      
       {mouseCoordinates && (
         <div className="absolute bottom-4 left-4 z-10 bg-gray-800 text-white px-3 py-2 rounded text-sm border border-gray-600 font-mono">
           X: {Math.round(mouseCoordinates.x)} Z: {Math.round(mouseCoordinates.z)}
@@ -393,6 +408,7 @@ export function MapCanvas() {
             editMode={editMode}
             highlightMode={highlightMode}
             regions={regions.regions}
+            spawnCoordinates={spawnState.coordinates}
             onPointMouseDown={handlePointMouseDown}
             onPointMouseMove={handlePointMouseMove}
             onPointMouseUp={handlePointMouseUp}

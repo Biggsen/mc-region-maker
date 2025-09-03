@@ -5,6 +5,7 @@ import { RegionPanel } from './components/RegionPanel'
 import { ExportImportPanel } from './components/ExportImportPanel'
 import { LoadingOverlay } from './components/LoadingOverlay'
 import { WorldNameHeading } from './components/WorldNameHeading'
+import { SpawnButton } from './components/SpawnButton'
 
 function App() {
   const [isLoading, setIsLoading] = useState(true)
@@ -25,6 +26,7 @@ function App() {
         <div className="w-80 bg-gray-800 p-4 overflow-y-auto h-screen">
           <WorldNameHeading />
           <ExportImportPanel />
+          <SpawnButton />
           <RegionPanel />
         </div>
         {isLoading && <LoadingOverlay />}

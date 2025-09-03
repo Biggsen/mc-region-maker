@@ -30,6 +30,12 @@ export type PixelCoordinate = {
   y: number
 }
 
+export type SpawnState = {
+  coordinates: WorldCoordinate | null
+  isPlacing: boolean
+  radius: number
+}
+
 export type MapState = {
   image: HTMLImageElement | null
   scale: number

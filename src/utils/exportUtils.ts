@@ -6,13 +6,14 @@ export interface ExportData {
   worldName: string
   regions: Region[]
   mapState: Omit<MapState, 'image'> & { imageSrc?: string }
+  spawnCoordinates?: { x: number; z: number; radius?: number } | null
   exportDate: string
 }
 
 const CURRENT_VERSION = '1.0.0'
 
 // Export regions and map state to JSON file
-export function exportMapData(regions: Region[], mapState: MapState, worldName: string): void {
+export function exportMapData(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null): void {
   const exportData: ExportData = {
     version: CURRENT_VERSION,
     worldName,
@@ -27,6 +28,7 @@ export function exportMapData(regions: Region[], mapState: MapState, worldName: 
       originOffset: mapState.originOffset,
       imageSrc: mapState.image?.imageSrc || undefined
     },
+    spawnCoordinates,
     exportDate: new Date().toISOString()
   }
 

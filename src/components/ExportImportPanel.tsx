@@ -4,7 +4,7 @@ import { exportMapData, exportRegionsYAML, importMapData, loadImageFromSrc, gene
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
-  const { regions, mapState, worldName } = useAppContext()
+  const { regions, mapState, worldName, spawn } = useAppContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const villageFileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
@@ -16,7 +16,12 @@ export function ExportImportPanel() {
   const [isCollapsed, setIsCollapsed] = useState(true)
 
   const handleExport = () => {
-    exportMapData(regions.regions, mapState.mapState, worldName.worldName)
+    const spawnData = spawn.spawnState.coordinates ? {
+      x: spawn.spawnState.coordinates.x,
+      z: spawn.spawnState.coordinates.z,
+      radius: spawn.spawnState.radius
+    } : null
+    exportMapData(regions.regions, mapState.mapState, worldName.worldName, spawnData)
   }
 
   const handleExportYAML = () => {
@@ -70,6 +75,15 @@ export function ExportImportPanel() {
       // Update world name if it exists in import data
       if (importData.worldName) {
         worldName.updateWorldName(importData.worldName)
+      }
+
+      // Update spawn coordinates if they exist in import data
+      if (importData.spawnCoordinates) {
+        spawn.setSpawnCoordinates(importData.spawnCoordinates)
+        // Update radius if it exists in import data
+        if (importData.spawnCoordinates.radius) {
+          spawn.setSpawnRadius(importData.spawnCoordinates.radius)
+        }
       }
 
       // Clear the file input
