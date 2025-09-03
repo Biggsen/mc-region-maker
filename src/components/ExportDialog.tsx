@@ -3,18 +3,19 @@ import React, { useState } from 'react'
 interface ExportDialogProps {
   isOpen: boolean
   onClose: () => void
-  onExport: (includeVillages: boolean, randomMobSpawn: boolean) => void
+  onExport: (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean) => void
   hasVillages: boolean
 }
 
 export function ExportDialog({ isOpen, onClose, onExport, hasVillages }: ExportDialogProps) {
   const [includeVillages, setIncludeVillages] = useState(true)
   const [randomMobSpawn, setRandomMobSpawn] = useState(false)
+  const [includeHeartRegions, setIncludeHeartRegions] = useState(true)
 
   if (!isOpen) return null
 
   const handleExport = () => {
-    onExport(includeVillages, randomMobSpawn)
+    onExport(includeVillages, randomMobSpawn, includeHeartRegions)
     onClose()
   }
 
@@ -36,6 +37,18 @@ export function ExportDialog({ isOpen, onClose, onExport, hasVillages }: ExportD
             <label htmlFor="includeVillages" className="ml-2 text-white">
               Include Villages
               {!hasVillages && <span className="text-gray-400 ml-1">(No villages available)</span>}
+            </label>
+          </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="includeHeartRegions"
+              checked={includeHeartRegions}
+              onChange={(e) => setIncludeHeartRegions(e.target.checked)}
+              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+            />
+            <label htmlFor="includeHeartRegions" className="ml-2 text-white">
+              Include Heart of Regions (7x7 centered subregions)
             </label>
           </div>
           <div className="flex items-center">

@@ -21,7 +21,7 @@ function generateRandomMobList(): string[] {
   return shuffled.slice(0, count)
 }
 
-export function generateRegionYAML(region: Region, includeVillages: boolean = true, randomMobSpawn: boolean = false): string {
+export function generateRegionYAML(region: Region, includeVillages: boolean = true, randomMobSpawn: boolean = false, includeHeartRegions: boolean = true): string {
   const points = region.points.map(point => `      - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`).join('\n')
   
   // Generate deny-spawn flag if randomMobSpawn is enabled
@@ -39,6 +39,22 @@ export function generateRegionYAML(region: Region, includeVillages: boolean = tr
     flags: ${flags}
     points:
 ${points}`
+
+  // Add heart_of_[region] subregion for each main region if enabled
+  if (includeHeartRegions) {
+    const regionCenter = calculateRegionCenter(region)
+    const heartRegionName = `heart_of_${region.name.toLowerCase().replace(/\s+/g, '_')}`
+    const heartSize = 7 // 7x7 size as requested
+    
+    yaml += `\n\n  ${heartRegionName}:
+    type: cuboid
+    min: {x: ${Math.round(regionCenter.x - Math.floor(heartSize / 2))}, y: ${region.minY}, z: ${Math.round(regionCenter.z - Math.floor(heartSize / 2))}}
+    max: {x: ${Math.round(regionCenter.x + Math.floor(heartSize / 2))}, y: ${region.maxY}, z: ${Math.round(regionCenter.z + Math.floor(heartSize / 2))}}
+    members: {}
+    owners: {}
+    flags: {greeting-title: Heart of ${region.name}}
+    priority: 10`
+  }
 
   // Add subregions if they exist and includeVillages is true
   if (includeVillages && region.subregions && region.subregions.length > 0) {
@@ -107,4 +123,41 @@ export function formatArea(areaInBlocks: number): string {
   } else {
     return `${Math.round(areaInBlocks).toLocaleString()} blocks²`
   }
+}
+
+/**
+ * Calculate the center point (centroid) of a polygon
+ * @param points Array of polygon points with x and z coordinates
+ * @returns Center point coordinates {x, z}
+ */
+export function calculatePolygonCenter(points: { x: number; z: number }[]): { x: number; z: number } {
+  if (points.length === 0) {
+    return { x: 0, z: 0 }
+  }
+  
+  if (points.length === 1) {
+    return { x: points[0].x, z: points[0].z }
+  }
+  
+  let sumX = 0
+  let sumZ = 0
+  
+  for (const point of points) {
+    sumX += point.x
+    sumZ += point.z
+  }
+  
+  return {
+    x: sumX / points.length,
+    z: sumZ / points.length
+  }
+}
+
+/**
+ * Calculate the center point of a region
+ * @param region The region to calculate the center for
+ * @returns Center point coordinates {x, z}
+ */
+export function calculateRegionCenter(region: Region): { x: number; z: number } {
+  return calculatePolygonCenter(region.points)
 }

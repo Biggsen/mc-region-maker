@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/polygonUtils'
+import { copyToClipboard, calculatePolygonArea, formatArea, calculateRegionCenter } from '../utils/polygonUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
 import { generateMedievalName } from '../utils/nameGenerator'
 
@@ -294,6 +294,24 @@ export function RegionPanel() {
                 {formatArea(calculatePolygonArea(selectedRegion.points))}
               </p>
             </div>
+            {selectedRegion.points.length >= 3 && (
+              <div className="mt-1 flex items-center justify-between">
+                <p className="text-gray-400 text-xs">
+                  Center: X: {Math.round(calculateRegionCenter(selectedRegion).x)}, Z: {Math.round(calculateRegionCenter(selectedRegion).z)}
+                </p>
+                <button
+                  onClick={() => {
+                    const center = calculateRegionCenter(selectedRegion)
+                    const tpCommand = `/tp @s ${Math.round(center.x)} ~ ${Math.round(center.z)}`
+                    navigator.clipboard.writeText(tpCommand)
+                  }}
+                  className="text-blue-400 hover:text-blue-300 text-xs px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+                  title="Copy /tp command to clipboard"
+                >
+                  Copy /tp
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-2">
