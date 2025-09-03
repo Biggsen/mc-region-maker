@@ -37,7 +37,8 @@ export function exportMapData(regions: Region[], mapState: MapState, worldName: 
   
   const link = document.createElement('a')
   link.href = URL.createObjectURL(dataBlob)
-  link.download = `mc-region-map-${new Date().toISOString().split('T')[0]}.json`
+  const worldNameSlug = worldName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
+  link.download = `mc-region-map-${worldNameSlug}-${new Date().toISOString().split('T')[0]}.json`
   link.click()
   
   URL.revokeObjectURL(link.href)
