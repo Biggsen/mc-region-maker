@@ -22,6 +22,7 @@ export function MapCanvas() {
     removePointFromRegion
   } = regions
   const [isSpacePressed, setIsSpacePressed] = useState(false)
+  const [mouseCoordinates, setMouseCoordinates] = useState<{ x: number; z: number } | null>(null)
 
   // Debug mapState changes
   useEffect(() => {
@@ -191,8 +192,17 @@ export function MapCanvas() {
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
 
+    // Update mouse coordinates for display
+    if (mapState.image && mapState.originSelected) {
+      const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
+      const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image.width, mapState.image.height, mapState.originOffset)
+      setMouseCoordinates(worldPos)
+    } else {
+      setMouseCoordinates(null)
+    }
+
     handleMouseMove(x, y)
-  }, [handleMouseMove])
+  }, [mapState.image, mapState.originSelected, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, handleMouseMove])
 
   const onWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault()
@@ -347,6 +357,12 @@ export function MapCanvas() {
       {editMode.isEditing && (
         <div className="absolute top-4 right-4 z-10 bg-orange-600 text-white px-3 py-1 rounded text-sm">
           Edit Mode
+        </div>
+      )}
+      
+      {mouseCoordinates && (
+        <div className="absolute bottom-4 left-4 z-10 bg-gray-800 text-white px-3 py-2 rounded text-sm border border-gray-600 font-mono">
+          X: {Math.round(mouseCoordinates.x)} Z: {Math.round(mouseCoordinates.z)}
         </div>
       )}
       
