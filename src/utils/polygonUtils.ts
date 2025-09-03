@@ -52,7 +52,7 @@ ${points}`
     max: {x: ${Math.round(regionCenter.x + Math.floor(heartSize / 2))}, y: ${region.maxY}, z: ${Math.round(regionCenter.z + Math.floor(heartSize / 2))}}
     members: {}
     owners: {}
-    flags: {greeting-title: Heart of ${region.name}}
+    flags: {greeting-title: Heart of ${region.name}, build: deny, interact: allow, creeper-explosion: deny, other-explosion: deny, tnt: deny}
     priority: 10`
   }
 

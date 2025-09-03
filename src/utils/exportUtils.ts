@@ -105,6 +105,9 @@ function generateSpawnRegionYAML(spawnCoordinates: { x: number; z: number; radiu
   yaml += `      build: deny\n`
   yaml += `      pvp: deny\n`
   yaml += `      mob-spawning: deny\n`
+  yaml += `      creeper-explosion: deny\n`
+  yaml += `      other-explosion: deny\n`
+  yaml += `      tnt: deny\n`
   yaml += `    owners: {}\n`
   yaml += `    type: cuboid\n`
   yaml += `    priority: 10\n`
