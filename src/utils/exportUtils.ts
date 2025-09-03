@@ -3,6 +3,7 @@ import { generateRegionYAML } from './polygonUtils'
 
 export interface ExportData {
   version: string
+  worldName: string
   regions: Region[]
   mapState: Omit<MapState, 'image'> & { imageSrc?: string }
   exportDate: string
@@ -11,9 +12,10 @@ export interface ExportData {
 const CURRENT_VERSION = '1.0.0'
 
 // Export regions and map state to JSON file
-export function exportMapData(regions: Region[], mapState: MapState): void {
+export function exportMapData(regions: Region[], mapState: MapState, worldName: string): void {
   const exportData: ExportData = {
     version: CURRENT_VERSION,
+    worldName,
     regions,
     mapState: {
       scale: mapState.scale,
@@ -23,7 +25,7 @@ export function exportMapData(regions: Region[], mapState: MapState): void {
       lastMousePos: mapState.lastMousePos,
       originSelected: mapState.originSelected,
       originOffset: mapState.originOffset,
-      imageSrc: mapState.image?.src || undefined
+      imageSrc: mapState.image?.imageSrc || undefined
     },
     exportDate: new Date().toISOString()
   }
@@ -197,6 +199,11 @@ export function importMapData(file: File): Promise<ExportData> {
         // Validate the imported data
         if (!data.version || !data.regions || !data.mapState) {
           throw new Error('Invalid file format')
+        }
+        
+        // Handle legacy imports that don't have worldName
+        if (!data.worldName) {
+          data.worldName = 'world'
         }
         
         resolve(data)

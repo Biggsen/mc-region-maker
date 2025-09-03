@@ -4,7 +4,7 @@ import { exportMapData, exportRegionsYAML, importMapData, loadImageFromSrc, gene
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
-  const { regions, mapState } = useAppContext()
+  const { regions, mapState, worldName } = useAppContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const villageFileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
@@ -16,7 +16,7 @@ export function ExportImportPanel() {
   const [isCollapsed, setIsCollapsed] = useState(true)
 
   const handleExport = () => {
-    exportMapData(regions.regions, mapState.mapState)
+    exportMapData(regions.regions, mapState.mapState, worldName.worldName)
   }
 
   const handleExportYAML = () => {
@@ -66,6 +66,11 @@ export function ExportImportPanel() {
       // Replace all regions
       regions.replaceRegions(importData.regions)
       regions.setSelectedRegionId(null)
+
+      // Update world name if it exists in import data
+      if (importData.worldName) {
+        worldName.updateWorldName(importData.worldName)
+      }
 
       // Clear the file input
       if (fileInputRef.current) {

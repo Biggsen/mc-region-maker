@@ -4,6 +4,7 @@ import { MapCanvas } from './components/MapCanvas'
 import { RegionPanel } from './components/RegionPanel'
 import { ExportImportPanel } from './components/ExportImportPanel'
 import { LoadingOverlay } from './components/LoadingOverlay'
+import { WorldNameHeading } from './components/WorldNameHeading'
 
 function App() {
   const [isLoading, setIsLoading] = useState(true)
@@ -22,6 +23,7 @@ function App() {
       <div className="min-h-screen bg-gray-900 text-white flex">
         <MapCanvas />
         <div className="w-80 bg-gray-800 p-4 overflow-y-auto h-screen">
+          <WorldNameHeading />
           <ExportImportPanel />
           <RegionPanel />
         </div>

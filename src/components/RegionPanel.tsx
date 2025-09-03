@@ -210,7 +210,7 @@ export function RegionPanel() {
           )}
 
           <div className="space-y-2 mb-6">
-            {(showAllRegions ? [...filteredRegions].reverse() : filteredRegions.slice(-10).reverse()).map(region => {
+            {(showAllRegions ? [...filteredRegions].reverse() : filteredRegions.slice(-5).reverse()).map(region => {
               const area = calculatePolygonArea(region.points)
               return (
                 <div
@@ -239,12 +239,12 @@ export function RegionPanel() {
               )
             })}
             
-            {filteredRegions.length > 10 && (
+            {filteredRegions.length > 5 && (
               <button
                 onClick={() => setShowAllRegions(!showAllRegions)}
                 className="w-full text-blue-400 hover:text-blue-300 text-sm py-2 border border-blue-400 hover:border-blue-300 rounded"
               >
-                {showAllRegions ? 'Show Less' : `Show All (${filteredRegions.length - 10} more)`}
+                {showAllRegions ? 'Show Less' : `Show All (${filteredRegions.length - 5} more)`}
               </button>
             )}
           </div>

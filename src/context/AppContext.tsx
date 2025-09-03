@@ -1,10 +1,12 @@
 import { createContext, useContext, ReactNode } from 'react'
 import { useRegions } from '../hooks/useRegions'
 import { useMapState } from '../hooks/useMapState'
+import { useWorldName } from '../hooks/useWorldName'
 
 interface AppContextType {
   regions: ReturnType<typeof useRegions>
   mapState: ReturnType<typeof useMapState>
+  worldName: ReturnType<typeof useWorldName>
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -12,9 +14,10 @@ const AppContext = createContext<AppContextType | null>(null)
 export function AppProvider({ children }: { children: ReactNode }) {
   const regions = useRegions()
   const mapState = useMapState()
+  const worldName = useWorldName()
 
   return (
-    <AppContext.Provider value={{ regions, mapState }}>
+    <AppContext.Provider value={{ regions, mapState, worldName }}>
       {children}
     </AppContext.Provider>
   )
