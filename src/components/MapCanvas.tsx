@@ -386,7 +386,7 @@ export function MapCanvas() {
       
       {isSettingCenterPoint && (
         <div className="absolute top-4 right-4 z-10 bg-purple-600 text-white px-3 py-1 rounded text-sm">
-          Set Center Point Mode
+          Set Region Heart Mode
         </div>
       )}
       

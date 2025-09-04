@@ -258,7 +258,7 @@ export function RegionOverlay({
       ctx.font = '9px Arial'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.fillText('Center', canvasPos.x, canvasPos.y - markerSize - 12)
+      ctx.fillText('Region Heart', canvasPos.x, canvasPos.y - markerSize - 12)
     }
   }
 

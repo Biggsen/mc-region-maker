@@ -181,9 +181,9 @@ export function RegionPanel() {
                     ? 'bg-purple-600 text-white border-purple-500'
                     : 'text-purple-400 hover:text-purple-300 border-purple-400 hover:border-purple-300'
                 }`}
-                title="Show/hide center points on map"
+                title="Show/hide region hearts on map"
               >
-                {highlightMode.showCenterPoints ? 'Hide' : 'Show'} Centers
+                {highlightMode.showCenterPoints ? 'Hide' : 'Show'} Region Hearts
               </button>
               <button
                 onClick={handleClearData}
@@ -371,7 +371,7 @@ export function RegionPanel() {
 
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm text-gray-300">Center Point</label>
+              <label className="block text-sm text-gray-300">Region Heart</label>
               <div className="flex space-x-2">
                 <button
                   onClick={() => {
@@ -382,7 +382,7 @@ export function RegionPanel() {
                     }
                   }}
                   className="text-blue-400 hover:text-blue-300 text-sm px-2 py-1 rounded hover:bg-gray-700 transition-colors"
-                  title="Click on map to set center point"
+                  title="Click on map to set region heart"
                 >
                   Click Map
                 </button>
@@ -422,7 +422,7 @@ export function RegionPanel() {
                 </div>
                 {useAppContext().mapCanvas.isSettingCenterPoint && useAppContext().mapCanvas.centerPointRegionId === selectedRegion.id && (
                   <div className="mt-2 p-2 bg-purple-900 border border-purple-600 rounded text-xs text-purple-200">
-                    Click anywhere on the map to set the center point for this region
+                    Click anywhere on the map to set the region heart for this region
                   </div>
                 )}
               </div>
@@ -456,7 +456,7 @@ export function RegionPanel() {
                     disabled={!customCenterX || !customCenterZ}
                     className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:text-gray-400 text-white text-sm px-2 py-1 rounded"
                   >
-                    Set Center
+                    Set Region Heart
                   </button>
                   <button
                     onClick={handleUseCalculatedCenter}
