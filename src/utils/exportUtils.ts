@@ -138,6 +138,16 @@ export function generateAchievementsYAML(regions: Region[]): void {
     yamlContent += `    Type: normal\n`
     achievementCount++
 
+    // Generate heart achievement for this region
+    const heartKey = `discoverHeartOf${regionKey}`
+    yamlContent += `  ${heartKey}:\n`
+    yamlContent += `    Goal: Discover the Heart of ${region.name}\n`
+    yamlContent += `    Message: You discovered the Heart of ${region.name}\n`
+    yamlContent += `    Name: discover_heart_of_${region.name.toLowerCase().replace(/\s+/g, '_')}\n`
+    yamlContent += `    DisplayName: Heart Discovery\n`
+    yamlContent += `    Type: normal\n`
+    achievementCount++
+
     // Generate achievements for villages in this region
     if (region.subregions && region.subregions.length > 0) {
       region.subregions.forEach(subregion => {
@@ -193,6 +203,21 @@ export function generateEventConditionsYAML(regions: Region[]): void {
     yamlContent += `      default:\n`
     yamlContent += `        - 'console_command: aach give discover${region.name.replace(/\s+/g, '')} %player%'\n`
     yamlContent += `        - 'console_command: aach add 1 Custom.regions_discovered %player%'\n`
+    yamlContent += `        - 'console_command: cc give virtual RegionCrate 1 %player%'\n`
+    yamlContent += `      one_time:\n`
+    eventCount++
+
+    // Generate heart event conditions for this region
+    const heartEventKey = `heart_of_${regionKey}_discover_once`
+    yamlContent += `  ${heartEventKey}:\n`
+    yamlContent += `    type: wgevents_region_enter\n`
+    yamlContent += `    conditions:\n`
+    yamlContent += `      - '%region% == heart_of_${regionKey}'\n`
+    yamlContent += `    one_time: true\n`
+    yamlContent += `    actions:\n`
+    yamlContent += `      default:\n`
+    yamlContent += `        - 'console_command: aach give discoverHeartOf${region.name.replace(/\s+/g, '')} %player%'\n`
+    yamlContent += `        - 'console_command: aach add 1 Custom.hearts_discovered %player%'\n`
     yamlContent += `        - 'console_command: cc give virtual RegionCrate 1 %player%'\n`
     yamlContent += `      one_time:\n`
     eventCount++
