@@ -1,3 +1,5 @@
+export type ChallengeLevel = 'Vanilla' | 'Bronze' | 'Silver' | 'Gold' | 'Platinum'
+
 export type Region = {
   id: string
   name: string
@@ -6,6 +8,8 @@ export type Region = {
   maxY: number
   centerPoint?: { x: number; z: number } | null
   subregions?: Subregion[]
+  challengeLevel?: ChallengeLevel
+  hasSpawn?: boolean
 }
 
 export type Subregion = {
@@ -58,4 +62,6 @@ export type HighlightMode = {
   highlightAll: boolean
   showVillages: boolean
   showCenterPoints: boolean
+  showChallengeLevels: boolean
+  showGrid: boolean
 }

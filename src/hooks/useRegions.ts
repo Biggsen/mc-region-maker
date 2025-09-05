@@ -18,7 +18,9 @@ export function useRegions() {
   const [highlightMode, setHighlightMode] = useState<HighlightMode>({
     highlightAll: false,
     showVillages: true,
-    showCenterPoints: true
+    showCenterPoints: true,
+    showChallengeLevels: false,
+    showGrid: false
   })
 
   // Load saved data on mount
@@ -26,10 +28,12 @@ export function useRegions() {
     const savedRegions = loadRegions()
     const savedSelectedRegion = loadSelectedRegion()
     
-    // Migrate existing regions to include centerPoint property
+    // Migrate existing regions to include centerPoint, challengeLevel, and hasSpawn properties
     const migratedRegions = savedRegions.map(region => ({
       ...region,
-      centerPoint: region.centerPoint || null
+      centerPoint: region.centerPoint || null,
+      challengeLevel: region.challengeLevel || 'Vanilla',
+      hasSpawn: region.hasSpawn || false
     }))
     
     setRegions(migratedRegions)
@@ -89,7 +93,9 @@ export function useRegions() {
       points: [],
       minY: 0,
       maxY: 255,
-      centerPoint: null
+      centerPoint: null,
+      challengeLevel: 'Vanilla',
+      hasSpawn: false
     }
     setDrawingRegion(newRegion)
     // Exit edit mode when starting to draw
@@ -209,6 +215,14 @@ export function useRegions() {
 
   const toggleShowCenterPoints = useCallback(() => {
     setHighlightMode(prev => ({ ...prev, showCenterPoints: !prev.showCenterPoints }))
+  }, [])
+
+  const toggleShowChallengeLevels = useCallback(() => {
+    setHighlightMode(prev => ({ ...prev, showChallengeLevels: !prev.showChallengeLevels }))
+  }, [])
+
+  const toggleShowGrid = useCallback(() => {
+    setHighlightMode(prev => ({ ...prev, showGrid: !prev.showGrid }))
   }, [])
 
   const importVillagesFromCSV = useCallback((csvContent: string) => {
@@ -398,6 +412,8 @@ export function useRegions() {
     toggleHighlightAll,
     toggleShowVillages,
     toggleShowCenterPoints,
+    toggleShowChallengeLevels,
+    toggleShowGrid,
     importVillagesFromCSV,
     removeSubregionFromRegion,
     updateSubregionName,

@@ -420,6 +420,7 @@ export function MapCanvas() {
           <GridOverlay
             canvas={canvasRef.current}
             mapState={mapState}
+            isVisible={highlightMode.showGrid}
           />
           <RegionOverlay
             canvas={canvasRef.current}

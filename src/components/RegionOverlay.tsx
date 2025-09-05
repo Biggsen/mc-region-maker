@@ -1,6 +1,14 @@
 import { useEffect, useRef } from 'react'
-import { MapState, Region, EditMode, HighlightMode, Subregion, WorldCoordinate } from '../types'
+import { MapState, Region, EditMode, HighlightMode, Subregion, WorldCoordinate, ChallengeLevel } from '../types'
 import { worldToPixel, imageToCanvas, canvasToImage, pixelToWorld } from '../utils/coordinateUtils'
+
+const CHALLENGE_LEVEL_COLORS: Record<ChallengeLevel, { fill: string; stroke: string }> = {
+  Vanilla: { fill: 'rgba(34, 139, 34, 0.7)', stroke: 'rgba(34, 139, 34, 0.9)' }, // Forest Green
+  Bronze: { fill: 'rgba(255, 140, 0, 0.7)', stroke: 'rgba(255, 140, 0, 0.9)' }, // Dark Orange
+  Silver: { fill: 'rgba(255, 69, 0, 0.7)', stroke: 'rgba(255, 69, 0, 0.9)' }, // Red Orange
+  Gold: { fill: 'rgba(200, 0, 0, 0.7)', stroke: 'rgba(200, 0, 0, 0.9)' }, // Pure Red
+  Platinum: { fill: 'rgba(80, 0, 0, 0.7)', stroke: 'rgba(80, 0, 0, 0.9)' } // Very Dark Red
+}
 
 interface RegionOverlayProps {
   canvas: HTMLCanvasElement | null
@@ -64,7 +72,8 @@ export function RegionOverlay({
       const isSelected = region.id === selectedRegionId
       const isEditing = editMode.isEditing && editMode.editingRegionId === region.id
       const isHighlighted = highlightMode.highlightAll
-      drawRegion(ctx, region, mapState, isSelected, false, isEditing, isHighlighted)
+      const showChallengeLevels = highlightMode.showChallengeLevels
+      drawRegion(ctx, region, mapState, isSelected, false, isEditing, isHighlighted, showChallengeLevels)
       
       // Draw center point for each region
       if (highlightMode.showCenterPoints) {
@@ -96,7 +105,8 @@ export function RegionOverlay({
     isSelected: boolean = false,
     isDrawing: boolean = false,
     isEditing: boolean = false,
-    isHighlighted: boolean = false
+    isHighlighted: boolean = false,
+    showChallengeLevels: boolean = false
   ) => {
     if (region.points.length < 2) return
 
@@ -107,13 +117,20 @@ export function RegionOverlay({
     })
 
     // Draw polygon fill
-    ctx.fillStyle = isSelected 
-      ? 'rgba(0, 255, 0, 0.3)' 
-      : isDrawing 
-        ? 'rgba(255, 255, 0, 0.2)'
-        : isHighlighted
-          ? 'rgba(255, 255, 0, 0.4)'
-          : 'rgba(0, 100, 255, 0.2)'
+    let fillColor: string
+    if (isSelected) {
+      fillColor = 'rgba(0, 255, 0, 0.3)'
+    } else if (isDrawing) {
+      fillColor = 'rgba(255, 255, 0, 0.2)'
+    } else if (isHighlighted) {
+      fillColor = 'rgba(255, 255, 0, 0.4)'
+    } else if (showChallengeLevels) {
+      const challengeLevel = region.challengeLevel || 'Vanilla'
+      fillColor = CHALLENGE_LEVEL_COLORS[challengeLevel].fill
+    } else {
+      fillColor = 'rgba(0, 100, 255, 0.2)'
+    }
+    ctx.fillStyle = fillColor
     
     ctx.beginPath()
     ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y)
@@ -124,13 +141,20 @@ export function RegionOverlay({
     ctx.fill()
 
     // Draw polygon outline
-    ctx.strokeStyle = isSelected 
-      ? 'rgba(0, 255, 0, 0.8)' 
-      : isDrawing 
-        ? 'rgba(255, 255, 0, 0.8)'
-        : isHighlighted
-          ? 'rgba(255, 255, 0, 1)'
-          : 'rgba(0, 100, 255, 0.8)'
+    let strokeColor: string
+    if (isSelected) {
+      strokeColor = 'rgba(0, 255, 0, 0.8)'
+    } else if (isDrawing) {
+      strokeColor = 'rgba(255, 255, 0, 0.8)'
+    } else if (isHighlighted) {
+      strokeColor = 'rgba(255, 255, 0, 1)'
+    } else if (showChallengeLevels) {
+      const challengeLevel = region.challengeLevel || 'Vanilla'
+      strokeColor = CHALLENGE_LEVEL_COLORS[challengeLevel].stroke
+    } else {
+      strokeColor = 'rgba(0, 100, 255, 0.8)'
+    }
+    ctx.strokeStyle = strokeColor
     ctx.lineWidth = isSelected ? 3 : isHighlighted ? 4 : 2
     
     ctx.beginPath()
@@ -143,41 +167,43 @@ export function RegionOverlay({
     }
     ctx.stroke()
 
-    // Draw points
-    canvasPoints.forEach((point, index) => {
-      const isDragging = editMode.draggingPointIndex === index && editMode.editingRegionId === region.id
-      const pointSize = isEditing ? 8 : 4
-      
-      // Draw point background (white circle)
-      if (isEditing) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
+    // Draw points only when region is selected or being edited
+    if (isSelected || isEditing || isDrawing) {
+      canvasPoints.forEach((point, index) => {
+        const isDragging = editMode.draggingPointIndex === index && editMode.editingRegionId === region.id
+        const pointSize = isEditing ? 8 : 4
+        
+        // Draw point background (white circle)
+        if (isEditing) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
+          ctx.beginPath()
+          ctx.arc(point.x, point.y, pointSize + 2, 0, 2 * Math.PI)
+          ctx.fill()
+        }
+        
+        // Draw point
+        ctx.fillStyle = isSelected 
+          ? 'rgba(0, 255, 0, 1)' 
+          : isDrawing 
+            ? 'rgba(255, 255, 0, 1)'
+            : isEditing
+              ? 'rgba(255, 100, 0, 1)'
+              : isHighlighted
+                ? 'rgba(255, 255, 0, 1)'
+                : 'rgba(0, 100, 255, 1)'
+        
         ctx.beginPath()
-        ctx.arc(point.x, point.y, pointSize + 2, 0, 2 * Math.PI)
+        ctx.arc(point.x, point.y, pointSize, 0, 2 * Math.PI)
         ctx.fill()
-      }
-      
-      // Draw point
-      ctx.fillStyle = isSelected 
-        ? 'rgba(0, 255, 0, 1)' 
-        : isDrawing 
-          ? 'rgba(255, 255, 0, 1)'
-          : isEditing
-            ? 'rgba(255, 100, 0, 1)'
-            : isHighlighted
-              ? 'rgba(255, 255, 0, 1)'
-              : 'rgba(0, 100, 255, 1)'
-      
-      ctx.beginPath()
-      ctx.arc(point.x, point.y, pointSize, 0, 2 * Math.PI)
-      ctx.fill()
 
-      // Draw point border for editing mode
-      if (isEditing) {
-        ctx.strokeStyle = isDragging ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 0.8)'
-        ctx.lineWidth = 2
-        ctx.stroke()
-      }
-    })
+        // Draw point border for editing mode
+        if (isEditing) {
+          ctx.strokeStyle = isDragging ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 0.8)'
+          ctx.lineWidth = 2
+          ctx.stroke()
+        }
+      })
+    }
 
     // Draw insertion points between existing points when in edit mode
     if (isEditing && canvasPoints.length >= 2) {

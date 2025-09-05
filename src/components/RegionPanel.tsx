@@ -3,6 +3,7 @@ import { useAppContext } from '../context/AppContext'
 import { copyToClipboard, calculatePolygonArea, formatArea, calculateRegionCenter } from '../utils/polygonUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
 import { generateMedievalName } from '../utils/nameGenerator'
+import { ChallengeLevel } from '../types'
 
 export function RegionPanel() {
   const { regions } = useAppContext()
@@ -22,12 +23,15 @@ export function RegionPanel() {
     toggleHighlightAll,
     toggleShowVillages,
     toggleShowCenterPoints,
+    toggleShowChallengeLevels,
+    toggleShowGrid,
     removeSubregionFromRegion,
     updateSubregionName,
     setCustomCenterPoint
   } = regions
 
-  const { startSettingCenterPoint, stopSettingCenterPoint } = useAppContext().mapCanvas
+  const { startSettingCenterPoint, stopSettingCenterPoint, spawn } = useAppContext().mapCanvas
+  const { spawnState } = useAppContext().spawn
 
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
@@ -39,6 +43,7 @@ export function RegionPanel() {
   const [customCenterX, setCustomCenterX] = useState('')
   const [customCenterZ, setCustomCenterZ] = useState('')
   const [showCustomCenterForm, setShowCustomCenterForm] = useState(false)
+  const [showChallengeCounts, setShowChallengeCounts] = useState(false)
 
   // Generate a random name when the form is shown
   useEffect(() => {
@@ -116,6 +121,85 @@ export function RegionPanel() {
     }
   }
 
+  const handleSpawnCheckboxChange = (regionId: string, checked: boolean) => {
+    if (checked) {
+      // If checking this region, uncheck all other regions first
+      regionsList.forEach(region => {
+        if (region.id !== regionId && region.hasSpawn) {
+          updateRegion(region.id, { hasSpawn: false })
+        }
+      })
+    }
+    // Then update the selected region
+    updateRegion(regionId, { hasSpawn: checked })
+  }
+
+  const handleRandomizeChallengeLevels = () => {
+    console.log('Starting randomization for', regionsList.length, 'regions')
+    
+    // Find regions with spawn and exclude them from randomization
+    const spawnRegions = regionsList.filter(region => region.hasSpawn)
+    const regionsToRandomize = regionsList.filter(region => !region.hasSpawn)
+    
+    console.log('Spawn regions found:', spawnRegions.map(r => r.name))
+    console.log('Regions to randomize:', regionsToRandomize.length)
+    
+    // Define the balanced distribution
+    const distribution = {
+      Platinum: 2,
+      Gold: 4,
+      Silver: 6,
+      Bronze: 8,
+      Vanilla: Math.max(0, regionsToRandomize.length - 20) // Rest go to vanilla
+    }
+    
+    console.log('Distribution:', distribution)
+    
+    // Create array of challenge levels based on distribution
+    const challengeLevels: ChallengeLevel[] = []
+    Object.entries(distribution).forEach(([level, count]) => {
+      for (let i = 0; i < count; i++) {
+        challengeLevels.push(level as ChallengeLevel)
+      }
+    })
+    
+    console.log('Challenge levels array:', challengeLevels)
+    
+    // Shuffle the array
+    const shuffledLevels = [...challengeLevels].sort(() => Math.random() - 0.5)
+    console.log('Shuffled levels:', shuffledLevels)
+    
+    // Apply challenge levels to non-spawn regions
+    regionsToRandomize.forEach((region, index) => {
+      const challengeLevel = shuffledLevels[index] || 'Vanilla'
+      console.log(`Setting region ${region.name} to ${challengeLevel}`)
+      updateRegion(region.id, { challengeLevel })
+    })
+    
+    // Ensure spawn regions are always vanilla
+    spawnRegions.forEach(region => {
+      console.log(`Setting spawn region ${region.name} to Vanilla`)
+      updateRegion(region.id, { challengeLevel: 'Vanilla' })
+    })
+  }
+
+  const getChallengeLevelCounts = () => {
+    const counts = {
+      Vanilla: 0,
+      Bronze: 0,
+      Silver: 0,
+      Gold: 0,
+      Platinum: 0
+    }
+    
+    regionsList.forEach(region => {
+      const level = region.challengeLevel || 'Vanilla'
+      counts[level]++
+    })
+    
+    return counts
+  }
+
   const handleShowCustomCenterForm = () => {
     if (selectedRegion?.centerPoint) {
       setCustomCenterX(selectedRegion.centerPoint.x.toString())
@@ -151,47 +235,115 @@ export function RegionPanel() {
               <h3 className="text-lg font-semibold text-white mb-4">Villages ({totalVillages})</h3>
             )}
             
-            <div className="flex space-x-2 mb-4">
+            {/* Map Visibility Controls */}
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-gray-300 mb-2">Map Display</h4>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={toggleHighlightAll}
+                  className={`text-sm px-2 py-1 rounded border ${
+                    highlightMode.highlightAll
+                      ? 'bg-yellow-600 text-white border-yellow-500'
+                      : 'text-yellow-400 hover:text-yellow-300 border-yellow-400 hover:border-yellow-300'
+                  }`}
+                  title="Highlight all regions"
+                >
+                  {highlightMode.highlightAll ? 'Hide' : 'Highlight'} All
+                </button>
+                <button
+                  onClick={toggleShowVillages}
+                  className={`text-sm px-2 py-1 rounded border ${
+                    highlightMode.showVillages
+                      ? 'bg-orange-600 text-white border-orange-500'
+                      : 'text-orange-400 hover:text-orange-300 border-orange-400 hover:border-orange-300'
+                  }`}
+                  title="Show/hide villages on map"
+                >
+                  {highlightMode.showVillages ? 'Hide' : 'Show'} Villages
+                </button>
+                <button
+                  onClick={toggleShowCenterPoints}
+                  className={`text-sm px-2 py-1 rounded border ${
+                    highlightMode.showCenterPoints
+                      ? 'bg-purple-600 text-white border-purple-500'
+                      : 'text-purple-400 hover:text-purple-300 border-purple-400 hover:border-purple-300'
+                  }`}
+                  title="Show/hide region hearts on map"
+                >
+                  {highlightMode.showCenterPoints ? 'Hide' : 'Show'} Hearts
+                </button>
+                <button
+                  onClick={toggleShowChallengeLevels}
+                  className={`text-sm px-2 py-1 rounded border ${
+                    highlightMode.showChallengeLevels
+                      ? 'bg-cyan-600 text-white border-cyan-500'
+                      : 'text-cyan-400 hover:text-cyan-300 border-cyan-400 hover:border-cyan-300'
+                  }`}
+                  title="Show/hide challenge levels on map"
+                >
+                  {highlightMode.showChallengeLevels ? 'Hide' : 'Show'} Levels
+                </button>
+                <button
+                  onClick={toggleShowGrid}
+                  className={`text-sm px-2 py-1 rounded border ${
+                    highlightMode.showGrid
+                      ? 'bg-gray-600 text-white border-gray-500'
+                      : 'text-gray-400 hover:text-gray-300 border-gray-400 hover:border-gray-300'
+                  }`}
+                  title="Show/hide grid overlay on map"
+                >
+                  {highlightMode.showGrid ? 'Hide' : 'Show'} Grid
+                </button>
+              </div>
+            </div>
+
+            {/* Region Actions */}
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-gray-300 mb-2">Region Actions</h4>
               <button
-                onClick={toggleHighlightAll}
-                className={`text-sm px-2 py-1 rounded border ${
-                  highlightMode.highlightAll
-                    ? 'bg-yellow-600 text-white border-yellow-500'
-                    : 'text-yellow-400 hover:text-yellow-300 border-yellow-400 hover:border-yellow-300'
-                }`}
-                title="Highlight all regions"
+                onClick={handleRandomizeChallengeLevels}
+                className="text-green-400 hover:text-green-300 text-sm px-3 py-2 rounded border border-green-400 hover:border-green-300 hover:bg-green-900/20 transition-colors"
+                title="Randomize challenge levels with balanced distribution (2 Platinum, 4 Gold, 6 Silver, 8 Bronze, rest Vanilla)"
+                disabled={regionsList.length === 0}
               >
-                {highlightMode.highlightAll ? 'Hide' : 'Highlight'} All
+                🎲 Randomize Challenge Levels
               </button>
-              <button
-                onClick={toggleShowVillages}
-                className={`text-sm px-2 py-1 rounded border ${
-                  highlightMode.showVillages
-                    ? 'bg-orange-600 text-white border-orange-500'
-                    : 'text-orange-400 hover:text-orange-300 border-orange-400 hover:border-orange-300'
-                }`}
-                title="Show/hide villages on map"
-              >
-                {highlightMode.showVillages ? 'Hide' : 'Show'} Villages
-              </button>
-              <button
-                onClick={toggleShowCenterPoints}
-                className={`text-sm px-2 py-1 rounded border ${
-                  highlightMode.showCenterPoints
-                    ? 'bg-purple-600 text-white border-purple-500'
-                    : 'text-purple-400 hover:text-purple-300 border-purple-400 hover:border-purple-300'
-                }`}
-                title="Show/hide region hearts on map"
-              >
-                {highlightMode.showCenterPoints ? 'Hide' : 'Show'} Region Hearts
-              </button>
-              <button
-                onClick={handleClearData}
-                className="text-red-400 hover:text-red-300 text-sm px-2 py-1 rounded border border-red-400 hover:border-red-300"
-                title="Clear all saved data"
-              >
-                Clear Data
-              </button>
+              
+              {/* Challenge Level Counts */}
+              <div className="mt-3">
+                <span
+                  onClick={() => setShowChallengeCounts(!showChallengeCounts)}
+                  className="text-white text-xs cursor-pointer hover:text-gray-300 transition-colors"
+                  title="Show/hide challenge level counts"
+                >
+                  {showChallengeCounts ? '▼' : '▶'} Show Counts
+                </span>
+                
+                {showChallengeCounts && (
+                  <div className="mt-2 p-3 bg-gray-800 rounded border border-gray-600">
+                    <h5 className="text-sm font-medium text-gray-300 mb-2">Challenge Level Distribution</h5>
+                    {(() => {
+                      const counts = getChallengeLevelCounts()
+                      return (
+                        <div className="space-y-1">
+                          {Object.entries(counts).map(([level, count]) => (
+                            <div key={level} className="flex justify-between items-center text-sm">
+                              <span className="text-gray-300">{level}:</span>
+                              <span className="text-white font-medium">{count}</span>
+                            </div>
+                          ))}
+                          <div className="border-t border-gray-600 pt-1 mt-2">
+                            <div className="flex justify-between items-center text-sm font-medium">
+                              <span className="text-gray-300">Total:</span>
+                              <span className="text-white">{regionsList.length}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Search Input */}
@@ -299,6 +451,17 @@ export function RegionPanel() {
               </button>
             )}
           </div>
+
+          {/* Clear Data Button - Bottom of sidebar */}
+          <div className="mt-auto pt-4 border-t border-gray-600">
+            <button
+              onClick={handleClearData}
+              className="w-full text-red-400 hover:text-red-300 text-sm py-2 px-4 rounded border border-red-400 hover:border-red-300 hover:bg-red-900/20 transition-colors"
+              title="Clear all saved data"
+            >
+              Clear All Data
+            </button>
+          </div>
         </>
       ) : (
         // Region Details View
@@ -367,6 +530,39 @@ export function RegionPanel() {
                 className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-300 mb-1">Challenge Level</label>
+            <select
+              value={selectedRegion.challengeLevel || 'Vanilla'}
+              onChange={(e) => updateRegion(selectedRegion.id, { challengeLevel: e.target.value as ChallengeLevel })}
+              className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+            >
+              <option value="Vanilla">Vanilla</option>
+              <option value="Bronze">Bronze</option>
+              <option value="Silver">Silver</option>
+              <option value="Gold">Gold</option>
+              <option value="Platinum">Platinum</option>
+            </select>
+            <p className="text-gray-400 text-xs mt-1">
+              Sets the difficulty level for LevelledMobs plugin
+            </p>
+          </div>
+
+          <div>
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={selectedRegion.hasSpawn || false}
+                onChange={(e) => handleSpawnCheckboxChange(selectedRegion.id, e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <span className="text-sm text-gray-300">Has Spawn</span>
+            </label>
+            <p className="text-gray-400 text-xs mt-1">
+              Mark this region as containing the world spawn point (only one region can have spawn)
+            </p>
           </div>
 
           <div>
@@ -582,6 +778,17 @@ export function RegionPanel() {
               </div>
             </div>
           )}
+
+          {/* Clear Data Button - Bottom of sidebar */}
+          <div className="mt-auto pt-4 border-t border-gray-600">
+            <button
+              onClick={handleClearData}
+              className="w-full text-red-400 hover:text-red-300 text-sm py-2 px-4 rounded border border-red-400 hover:border-red-300 hover:bg-red-900/20 transition-colors"
+              title="Clear all saved data"
+            >
+              Clear All Data
+            </button>
+          </div>
         </div>
       )}
     </div>

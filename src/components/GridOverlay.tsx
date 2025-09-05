@@ -5,14 +5,15 @@ import { worldToPixel, imageToCanvas } from '../utils/coordinateUtils'
 interface GridOverlayProps {
   canvas: HTMLCanvasElement | null
   mapState: MapState
+  isVisible: boolean
 }
 
-export function GridOverlay({ canvas, mapState }: GridOverlayProps) {
+export function GridOverlay({ canvas, mapState, isVisible }: GridOverlayProps) {
   const overlayRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const overlay = overlayRef.current
-    if (!overlay || !canvas || !mapState.image || !mapState.originSelected) return
+    if (!overlay || !canvas || !mapState.image || !mapState.originSelected || !isVisible) return
 
     overlay.width = canvas.width
     overlay.height = canvas.height
@@ -93,7 +94,9 @@ export function GridOverlay({ canvas, mapState }: GridOverlayProps) {
       ctx.stroke()
     }
 
-  }, [canvas, mapState])
+  }, [canvas, mapState, isVisible])
+
+  if (!isVisible) return null
 
   if (!canvas || !mapState.image || !mapState.originSelected) return null
 
