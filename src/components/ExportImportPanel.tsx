@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { exportMapData, exportRegionsYAML, importMapData, loadImageFromSrc, generateAchievementsYAML, generateEventConditionsYAML } from '../utils/exportUtils'
+import { exportMapData, exportRegionsYAML, importMapData, loadImageFromSrc, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
@@ -38,6 +38,15 @@ export function ExportImportPanel() {
 
   const handleGenerateEventConditions = () => {
     generateEventConditionsYAML(regions.regions)
+  }
+
+  const handleGenerateLevelledMobsRules = () => {
+    const spawnData = spawn.spawnState.coordinates ? {
+      x: spawn.spawnState.coordinates.x,
+      z: spawn.spawnState.coordinates.z,
+      radius: spawn.spawnState.radius
+    } : null
+    generateLevelledMobsRulesYAML(regions.regions, worldName.worldName, spawnData)
   }
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,6 +241,14 @@ export function ExportImportPanel() {
           className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
           Generate Event Conditions
+        </button>
+
+        <button
+          onClick={handleGenerateLevelledMobsRules}
+          disabled={regions.regions.length === 0 && !spawn.spawnState.coordinates}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+        >
+          Generate LevelledMobs Rules
         </button>
 
         {importError && (
