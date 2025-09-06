@@ -1,5 +1,23 @@
-import { Region } from '../types'
+import { Region, ChallengeLevel } from '../types'
 import { generateSubregionYAML } from './villageUtils'
+
+// Map challenge levels to their color codes and descriptions
+function getChallengeLevelColor(challengeLevel: ChallengeLevel): string {
+  switch (challengeLevel) {
+    case 'Vanilla':
+      return '§aMobs here fight as usual'
+    case 'Bronze':
+      return '§eMobs here are a little bit stronger'
+    case 'Silver':
+      return '§6Mobs put up a decent fight here'
+    case 'Gold':
+      return '§cMobs here hit hard — be ready'
+    case 'Platinum':
+      return '§4Mobs here are extremely dangerous'
+    default:
+      return '§aMobs here fight as usual'
+  }
+}
 
 // Mob list for random spawn generation
 const MOB_LIST = [
@@ -24,11 +42,30 @@ function generateRandomMobList(): string[] {
 export function generateRegionYAML(region: Region, includeVillages: boolean = true, randomMobSpawn: boolean = false, includeHeartRegions: boolean = true): string {
   const points = region.points.map(point => `      - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`).join('\n')
   
-  // Generate deny-spawn flag if randomMobSpawn is enabled
-  let flags = `{greeting-title: Welcome to ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow}`
-  if (randomMobSpawn) {
-    const randomMobs = generateRandomMobList()
-    flags = `{greeting-title: Welcome to ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow, deny-spawn: [${randomMobs.join(',')}]}`
+  // Check if this is a main region (not spawn, hearts, or villages)
+  const isMainRegion = !region.name.toLowerCase().includes('spawn') && 
+                      !region.name.toLowerCase().includes('heart') && 
+                      !region.name.toLowerCase().includes('village')
+  
+  // Generate flags based on region type
+  let flags: string
+  if (isMainRegion && region.challengeLevel) {
+    // Main regions with challenge levels get the new multi-line format
+    const challengeColor = getChallengeLevelColor(region.challengeLevel)
+    
+    if (randomMobSpawn) {
+      const randomMobs = generateRandomMobList()
+      flags = `    greeting-title: |-\n      §fWelcome to ${region.name}\n      ${challengeColor}\n    farewell-title: |-\n      §fLeaving ${region.name}\n      §f\n    passthrough: allow\n    deny-spawn: [${randomMobs.join(',')}]`
+    } else {
+      flags = `    greeting-title: |-\n      §fWelcome to ${region.name}\n      ${challengeColor}\n    farewell-title: |-\n      §fLeaving ${region.name}\n      §f\n    passthrough: allow`
+    }
+  } else {
+    // Other regions (spawn, hearts, villages) keep the old format
+    flags = `{greeting-title: Welcome to ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow}`
+    if (randomMobSpawn) {
+      const randomMobs = generateRandomMobList()
+      flags = `{greeting-title: Welcome to ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow, deny-spawn: [${randomMobs.join(',')}]}`
+    }
   }
 
   let yaml = `  ${region.name}:
@@ -36,7 +73,8 @@ export function generateRegionYAML(region: Region, includeVillages: boolean = tr
     min-y: ${region.minY}
     max-y: ${region.maxY}
     priority: 0
-    flags: ${flags}
+    flags:
+${isMainRegion && region.challengeLevel ? '  ' + flags.replace(/\n/g, '\n  ') : '      ' + flags}
     points:
 ${points}`
 
