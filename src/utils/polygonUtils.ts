@@ -5,7 +5,7 @@ import { generateSubregionYAML } from './villageUtils'
 function getChallengeLevelColor(challengeLevel: ChallengeLevel): string {
   switch (challengeLevel) {
     case 'Vanilla':
-      return '§aMobs here fight as usual'
+      return '§aA safe haven from stronger mobs'
     case 'Bronze':
       return '§eMobs here are a little bit stronger'
     case 'Silver':
