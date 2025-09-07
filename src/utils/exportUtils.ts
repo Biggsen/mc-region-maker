@@ -201,10 +201,11 @@ export function generateEventConditionsYAML(regions: Region[]): void {
     yamlContent += `    one_time: true\n`
     yamlContent += `    actions:\n`
     yamlContent += `      default:\n`
+    yamlContent += `        - 'wait: 5'\n`
     yamlContent += `        - 'console_command: aach give discover${region.name.replace(/\s+/g, '')} %player%'\n`
     yamlContent += `        - 'console_command: aach add 1 Custom.regions_discovered %player%'\n`
+    yamlContent += `        - 'console_command: aach add 1 Custom.total_discovered %player%'\n`
     yamlContent += `        - 'console_command: cc give virtual RegionCrate 1 %player%'\n`
-    yamlContent += `      one_time:\n`
     eventCount++
 
     // Generate heart event conditions for this region
@@ -216,10 +217,10 @@ export function generateEventConditionsYAML(regions: Region[]): void {
     yamlContent += `    one_time: true\n`
     yamlContent += `    actions:\n`
     yamlContent += `      default:\n`
+    yamlContent += `        - 'wait: 5'\n`
     yamlContent += `        - 'console_command: aach give discoverHeartOf${region.name.replace(/\s+/g, '')} %player%'\n`
     yamlContent += `        - 'console_command: aach add 1 Custom.hearts_discovered %player%'\n`
     yamlContent += `        - 'console_command: cc give virtual RegionCrate 1 %player%'\n`
-    yamlContent += `      one_time:\n`
     eventCount++
 
     // Generate event conditions for villages in this region
@@ -236,10 +237,11 @@ export function generateEventConditionsYAML(regions: Region[]): void {
           yamlContent += `    one_time: true\n`
           yamlContent += `    actions:\n`
           yamlContent += `      default:\n`
+          yamlContent += `        - 'wait: 5'\n`
           yamlContent += `        - 'console_command: aach give discover${subregion.name.replace(/\s+/g, '')} %player%'\n`
           yamlContent += `        - 'console_command: aach add 1 Custom.villages_discovered %player%'\n`
+          yamlContent += `        - 'console_command: aach add 1 Custom.total_discovered %player%'\n`
           yamlContent += `        - 'console_command: cc give virtual VillageCrate 1 %player%'\n`
-          yamlContent += `      one_time:\n`
           eventCount++
         }
       })
