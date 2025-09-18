@@ -134,6 +134,7 @@ async function takeScreenshot() {
         width: 2000,  // 2000px width (3840 - 720 - 1120 = 2000)
         height: 2000  // 2000px height (2220 - 120 - 100 = 2000)
       })
+      .resize(1024, 1024)
       .png()
       .toFile(croppedFilepath);
     
