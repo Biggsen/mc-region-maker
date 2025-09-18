@@ -1,10 +1,12 @@
 import React, { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
 import { exportMapData, exportRegionsYAML, importMapData, loadImageFromSrc, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
   const { regions, mapState, worldName, spawn } = useAppContext()
+  const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const villageFileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
@@ -193,6 +195,13 @@ export function ExportImportPanel() {
       
       {!isCollapsed && (
         <div className="px-4 pb-4 space-y-2">
+        <button
+          onClick={() => navigate('/seed-input')}
+          className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 transform hover:scale-105"
+        >
+          🗺️ Generate Map from Seed
+        </button>
+        
         <div className="flex space-x-2">
           <button
             onClick={handleExport}

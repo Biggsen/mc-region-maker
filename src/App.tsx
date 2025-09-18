@@ -1,39 +1,15 @@
-import { useState, useEffect } from 'react'
-import { AppProvider } from './context/AppContext'
-import { MapCanvas } from './components/MapCanvas'
-import { RegionPanel } from './components/RegionPanel'
-import { ExportImportPanel } from './components/ExportImportPanel'
-import { LoadingOverlay } from './components/LoadingOverlay'
-import { WorldNameHeading } from './components/WorldNameHeading'
-import { SpawnButton } from './components/SpawnButton'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { SeedInputPage } from './components/SeedInputPage'
+import MainApp from './components/MainApp'
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Hide loading after a short delay to allow data to load
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
-    
-    return () => clearTimeout(timer)
-  }, [])
-
   return (
-    <AppProvider>
-      <div className="min-h-screen bg-gray-900 text-white flex relative">
-        <div className="flex-1 min-w-0">
-          <MapCanvas />
-        </div>
-        <div className="w-80 bg-gray-800 p-4 overflow-y-auto h-screen flex-shrink-0 fixed right-0 top-0 z-10">
-          <WorldNameHeading />
-          <ExportImportPanel />
-          <SpawnButton />
-          <RegionPanel />
-        </div>
-        {isLoading && <LoadingOverlay />}
-      </div>
-    </AppProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainApp />} />
+        <Route path="/seed-input" element={<SeedInputPage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
