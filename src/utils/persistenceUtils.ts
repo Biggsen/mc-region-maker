@@ -3,9 +3,7 @@ import { MapState, Region } from '../types'
 const STORAGE_KEYS = {
   MAP_STATE: 'mc-region-maker-map-state',
   REGIONS: 'mc-region-maker-regions',
-  SELECTED_REGION: 'mc-region-maker-selected-region',
-  SPAWN: 'mc-region-maker-spawn',
-  WORLD_NAME: 'mc-region-maker-world-name'
+  SELECTED_REGION: 'mc-region-maker-selected-region'
 }
 
 // Get image source URL for storage
