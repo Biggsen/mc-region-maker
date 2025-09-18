@@ -374,15 +374,6 @@ export function loadImageFromBase64(base64Data: string): Promise<HTMLImageElemen
   })
 }
 
-// Load image from source URL (for imports)
-export function loadImageFromSrc(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image()
-    image.onload = () => resolve(image)
-    image.onerror = reject
-    image.src = src
-  })
-}
 
 // Generate LevelledMobs rules YAML
 export function generateLevelledMobsRulesYAML(

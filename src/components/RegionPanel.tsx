@@ -75,9 +75,20 @@ export function RegionPanel() {
   }
 
   const handleClearData = () => {
-    if (confirm('Are you sure you want to clear all saved data? This will remove the loaded image and all regions.')) {
+    if (confirm('Are you sure you want to clear all saved data? This will remove the loaded image, all regions, spawn point, and reset the world name.')) {
       clearSavedData()
-      window.location.reload()
+      
+      // Clear all state
+      regions.replaceRegions([])
+      regions.setSelectedRegionId(null)
+      mapState.setImage(null)
+      mapState.setScale(1)
+      mapState.setOffset(0, 0)
+      mapState.setOriginSelected(false)
+      mapState.setOriginOffset(null)
+      spawn.setSpawnCoordinates(null)
+      spawn.setSpawnRadius(50)
+      worldName.updateWorldName('World')
     }
   }
 

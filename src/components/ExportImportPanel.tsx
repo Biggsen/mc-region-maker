@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
-import { exportMapData, exportRegionsYAML, exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
+import { exportMapData, exportRegionsYAML, exportCompleteMap, importMapData, loadImageFromBase64, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
@@ -70,7 +70,7 @@ export function ExportImportPanel() {
     try {
       const importData = await importMapData(file)
       
-      // Load the image if it exists
+      // Load the image if it exists (only from complete map exports)
       if ('imageData' in importData && importData.imageData) {
         // New format with embedded image data
         try {
@@ -79,14 +79,6 @@ export function ExportImportPanel() {
           console.log('Loaded embedded image from complete map export')
         } catch (error) {
           console.warn('Failed to load embedded image, continuing without image')
-        }
-      } else if (importData.mapState.imageSrc) {
-        // Legacy format with image source URL
-        try {
-          const image = await loadImageFromSrc(importData.mapState.imageSrc)
-          mapState.setImage(image)
-        } catch (error) {
-          console.warn('Failed to load image from import, continuing without image')
         }
       }
 
@@ -102,18 +94,24 @@ export function ExportImportPanel() {
       regions.replaceRegions(importData.regions)
       regions.setSelectedRegionId(null)
 
-      // Update world name if it exists in import data
+      // Update world name (reset to default if not present in import data)
       if (importData.worldName) {
         worldName.updateWorldName(importData.worldName)
+      } else {
+        worldName.updateWorldName('World')
       }
 
-      // Update spawn coordinates if they exist in import data
+      // Update spawn coordinates (clear if not present in import data)
       if (importData.spawnCoordinates) {
         spawn.setSpawnCoordinates(importData.spawnCoordinates)
         // Update radius if it exists in import data
         if (importData.spawnCoordinates.radius) {
           spawn.setSpawnRadius(importData.spawnCoordinates.radius)
         }
+      } else {
+        // Clear spawn coordinates if not present in import data
+        spawn.setSpawnCoordinates(null)
+        spawn.setSpawnRadius(50) // Reset to default radius
       }
 
       // Clear the file input
@@ -270,7 +268,7 @@ export function ExportImportPanel() {
           />
           
           <div className="text-xs text-gray-500 mt-2">
-            Supports both JSON exports and complete map exports (with embedded image)
+            Supports JSON exports and complete map exports (with embedded image)
         </div>
 
         <button
