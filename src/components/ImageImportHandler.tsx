@@ -4,7 +4,7 @@ import { useAppContext } from '../context/AppContext'
 
 export function ImageImportHandler() {
   const location = useLocation()
-  const { mapState } = useAppContext()
+  const { mapState, regions, worldName, spawn } = useAppContext()
   const hasProcessedRef = useRef(false)
 
   useEffect(() => {
@@ -23,14 +23,34 @@ export function ImageImportHandler() {
       
       img.onload = () => {
         console.log('Image loaded successfully:', imagePath)
-        // Set the image in the map state
+        
+        // Clear all existing data for fresh start
+        console.log('Clearing existing data for fresh map import...')
+        
+        // Clear all regions
+        regions.replaceRegions([])
+        regions.setSelectedRegionId(null)
+        
+        // Reset map state to defaults
+        mapState.setScale(1)
+        mapState.setOffset(0, 0)
+        mapState.setOriginSelected(false)
+        mapState.setOriginOffset(null)
+        
+        // Set the new image
         mapState.setImage(img)
+        
+        // Reset world name to 'World'
+        worldName.updateWorldName('World')
+        
+        // Clear spawn coordinates
+        spawn.setSpawnCoordinates(null)
         
         // Clear the location state to prevent re-importing on refresh
         window.history.replaceState({}, document.title)
         
         // Show success message
-        alert(`Map imported successfully! The image "${imagePath}" has been loaded into the canvas.`)
+        alert(`Fresh map imported successfully!\n\n✅ All previous data cleared\n✅ World name set to "World"\n✅ Map reset to default zoom/position\n✅ Ready to start planning regions\n\nThe image "${imagePath}" has been loaded as a new world.`)
       }
       
       img.onerror = (error) => {

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
-import { exportMapData, exportRegionsYAML, importMapData, loadImageFromSrc, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
+import { exportMapData, exportRegionsYAML, exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
@@ -28,6 +28,15 @@ export function ExportImportPanel() {
 
   const handleExportYAML = () => {
     setShowExportDialog(true)
+  }
+
+  const handleExportCompleteMap = async () => {
+    const spawnData = spawn.spawnState.coordinates ? {
+      x: spawn.spawnState.coordinates.x,
+      z: spawn.spawnState.coordinates.z,
+      radius: spawn.spawnState.radius
+    } : null
+    await exportCompleteMap(regions.regions, mapState.mapState, worldName.worldName, spawnData)
   }
 
   const handleExportYAMLWithOptions = (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean, includeSpawnRegion: boolean) => {
@@ -62,7 +71,17 @@ export function ExportImportPanel() {
       const importData = await importMapData(file)
       
       // Load the image if it exists
-      if (importData.mapState.imageSrc) {
+      if ('imageData' in importData && importData.imageData) {
+        // New format with embedded image data
+        try {
+          const image = await loadImageFromBase64(importData.imageData)
+          mapState.setImage(image)
+          console.log('Loaded embedded image from complete map export')
+        } catch (error) {
+          console.warn('Failed to load embedded image, continuing without image')
+        }
+      } else if (importData.mapState.imageSrc) {
+        // Legacy format with image source URL
         try {
           const image = await loadImageFromSrc(importData.mapState.imageSrc)
           mapState.setImage(image)
@@ -226,6 +245,21 @@ export function ExportImportPanel() {
           >
             {isImporting ? 'Importing...' : 'Import'}
           </button>
+        </div>
+
+        <button
+          onClick={handleExportCompleteMap}
+          disabled={!mapState.mapState.image}
+          className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+        >
+          🗺️ Export Complete Map
+        </button>
+        
+        {!mapState.mapState.image && (
+          <div className="text-yellow-600 text-sm">
+            Load a map image to use complete map export
+          </div>
+        )}
           
           <input
             ref={fileInputRef}
@@ -234,6 +268,9 @@ export function ExportImportPanel() {
             onChange={handleImport}
             className="hidden"
           />
+          
+          <div className="text-xs text-gray-500 mt-2">
+            Supports both JSON exports and complete map exports (with embedded image)
         </div>
 
         <button

@@ -10,6 +10,17 @@ export interface ExportData {
   exportDate: string
 }
 
+export interface MapExportData {
+  version: string
+  worldName: string
+  regions: Region[]
+  mapState: Omit<MapState, 'image'> & { imageSrc?: string }
+  spawnCoordinates?: { x: number; z: number; radius?: number } | null
+  exportDate: string
+  imageData?: string // Base64 encoded image data
+  imageFilename?: string
+}
+
 const CURRENT_VERSION = '1.0.0'
 
 // Export regions and map state to JSON file
@@ -42,6 +53,65 @@ export function exportMapData(regions: Region[], mapState: MapState, worldName: 
   link.click()
   
   URL.revokeObjectURL(link.href)
+}
+
+// Export complete map with embedded image data
+export async function exportCompleteMap(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null): Promise<void> {
+  if (!mapState.image) {
+    alert('No map image loaded. Please load an image first.')
+    return
+  }
+
+  try {
+    // Convert image to base64
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      throw new Error('Could not get canvas context')
+    }
+
+    canvas.width = mapState.image.width
+    canvas.height = mapState.image.height
+    ctx.drawImage(mapState.image, 0, 0)
+    
+    const imageData = canvas.toDataURL('image/png')
+    
+    const exportData: MapExportData = {
+      version: CURRENT_VERSION,
+      worldName,
+      regions,
+      mapState: {
+        scale: mapState.scale,
+        offsetX: mapState.offsetX,
+        offsetY: mapState.offsetY,
+        isDragging: mapState.isDragging,
+        lastMousePos: mapState.lastMousePos,
+        originSelected: mapState.originSelected,
+        originOffset: mapState.originOffset,
+        imageSrc: mapState.image?.imageSrc || undefined
+      },
+      spawnCoordinates,
+      exportDate: new Date().toISOString(),
+      imageData,
+      imageFilename: `map-image-${new Date().toISOString().split('T')[0]}.png`
+    }
+
+    const dataStr = JSON.stringify(exportData, null, 2)
+    const dataBlob = new Blob([dataStr], { type: 'application/json' })
+    
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(dataBlob)
+    const worldNameSlug = worldName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
+    link.download = `mc-complete-map-${worldNameSlug}-${new Date().toISOString().split('T')[0]}.json`
+    link.click()
+    
+    URL.revokeObjectURL(link.href)
+    
+    alert('Complete map exported successfully! This file includes both the regions and the map image.')
+  } catch (error) {
+    console.error('Error exporting complete map:', error)
+    alert('Failed to export complete map. Please try again.')
+  }
 }
 
 // Export all regions to YAML file in WorldGuard format
@@ -261,14 +331,14 @@ export function generateEventConditionsYAML(regions: Region[]): void {
 }
 
 // Import map data from JSON file
-export function importMapData(file: File): Promise<ExportData> {
+export function importMapData(file: File): Promise<ExportData | MapExportData> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     
     reader.onload = (event) => {
       try {
         const content = event.target?.result as string
-        const data: ExportData = JSON.parse(content)
+        const data: ExportData | MapExportData = JSON.parse(content)
         
         // Validate the imported data
         if (!data.version || !data.regions || !data.mapState) {
@@ -291,6 +361,16 @@ export function importMapData(file: File): Promise<ExportData> {
     }
     
     reader.readAsText(file)
+  })
+}
+
+// Load image from base64 data (for complete map imports)
+export function loadImageFromBase64(base64Data: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = reject
+    image.src = base64Data
   })
 }
 

@@ -40,8 +40,21 @@ export function SeedInputPage() {
 
   const handleImportMap = () => {
     if (generatedImage) {
-      // Navigate to main app with the image
-      navigate('/', { state: { importImage: generatedImage } })
+      const confirmed = confirm(
+        'Importing this map will clear all existing regions and start fresh.\n\n' +
+        'This includes:\n' +
+        '• All existing regions and polygons\n' +
+        '• All village data\n' +
+        '• Current world name\n' +
+        '• Spawn coordinates\n' +
+        '• Map zoom and position\n\n' +
+        'Are you sure you want to continue?'
+      )
+      
+      if (confirmed) {
+        // Navigate to main app with the image
+        navigate('/', { state: { importImage: generatedImage } })
+      }
     }
   }
 
@@ -112,8 +125,12 @@ export function SeedInputPage() {
               onClick={handleImportMap}
               className="w-full bg-green-600 hover:bg-green-700 py-2 px-4 rounded-md mt-4 transition-colors"
             >
-              Import Map
+              Import Map (Fresh Start)
             </button>
+            
+            <div className="text-xs text-yellow-600 mt-2">
+              ⚠️ This will clear all existing regions and start fresh with this map
+            </div>
           </div>
         )}
 
