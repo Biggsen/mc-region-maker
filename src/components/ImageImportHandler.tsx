@@ -48,9 +48,6 @@ export function ImageImportHandler() {
         
         // Clear the location state to prevent re-importing on refresh
         window.history.replaceState({}, document.title)
-        
-        // Show success message
-        alert(`Fresh map imported successfully!\n\n✅ All previous data cleared\n✅ World name set to "World"\n✅ Map reset to default zoom/position\n✅ Ready to start planning regions\n\nThe image "${imagePath}" has been loaded as a new world.`)
       }
       
       img.onerror = (error) => {
