@@ -22,10 +22,20 @@ async function takeScreenshot() {
     await page.setViewport({ width: 3840, height: 2160 });
     
     console.log('Navigating to mcseedmap.net...');
-    // Use seed from environment variable or default seed
+    // Use seed and dimension from environment variables or defaults
     const seed = process.env.MC_SEED || '-8570592621265448642';
-    const url = `https://mcseedmap.net/1.21.5-Java/${seed}#l=-3`;
-    console.log(`Using seed: ${seed}`);
+    const dimension = process.env.MC_DIMENSION || 'overworld';
+    
+    // Debug: Log all environment variables
+    console.log('Environment variables:');
+    console.log('MC_SEED:', process.env.MC_SEED);
+    console.log('MC_DIMENSION:', process.env.MC_DIMENSION);
+    
+    // Build URL with dimension in the path
+    const url = `https://mcseedmap.net/1.21.5-Java/${seed}/${dimension}#l=-3`;
+    
+    console.log(`Using seed: ${seed}, dimension: ${dimension}`);
+    console.log(`URL: ${url}`);
     await page.goto(url, { 
       waitUntil: 'networkidle2',
       timeout: 30000 
@@ -108,7 +118,7 @@ async function takeScreenshot() {
     // Take screenshot
     console.log('Taking screenshot...');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `mcseedmap-screenshot-${timestamp}.png`;
+    const filename = `mcseedmap-${dimension}-screenshot-${timestamp}.png`;
     // Save to screenshots folder (go up one directory from scripts folder)
     const screenshotsDir = join(__dirname, '..', 'screenshots');
     const filepath = join(screenshotsDir, filename);

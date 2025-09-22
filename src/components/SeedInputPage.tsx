@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 export function SeedInputPage() {
   const [seed, setSeed] = useState('')
+  const [dimension, setDimension] = useState('overworld')
   const [isLoading, setIsLoading] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -21,7 +22,10 @@ export function SeedInputPage() {
       const response = await fetch('http://localhost:3001/api/generate-map', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ seed: seed.trim() })
+        body: JSON.stringify({ 
+          seed: seed.trim(),
+          dimension: dimension
+        })
       })
       
       if (!response.ok) {
@@ -90,6 +94,23 @@ export function SeedInputPage() {
           </p>
         </div>
 
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">Dimension:</label>
+          <select
+            value={dimension}
+            onChange={(e) => setDimension(e.target.value)}
+            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={isLoading}
+          >
+            <option value="overworld">Overworld</option>
+            <option value="nether">Nether</option>
+            <option value="end">End</option>
+          </select>
+          <p className="text-xs text-gray-400 mt-1">
+            Choose which dimension to generate
+          </p>
+        </div>
+
         {error && (
           <div className="mb-4 p-3 bg-red-900 border border-red-700 rounded-md">
             <p className="text-red-200 text-sm">{error}</p>
@@ -138,7 +159,7 @@ export function SeedInputPage() {
           <p>This will generate a high-quality 2000x2000 map screenshot showing:</p>
           <ul className="list-disc list-inside mt-1 space-y-1">
             <li>Biome information</li>
-            <li>Village locations</li>
+            <li>Village locations (Overworld only)</li>
             <li>Clean interface without UI elements</li>
           </ul>
         </div>

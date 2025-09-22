@@ -31,19 +31,30 @@ app.use((req, res, next) => {
 })
 
 app.post('/api/generate-map', async (req, res) => {
-  const { seed } = req.body
+  const { seed, dimension = 'overworld' } = req.body
+  
+  // Debug: Log the request body
+  console.log('Request body:', req.body)
+  console.log('Extracted seed:', seed)
+  console.log('Extracted dimension:', dimension)
   
   if (!seed) {
     return res.status(400).json({ error: 'Seed is required' })
   }
   
-  console.log(`Generating map for seed: ${seed}`)
+  console.log(`Generating ${dimension} map for seed: ${seed}`)
   
   try {
-    // Run the screenshot script with the provided seed
+    // Run the screenshot script with the provided seed and dimension
     const scriptPath = path.join(__dirname, 'screenshot-mcseedmap.js')
+    const envVars = { ...process.env, MC_SEED: seed, MC_DIMENSION: dimension }
+    
+    console.log('Environment variables being passed to script:')
+    console.log('MC_SEED:', envVars.MC_SEED)
+    console.log('MC_DIMENSION:', envVars.MC_DIMENSION)
+    
     const child = spawn('node', [scriptPath], {
-      env: { ...process.env, MC_SEED: seed },
+      env: envVars,
       cwd: path.join(__dirname, '..')
     })
     
