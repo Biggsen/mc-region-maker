@@ -137,6 +137,18 @@ async function takeScreenshot() {
     const croppedFilename = filename.replace('.png', '-cropped.png');
     const croppedFilepath = join(screenshotsDir, croppedFilename);
     
+    // Set dimensions based on the dimension type
+    let finalSize;
+    if (dimension === 'nether') {
+      // Nether has 1:8 scale, so we need larger final size
+      finalSize = 2000;
+    } else {
+      // Overworld and End use standard size
+      finalSize = 1000;
+    }
+    
+    console.log(`Resizing to ${finalSize}x${finalSize} for ${dimension} dimension`);
+    
     await sharp(filepath)
       .extract({
         left: 720,    // 720px from the left
@@ -144,7 +156,7 @@ async function takeScreenshot() {
         width: 2000,  // 2000px width (3840 - 720 - 1120 = 2000)
         height: 2000  // 2000px height (2220 - 120 - 100 = 2000)
       })
-      .resize(1024, 1024)
+      .resize(finalSize, finalSize)
       .png()
       .toFile(croppedFilepath);
     
