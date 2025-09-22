@@ -28,9 +28,14 @@ export function GridOverlay({ canvas, mapState, isVisible }: GridOverlayProps) {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'
     ctx.lineWidth = 1
 
-    const chunkSize = 16
     const imageWidth = mapState.image.width
     const imageHeight = mapState.image.height
+
+    // Calculate pixels per block based on image size
+    // mcseedmap shows 8x8 chunks, each chunk is 16 blocks, so 128 blocks total
+    // Each block = imageSize / 128
+    const pixelsPerBlock = imageWidth / 128
+    const blockSize = pixelsPerBlock
 
     // Calculate grid bounds relative to origin (if set) or image center
     let startX, endX, startZ, endZ
@@ -38,23 +43,24 @@ export function GridOverlay({ canvas, mapState, isVisible }: GridOverlayProps) {
       // Use origin as reference point - ensure origin aligns with grid intersection
       const originX = mapState.originOffset.x
       const originZ = mapState.originOffset.y
-      // Calculate grid bounds so origin falls on a grid intersection
-      const gridRadius = Math.max(imageWidth, imageHeight) / 2
+      // Grid extends from -4000 to +4000 blocks (8000 blocks total = 64 chunks)
+      // In pixels: 8000 * pixelsPerBlock
+      const gridRadiusInPixels = 4000 * pixelsPerBlock
       // Align grid so origin is at a grid intersection
-      startX = originX - Math.floor(gridRadius / chunkSize) * chunkSize
-      endX = originX + Math.ceil(gridRadius / chunkSize) * chunkSize
-      startZ = originZ - Math.floor(gridRadius / chunkSize) * chunkSize
-      endZ = originZ + Math.ceil(gridRadius / chunkSize) * chunkSize
+      startX = originX - Math.floor(gridRadiusInPixels / blockSize) * blockSize
+      endX = originX + Math.ceil(gridRadiusInPixels / blockSize) * blockSize
+      startZ = originZ - Math.floor(gridRadiusInPixels / blockSize) * blockSize
+      endZ = originZ + Math.ceil(gridRadiusInPixels / blockSize) * blockSize
     } else {
       // Fallback to image center
-      startX = Math.floor(-imageWidth / 2 / chunkSize) * chunkSize
-      endX = Math.ceil(imageWidth / 2 / chunkSize) * chunkSize
-      startZ = Math.floor(-imageHeight / 2 / chunkSize) * chunkSize
-      endZ = Math.ceil(imageHeight / 2 / chunkSize) * chunkSize
+      startX = Math.floor(-imageWidth / 2 / blockSize) * blockSize
+      endX = Math.ceil(imageWidth / 2 / blockSize) * blockSize
+      startZ = Math.floor(-imageHeight / 2 / blockSize) * blockSize
+      endZ = Math.ceil(imageHeight / 2 / blockSize) * blockSize
     }
 
     // Draw vertical lines using raw pixel coordinates
-    for (let x = startX; x <= endX; x += chunkSize) {
+    for (let x = startX; x <= endX; x += blockSize) {
       const pixelX = x
       const canvasPos = imageToCanvas(pixelX, 0, mapState.scale, mapState.offsetX, mapState.offsetY)
       
@@ -65,7 +71,7 @@ export function GridOverlay({ canvas, mapState, isVisible }: GridOverlayProps) {
     }
 
     // Draw horizontal lines using raw pixel coordinates
-    for (let z = startZ; z <= endZ; z += chunkSize) {
+    for (let z = startZ; z <= endZ; z += blockSize) {
       const pixelY = z
       const canvasPos = imageToCanvas(0, pixelY, mapState.scale, mapState.offsetX, mapState.offsetY)
       
