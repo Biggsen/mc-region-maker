@@ -141,6 +141,16 @@ async function takeScreenshot() {
     console.log(`Cropped screenshot saved as: ${croppedFilename}`);
     console.log(`Cropped file path: ${croppedFilepath}`);
     
+    // Delete the uncropped image to save space
+    console.log('Deleting uncropped image...');
+    try {
+      const fs = await import('fs');
+      fs.unlinkSync(filepath);
+      console.log(`Deleted uncropped image: ${filename}`);
+    } catch (deleteError) {
+      console.warn(`Failed to delete uncropped image: ${deleteError.message}`);
+    }
+    
   } catch (error) {
     console.error('Error taking screenshot:', error);
   } finally {
