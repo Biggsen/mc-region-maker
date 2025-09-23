@@ -71,7 +71,12 @@ export function generateRegionYAML(region: Region, includeVillages: boolean = tr
     }
   }
 
-  let yaml = `  ${region.name}:
+  // Convert region name to snake_case for nether regions
+  const regionNameForYAML = worldType === 'nether' 
+    ? region.name.toLowerCase().replace(/\s+/g, '_')
+    : region.name
+
+  let yaml = `  ${regionNameForYAML}:
     type: poly2d
     min-y: ${region.minY}
     max-y: ${region.maxY}

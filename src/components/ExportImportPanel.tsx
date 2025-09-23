@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
-import { exportMapData, exportRegionsYAML, exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
+import { exportRegionsYAML, exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
@@ -17,14 +17,6 @@ export function ExportImportPanel() {
   const [hasVillages, setHasVillages] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(true)
 
-  const handleExport = () => {
-    const spawnData = spawn.spawnState.coordinates ? {
-      x: spawn.spawnState.coordinates.x,
-      z: spawn.spawnState.coordinates.z,
-      radius: spawn.spawnState.radius
-    } : null
-    exportMapData(regions.regions, mapState.mapState, worldName.worldName, spawnData, worldType.worldType)
-  }
 
   const handleExportYAML = () => {
     setShowExportDialog(true)
@@ -233,56 +225,48 @@ export function ExportImportPanel() {
           🗺️ Generate Map from Seed
         </button>
         
-        <div className="flex space-x-2">
-          <button
-            onClick={handleExport}
-            disabled={regions.regions.length === 0}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-          >
-            Export JSON
-          </button>
-
+        <div className="space-y-2">
           <button
             onClick={handleExportYAML}
             disabled={regions.regions.length === 0}
-            className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
           >
             Export YAML
           </button>
 
           <button
-            onClick={triggerFileInput}
-            disabled={isImporting}
-            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            onClick={handleExportCompleteMap}
+            disabled={!mapState.mapState.image}
+            className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
           >
-            {isImporting ? 'Importing...' : 'Import'}
+            🗺️ Export Complete Map
           </button>
+          
+          {!mapState.mapState.image && (
+            <div className="text-yellow-600 text-sm">
+              Load a map image to use complete map export
+            </div>
+          )}
         </div>
 
         <button
-          onClick={handleExportCompleteMap}
-          disabled={!mapState.mapState.image}
-          className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          onClick={triggerFileInput}
+          disabled={isImporting}
+          className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
-          🗺️ Export Complete Map
+          {isImporting ? 'Importing...' : 'Import'}
         </button>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleImport}
+          className="hidden"
+        />
         
-        {!mapState.mapState.image && (
-          <div className="text-yellow-600 text-sm">
-            Load a map image to use complete map export
-          </div>
-        )}
-          
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleImport}
-            className="hidden"
-          />
-          
-          <div className="text-xs text-gray-500 mt-2">
-            Supports both JSON exports and complete map exports (with embedded image)
+        <div className="text-xs text-gray-500 mt-2">
+          Supports complete map exports (with embedded image)
         </div>
 
         <button

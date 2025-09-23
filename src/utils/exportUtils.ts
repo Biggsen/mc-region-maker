@@ -1,15 +1,6 @@
 import { Region, MapState } from '../types'
 import { generateRegionYAML } from './polygonUtils'
 
-export interface ExportData {
-  version: string
-  worldName: string
-  regions: Region[]
-  mapState: Omit<MapState, 'image'> & { imageSrc?: string }
-  spawnCoordinates?: { x: number; z: number; radius?: number } | null
-  worldType?: 'overworld' | 'nether'
-  exportDate: string
-}
 
 export interface MapExportData {
   version: string
@@ -25,38 +16,6 @@ export interface MapExportData {
 
 const CURRENT_VERSION = '1.0.0'
 
-// Export regions and map state to JSON file
-export function exportMapData(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null, worldType?: 'overworld' | 'nether'): void {
-  const exportData: ExportData = {
-    version: CURRENT_VERSION,
-    worldName,
-    regions,
-    mapState: {
-      scale: mapState.scale,
-      offsetX: mapState.offsetX,
-      offsetY: mapState.offsetY,
-      isDragging: mapState.isDragging,
-      lastMousePos: mapState.lastMousePos,
-      originSelected: mapState.originSelected,
-      originOffset: mapState.originOffset,
-      imageSrc: mapState.image?.imageSrc || undefined
-    },
-    spawnCoordinates,
-    worldType,
-    exportDate: new Date().toISOString()
-  }
-
-  const dataStr = JSON.stringify(exportData, null, 2)
-  const dataBlob = new Blob([dataStr], { type: 'application/json' })
-  
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(dataBlob)
-  const worldNameSlug = worldName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
-  link.download = `mc-region-map-${worldNameSlug}-${new Date().toISOString().split('T')[0]}.json`
-  link.click()
-  
-  URL.revokeObjectURL(link.href)
-}
 
 // Export complete map with embedded image data
 export async function exportCompleteMap(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null, worldType?: 'overworld' | 'nether'): Promise<void> {
