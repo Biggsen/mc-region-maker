@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
 
 export function WorldNameHeading() {
-  const { worldName } = useAppContext()
+  const { worldName, worldType } = useAppContext()
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(worldName.worldName)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -57,6 +57,35 @@ export function WorldNameHeading() {
           {worldName.worldName}
         </h1>
       )}
+      
+      {/* World Type Toggle */}
+      <div className="mt-3">
+        <h4 className="text-sm font-medium text-gray-300 mb-2">World Type</h4>
+        <div className="flex gap-2">
+          <button
+            onClick={() => worldType.setWorldType('overworld')}
+            className={`text-sm px-3 py-1 rounded border ${
+              worldType.worldType === 'overworld'
+                ? 'bg-green-600 text-white border-green-500'
+                : 'text-green-400 hover:text-green-300 border-green-400 hover:border-green-300'
+            }`}
+            title="Generate overworld-style names"
+          >
+            Overworld
+          </button>
+          <button
+            onClick={() => worldType.setWorldType('nether')}
+            className={`text-sm px-3 py-1 rounded border ${
+              worldType.worldType === 'nether'
+                ? 'bg-red-600 text-white border-red-500'
+                : 'text-red-400 hover:text-red-300 border-red-400 hover:border-red-300'
+            }`}
+            title="Generate nether-style names"
+          >
+            Nether
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

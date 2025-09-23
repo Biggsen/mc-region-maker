@@ -1,6 +1,6 @@
 import { Subregion, Region } from '../types'
 import { isPointInPolygon } from './polygonUtils'
-import { generateVillageName } from './nameGenerator'
+import { generateVillageNameByWorldType } from './nameGenerator'
 
 export interface VillageData {
   x: number
@@ -52,14 +52,14 @@ export function findParentRegion(village: VillageData, regions: Region[]): Regio
   return null
 }
 
-export function createVillageSubregion(village: VillageData, index: number, parentRegionId?: string, existingNames: Set<string> = new Set()): Subregion {
-  let generatedName = generateVillageName()
+export function createVillageSubregion(village: VillageData, index: number, parentRegionId?: string, existingNames: Set<string> = new Set(), worldType: 'overworld' | 'nether' = 'overworld'): Subregion {
+  let generatedName = generateVillageNameByWorldType(worldType)
   let attempts = 0
   const maxAttempts = 100 // Prevent infinite loops
   
   // Keep generating names until we find a unique one
   while (existingNames.has(generatedName) && attempts < maxAttempts) {
-    generatedName = generateVillageName()
+    generatedName = generateVillageNameByWorldType(worldType)
     attempts++
   }
   

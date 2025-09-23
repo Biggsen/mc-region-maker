@@ -3,9 +3,9 @@ import { Region, EditMode, HighlightMode } from '../types'
 import { generateId, generateRegionYAML } from '../utils/polygonUtils'
 import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
 import { parseVillageCSV, createVillageSubregion, findParentRegion } from '../utils/villageUtils'
-import { generateVillageName } from '../utils/nameGenerator'
+import { generateVillageNameByWorldType } from '../utils/nameGenerator'
 
-export function useRegions() {
+export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
   const [regions, setRegions] = useState<Region[]>([])
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null)
   const [drawingRegion, setDrawingRegion] = useState<Region | null>(null)
@@ -248,7 +248,7 @@ export function useRegions() {
         const parentRegion = findParentRegion(village, regions)
         
         if (parentRegion) {
-          const subregion = createVillageSubregion(village, index, parentRegion.id, existingVillageNames)
+          const subregion = createVillageSubregion(village, index, parentRegion.id, existingVillageNames, worldType)
           
           // Add the new village name to our tracking set
           existingVillageNames.add(subregion.name)
@@ -343,13 +343,13 @@ export function useRegions() {
             subregions: region.subregions.map(subregion => {
               if (subregion.type === 'village') {
                 // Generate a unique name for this village
-                let newName = generateVillageName()
+                let newName = generateVillageNameByWorldType(worldType)
                 let attempts = 0
                 const maxAttempts = 100
                 
                 // Keep generating names until we find a unique one
                 while (existingVillageNames.has(newName) && attempts < maxAttempts) {
-                  newName = generateVillageName()
+                  newName = generateVillageNameByWorldType(worldType)
                   attempts++
                 }
                 

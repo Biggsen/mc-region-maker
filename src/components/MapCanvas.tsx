@@ -289,6 +289,8 @@ export function MapCanvas() {
 
   const handleImageUrl = useCallback((url: string) => {
     const img = new Image()
+    // Set crossOrigin to anonymous to allow canvas export if the server supports CORS
+    img.crossOrigin = 'anonymous'
     img.onload = () => {
       console.log('Image loaded from URL:', {
         width: img.width,

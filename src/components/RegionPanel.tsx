@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { copyToClipboard, calculatePolygonArea, formatArea, calculateRegionCenter } from '../utils/polygonUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
-import { generateMedievalName } from '../utils/nameGenerator'
+import { generateRegionName } from '../utils/nameGenerator'
 import { ChallengeLevel } from '../types'
 
 export function RegionPanel() {
-  const { regions } = useAppContext()
+  const { regions, worldType } = useAppContext()
   const {
     regions: regionsList,
     selectedRegionId,
@@ -48,12 +48,12 @@ export function RegionPanel() {
   // Generate a random name when the form is shown
   useEffect(() => {
     if (showNewRegionForm && !newRegionName) {
-      setNewRegionName(generateMedievalName())
+      setNewRegionName(generateRegionName(worldType.worldType))
     }
-  }, [showNewRegionForm, newRegionName])
+  }, [showNewRegionForm, newRegionName, worldType.worldType])
 
   const handleGenerateNewName = () => {
-    setNewRegionName(generateMedievalName())
+    setNewRegionName(generateRegionName(worldType.worldType))
   }
 
   const handleStartDrawing = () => {
@@ -296,6 +296,7 @@ export function RegionPanel() {
                 </button>
               </div>
             </div>
+
 
             {/* Region Actions */}
             <div className="mb-4">

@@ -147,6 +147,61 @@ const animalElements = [
   'Butterfly', 'Dragon', 'Phoenix', 'Griffin', 'Unicorn'
 ]
 
+// Nether-specific naming elements with otherworldly/eldritch themes (no nether blocks)
+const netherPrefixes = [
+  // Alien/Otherworldly prefixes
+  'Xyr', 'Mor', 'Khor', 'Azr', 'Vex', 'Nyx', 'Zor', 'Kra', 'Dem', 'Hel',
+  'Xyrrath', 'Mor\'gath', 'Khorvus', 'Azrak', 'Vexrath', 'Nyxmar', 'Zorvath', 'Kra\'thul', 'Dem\'rath', 'Hel\'gath',
+  'Chth', 'Nihil', 'Ebon', 'Umbral', 'Void', 'Rift', 'Abyss', 'Chaos', 'Doom', 'Grim',
+  'Chthonic', 'Voidscar', 'Riftmarrow', 'Abyssal', 'Chaotic', 'Doomed', 'Grimdark',
+  // Dark medieval/cursed vibes
+  'Bleak', 'Ashen', 'Black', 'Infernal', 'Scourged', 'Bloodfire', 'Hollow', 'Oblivion', 'Withered',
+  'Cursed', 'Forsaken', 'Damned', 'Blighted', 'Corrupted', 'Tainted', 'Defiled', 'Desecrated',
+  'Ancient', 'Forgotten', 'Lost', 'Abandoned', 'Ruined', 'Decayed', 'Rotting', 'Festering',
+  'Cruel', 'Vile', 'Wicked', 'Malicious', 'Sinister', 'Malevolent', 'Nefarious', 'Diabolical',
+  // Traditional nether elements (no blocks)
+  'Infer', 'Hell', 'Fire', 'Ash', 'Ember', 'Blaze', 'Soul', 'Wither', 'Nether',
+  'Crim', 'Warp', 'Dark', 'Shadow', 'Bone', 'Skull', 'Death', 'Ruin', 'Scorch', 'Burn', 'Flame', 'Magma', 'Lava',
+  'Molten', 'Smoke', 'Fume', 'Cinder', 'Char', 'Coal', 'Red', 'Orange', 'Crimson', 'Warped'
+]
+
+const netherSuffixes = [
+  // Otherworldly/eldritch suffixes
+  'abyss', 'rift', 'void', 'scar', 'coil', 'expanse', 'sprawl', 'depths', 'mire', 'forge',
+  'marrow', 'nexus', 'gate', 'portal', 'chasm', 'pit', 'core', 'heart', 'soul',
+  // Dark medieval/cursed vibes
+  'maw', 'dominion', 'crucible', 'descent', 'bastion', 'veins', 'reach', 'marches',
+  'wasteland', 'barrens', 'waste', 'ruins', 'graveyard', 'cemetery', 'ossuary',
+  'dungeon', 'prison', 'torture', 'suffering', 'torment', 'agony', 'despair',
+  'plague', 'pestilence', 'blight', 'curse', 'bane', 'doom', 'ruin', 'destruction',
+  // Traditional nether elements (no blocks)
+  'realm', 'domain', 'land', 'world', 'dimension', 'plane',
+  'fire', 'flame', 'ember', 'ash', 'cinder', 'smoke', 'fume', 'lava', 'magma',
+  'fortress', 'ruin', 'desert', 'heights', 'peaks', 'valleys', 'caverns', 'tunnels', 'corridors',
+  'halls', 'chambers', 'vaults', 'crypts', 'tombs', 'graves', 'mausoleums',
+  'sanctuary', 'shrine', 'altar', 'temple', 'cathedral', 'monastery', 'abbey',
+  'keep', 'tower', 'citadel', 'stronghold', 'battlements', 'ramparts', 'walls'
+]
+
+const netherThemes = [
+  // Otherworldly/eldritch themes
+  'Xyrrath', 'Chthonic', 'Mor\'gath', 'Nihil', 'Ebon', 'Umbral', 'Voidscar', 'Riftmarrow', 'Khorvus', 'Azrak',
+  'The Chthonic', 'The Nihil', 'The Umbral', 'The Voidscar', 'The Riftmarrow', 'The Ebon', 'The Azrak',
+  // Dark medieval/cursed vibes
+  'The Bleak', 'The Ashen', 'The Black', 'The Infernal', 'The Scourged', 'The Bloodfire', 'The Hollow', 'The Oblivion', 'The Withered',
+  'The Cursed', 'The Forsaken', 'The Damned', 'The Blighted', 'The Corrupted', 'The Tainted', 'The Defiled', 'The Desecrated',
+  'The Ancient', 'The Forgotten', 'The Lost', 'The Abandoned', 'The Ruined', 'The Decayed', 'The Rotting', 'The Festering',
+  'The Cruel', 'The Vile', 'The Wicked', 'The Malicious', 'The Sinister', 'The Malevolent', 'The Nefarious', 'The Diabolical',
+  'Woe', 'Despair', 'Torment', 'Agony', 'Suffering', 'Plague', 'Pestilence', 'Blight', 'Curse', 'Bane',
+  // Traditional nether themes (no blocks)
+  'Infernal', 'Hellish', 'Fiery', 'Burning', 'Scorching', 'Blazing', 'Searing',
+  'Molten', 'Lava', 'Magma', 'Ash', 'Ember', 'Cinder', 'Smoke', 'Fume',
+  'Soul', 'Wither', 'Death', 'Doom', 'Chaos', 'Void', 'Abyss', 'Darkness',
+  'Shadow', 'Grim', 'Desolate', 'Barren', 'Wasted', 'Ruined',
+  'Crimson', 'Warped', 'Nether', 'Hell', 'Inferno', 'Purgatory', 'Limbo',
+  'Fortress', 'Bastion', 'Ruin', 'Waste', 'Desert', 'Barrens', 'Depths'
+]
+
 export function generateMedievalName(): string {
   const random = Math.random()
   
@@ -198,4 +253,31 @@ export function generateVillageName(): string {
     const combinedName = `${root}${suffix}`
     return combinedName.charAt(0).toUpperCase() + combinedName.slice(1)
   }
+}
+
+export function generateNetherName(): string {
+  const random = Math.random()
+  
+  // Different name patterns with different probabilities (no pre-made names)
+  if (random < 0.5) {
+    // Pattern: "NetherPrefix + NetherSuffix" (e.g., "Xyrrath Abyss", "Mor'gath Expanse")
+    const prefix = netherPrefixes[Math.floor(Math.random() * netherPrefixes.length)]
+    const suffix = netherSuffixes[Math.floor(Math.random() * netherSuffixes.length)]
+    return `${prefix} ${suffix}`
+  } else {
+    // Pattern: "NetherTheme + of + NetherTheme" (e.g., "Fire of Doom", "Void of Chaos")
+    const theme1 = netherThemes[Math.floor(Math.random() * netherThemes.length)]
+    const theme2 = netherThemes[Math.floor(Math.random() * netherThemes.length)]
+    return `${theme1} of ${theme2}`
+  }
+}
+
+// Main functions that choose between overworld and nether based on world type
+export function generateRegionName(worldType: 'overworld' | 'nether'): string {
+  return worldType === 'nether' ? generateNetherName() : generateMedievalName()
+}
+
+export function generateVillageNameByWorldType(worldType: 'overworld' | 'nether'): string {
+  // Villages don't exist in the nether, so always use overworld village names
+  return generateVillageName()
 }

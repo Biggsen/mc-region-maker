@@ -32,7 +32,10 @@ async function takeScreenshot() {
     console.log('MC_DIMENSION:', process.env.MC_DIMENSION);
     
     // Build URL with dimension in the path
-    const url = `https://mcseedmap.net/1.21.5-Java/${seed}/${dimension}#l=-3`;
+    // For nether, don't include zoom parameter; for other dimensions, use zoom level -3
+    const url = dimension === 'nether' 
+      ? `https://mcseedmap.net/1.21.5-Java/${seed}/${dimension}`
+      : `https://mcseedmap.net/1.21.5-Java/${seed}/${dimension}#l=-3`;
     
     console.log(`Using seed: ${seed}, dimension: ${dimension}`);
     console.log(`URL: ${url}`);
@@ -141,7 +144,7 @@ async function takeScreenshot() {
     let finalSize;
     if (dimension === 'nether') {
       // Nether has 1:8 scale, so we need larger final size
-      finalSize = 2000;
+      finalSize = 1000;
     } else {
       // Overworld and End use standard size
       finalSize = 1000;
@@ -162,16 +165,6 @@ async function takeScreenshot() {
     
     console.log(`Cropped screenshot saved as: ${croppedFilename}`);
     console.log(`Cropped file path: ${croppedFilepath}`);
-    
-    // Delete the uncropped image to save space
-    console.log('Deleting uncropped image...');
-    try {
-      const fs = await import('fs');
-      fs.unlinkSync(filepath);
-      console.log(`Deleted uncropped image: ${filename}`);
-    } catch (deleteError) {
-      console.warn(`Failed to delete uncropped image: ${deleteError.message}`);
-    }
     
   } catch (error) {
     console.error('Error taking screenshot:', error);

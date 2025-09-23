@@ -7,6 +7,7 @@ export interface ExportData {
   regions: Region[]
   mapState: Omit<MapState, 'image'> & { imageSrc?: string }
   spawnCoordinates?: { x: number; z: number; radius?: number } | null
+  worldType?: 'overworld' | 'nether'
   exportDate: string
 }
 
@@ -16,6 +17,7 @@ export interface MapExportData {
   regions: Region[]
   mapState: Omit<MapState, 'image'> & { imageSrc?: string }
   spawnCoordinates?: { x: number; z: number; radius?: number } | null
+  worldType?: 'overworld' | 'nether'
   exportDate: string
   imageData?: string // Base64 encoded image data
   imageFilename?: string
@@ -24,7 +26,7 @@ export interface MapExportData {
 const CURRENT_VERSION = '1.0.0'
 
 // Export regions and map state to JSON file
-export function exportMapData(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null): void {
+export function exportMapData(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null, worldType?: 'overworld' | 'nether'): void {
   const exportData: ExportData = {
     version: CURRENT_VERSION,
     worldName,
@@ -40,6 +42,7 @@ export function exportMapData(regions: Region[], mapState: MapState, worldName: 
       imageSrc: mapState.image?.imageSrc || undefined
     },
     spawnCoordinates,
+    worldType,
     exportDate: new Date().toISOString()
   }
 
@@ -56,25 +59,43 @@ export function exportMapData(regions: Region[], mapState: MapState, worldName: 
 }
 
 // Export complete map with embedded image data
-export async function exportCompleteMap(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null): Promise<void> {
+export async function exportCompleteMap(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null, worldType?: 'overworld' | 'nether'): Promise<void> {
   if (!mapState.image) {
     alert('No map image loaded. Please load an image first.')
     return
   }
 
   try {
-    // Convert image to base64
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (!ctx) {
-      throw new Error('Could not get canvas context')
-    }
-
-    canvas.width = mapState.image.width
-    canvas.height = mapState.image.height
-    ctx.drawImage(mapState.image, 0, 0)
+    let imageData: string | null = null
     
-    const imageData = canvas.toDataURL('image/png')
+    // Try to convert image to base64, but handle CORS issues gracefully
+    try {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        throw new Error('Could not get canvas context')
+      }
+
+      canvas.width = mapState.image.width
+      canvas.height = mapState.image.height
+      ctx.drawImage(mapState.image, 0, 0)
+      
+      imageData = canvas.toDataURL('image/png')
+    } catch (corsError) {
+      console.warn('Cannot export image data due to CORS restrictions:', corsError)
+      
+      // For cross-origin images, we'll include the image source URL instead
+      // The user will need to manually save the image if they want a complete export
+      const userConfirmed = confirm(
+        'The map image is from a different origin and cannot be embedded in the export file.\n\n' +
+        'The export will include the image URL instead. You can manually save the image separately if needed.\n\n' +
+        'Continue with export?'
+      )
+      
+      if (!userConfirmed) {
+        return
+      }
+    }
     
     const exportData: MapExportData = {
       version: CURRENT_VERSION,
@@ -91,9 +112,10 @@ export async function exportCompleteMap(regions: Region[], mapState: MapState, w
         imageSrc: mapState.image?.imageSrc || undefined
       },
       spawnCoordinates,
+      worldType,
       exportDate: new Date().toISOString(),
-      imageData,
-      imageFilename: `map-image-${new Date().toISOString().split('T')[0]}.png`
+      imageData: imageData || undefined,
+      imageFilename: imageData ? `map-image-${new Date().toISOString().split('T')[0]}.png` : undefined
     }
 
     const dataStr = JSON.stringify(exportData, null, 2)
@@ -107,7 +129,11 @@ export async function exportCompleteMap(regions: Region[], mapState: MapState, w
     
     URL.revokeObjectURL(link.href)
     
-    alert('Complete map exported successfully! This file includes both the regions and the map image.')
+    if (imageData) {
+      alert('Complete map exported successfully! This file includes both the regions and the map image.')
+    } else {
+      alert('Map data exported successfully! The image could not be embedded due to security restrictions, but the image URL is included in the export file.')
+    }
   } catch (error) {
     console.error('Error exporting complete map:', error)
     alert('Failed to export complete map. Please try again.')
@@ -378,6 +404,8 @@ export function loadImageFromBase64(base64Data: string): Promise<HTMLImageElemen
 export function loadImageFromSrc(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image()
+    // Set crossOrigin to anonymous to allow canvas export if the server supports CORS
+    image.crossOrigin = 'anonymous'
     image.onload = () => resolve(image)
     image.onerror = reject
     image.src = src
