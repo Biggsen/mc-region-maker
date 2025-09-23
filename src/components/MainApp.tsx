@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { AppProvider } from '../context/AppContext'
+import { AppProvider, useAppContext } from '../context/AppContext'
 import { MapCanvas } from './MapCanvas'
 import { RegionPanel } from './RegionPanel'
 import { ExportImportPanel } from './ExportImportPanel'
@@ -12,6 +12,7 @@ import { ImageImportHandler } from './ImageImportHandler'
 // Component to handle image import within AppProvider context
 function MainAppContent() {
   const [isLoading, setIsLoading] = useState(true)
+  const { worldType } = useAppContext()
 
   useEffect(() => {
     // Hide loading after a short delay to allow data to load
@@ -32,7 +33,7 @@ function MainAppContent() {
         <div className="w-80 bg-gray-800 p-4 overflow-y-auto h-screen flex-shrink-0 fixed right-0 top-0 z-10">
           <WorldNameHeading />
           <ExportImportPanel />
-          <SpawnButton />
+          {worldType.worldType !== 'nether' && <SpawnButton />}
           <RegionPanel />
         </div>
         {isLoading && <LoadingOverlay />}

@@ -40,7 +40,14 @@ export function ExportImportPanel() {
   }
 
   const handleExportYAMLWithOptions = (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean, includeSpawnRegion: boolean) => {
-    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, includeSpawnRegion, spawn.spawnState.coordinates, spawn.spawnState.radius)
+    const spawnData = spawn.spawnState.coordinates ? {
+      x: spawn.spawnState.coordinates.x,
+      z: spawn.spawnState.coordinates.z,
+      radius: spawn.spawnState.radius
+    } : null
+    // Force spawn region to false for nether since it doesn't exist
+    const finalIncludeSpawnRegion = worldType.worldType === 'nether' ? false : includeSpawnRegion
+    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, finalIncludeSpawnRegion, spawnData, worldType.worldType)
   }
 
   const handleGenerateAchievements = () => {
@@ -362,6 +369,7 @@ export function ExportImportPanel() {
          onExport={handleExportYAMLWithOptions}
          hasVillages={computedHasVillages}
          hasSpawn={!!spawn.spawnState.coordinates}
+         worldType={worldType.worldType}
        />
      </div>
    )

@@ -87,8 +87,11 @@ export function createVillageSubregion(village: VillageData, index: number, pare
   }
 }
 
-export function generateSubregionYAML(subregion: Subregion, parentRegionName: string): string {
+export function generateSubregionYAML(subregion: Subregion, parentRegionName: string, worldType?: 'overworld' | 'nether'): string {
   const subregionName = subregion.name.toLowerCase().replace(/\s+/g, '_')
+  
+  // Villages always use "Welcome to" regardless of world type since villages don't exist in the nether
+  const greetingText = 'Welcome to'
   
   return `  ${subregionName}:
     type: cuboid
@@ -96,7 +99,7 @@ export function generateSubregionYAML(subregion: Subregion, parentRegionName: st
     max-y: ${subregion.maxY}
     priority: 10
     parent: ${parentRegionName}
-    flags: {greeting-title: Welcome to ${subregion.name} village, farewell-title: Leaving ${subregion.name} village., passthrough: allow}
+    flags: {greeting-title: ${greetingText} ${subregion.name} village, farewell-title: Leaving ${subregion.name} village., passthrough: allow}
     min: {x: ${subregion.x - subregion.radius}, y: ${subregion.minY}, z: ${subregion.z - subregion.radius}}
     max: {x: ${subregion.x + subregion.radius}, y: ${subregion.maxY}, z: ${subregion.z + subregion.radius}}`
 }

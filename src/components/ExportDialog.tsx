@@ -6,9 +6,10 @@ interface ExportDialogProps {
   onExport: (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean, includeSpawnRegion: boolean) => void
   hasVillages: boolean
   hasSpawn: boolean
+  worldType?: 'overworld' | 'nether'
 }
 
-export function ExportDialog({ isOpen, onClose, onExport, hasVillages, hasSpawn }: ExportDialogProps) {
+export function ExportDialog({ isOpen, onClose, onExport, hasVillages, hasSpawn, worldType }: ExportDialogProps) {
   const [includeVillages, setIncludeVillages] = useState(true)
   const [randomMobSpawn, setRandomMobSpawn] = useState(false)
   const [includeHeartRegions, setIncludeHeartRegions] = useState(true)
@@ -65,20 +66,22 @@ export function ExportDialog({ isOpen, onClose, onExport, hasVillages, hasSpawn 
               Random mob spawn
             </label>
           </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="includeSpawnRegion"
-              checked={includeSpawnRegion}
-              onChange={(e) => setIncludeSpawnRegion(e.target.checked)}
-              disabled={!hasSpawn}
-              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
-            />
-            <label htmlFor="includeSpawnRegion" className="ml-2 text-white">
-              Include Spawn Region
-              {!hasSpawn && <span className="text-gray-400 ml-1">(No spawn point set)</span>}
-            </label>
-          </div>
+          {worldType !== 'nether' && (
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="includeSpawnRegion"
+                checked={includeSpawnRegion}
+                onChange={(e) => setIncludeSpawnRegion(e.target.checked)}
+                disabled={!hasSpawn}
+                className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label htmlFor="includeSpawnRegion" className="ml-2 text-white">
+                Include Spawn Region
+                {!hasSpawn && <span className="text-gray-400 ml-1">(No spawn point set)</span>}
+              </label>
+            </div>
+          )}
         </div>
 
         <div className="flex space-x-3 mt-6">

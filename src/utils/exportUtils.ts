@@ -128,12 +128,6 @@ export async function exportCompleteMap(regions: Region[], mapState: MapState, w
     link.click()
     
     URL.revokeObjectURL(link.href)
-    
-    if (imageData) {
-      alert('Complete map exported successfully! This file includes both the regions and the map image.')
-    } else {
-      alert('Map data exported successfully! The image could not be embedded due to security restrictions, but the image URL is included in the export file.')
-    }
   } catch (error) {
     console.error('Error exporting complete map:', error)
     alert('Failed to export complete map. Please try again.')
@@ -147,17 +141,18 @@ export function exportRegionsYAML(
   randomMobSpawn: boolean = false, 
   includeHeartRegions: boolean = true,
   includeSpawnRegion: boolean = false,
-  spawnCoordinates?: { x: number; z: number; radius?: number } | null
+  spawnCoordinates?: { x: number; z: number; radius?: number } | null,
+  worldType?: 'overworld' | 'nether'
 ): void {
-  if (regions.length === 0 && !includeSpawnRegion) {
+  if (regions.length === 0 && (!includeSpawnRegion || worldType === 'nether')) {
     alert('No regions to export')
     return
   }
 
   let yamlContent = 'regions:\n'
   
-  // Add spawn region if requested and coordinates exist
-  if (includeSpawnRegion && spawnCoordinates && spawnCoordinates.radius) {
+  // Add spawn region if requested and coordinates exist (only for overworld)
+  if (includeSpawnRegion && spawnCoordinates && spawnCoordinates.radius && worldType !== 'nether') {
     const spawnRegion = generateSpawnRegionYAML(spawnCoordinates)
     yamlContent += spawnRegion
     if (regions.length > 0) {
@@ -166,7 +161,7 @@ export function exportRegionsYAML(
   }
   
   regions.forEach((region, index) => {
-    yamlContent += generateRegionYAML(region, includeVillages, randomMobSpawn, includeHeartRegions)
+    yamlContent += generateRegionYAML(region, includeVillages, randomMobSpawn, includeHeartRegions, worldType)
     // Add a blank line between regions (except after the last one)
     if (index < regions.length - 1) {
       yamlContent += '\n'

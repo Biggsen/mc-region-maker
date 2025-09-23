@@ -30,8 +30,7 @@ export function RegionPanel() {
     setCustomCenterPoint
   } = regions
 
-  const { startSettingCenterPoint, stopSettingCenterPoint, spawn } = useAppContext().mapCanvas
-  const { spawnState } = useAppContext().spawn
+  const { startSettingCenterPoint } = useAppContext().mapCanvas
 
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
@@ -551,20 +550,22 @@ export function RegionPanel() {
             </p>
           </div>
 
-          <div>
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={selectedRegion.hasSpawn || false}
-                onChange={(e) => handleSpawnCheckboxChange(selectedRegion.id, e.target.checked)}
-                className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
-              />
-              <span className="text-sm text-gray-300">Has Spawn</span>
-            </label>
-            <p className="text-gray-400 text-xs mt-1">
-              Mark this region as containing the world spawn point (only one region can have spawn)
-            </p>
-          </div>
+          {worldType.worldType !== 'nether' && (
+            <div>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={selectedRegion.hasSpawn || false}
+                  onChange={(e) => handleSpawnCheckboxChange(selectedRegion.id, e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <span className="text-sm text-gray-300">Has Spawn</span>
+              </label>
+              <p className="text-gray-400 text-xs mt-1">
+                Mark this region as containing the world spawn point (only one region can have spawn)
+              </p>
+            </div>
+          )}
 
           <div>
             <div className="flex justify-between items-center mb-2">
