@@ -124,7 +124,8 @@ export async function exportCompleteMap(regions: Region[], mapState: MapState, w
     const link = document.createElement('a')
     link.href = URL.createObjectURL(dataBlob)
     const worldNameSlug = worldName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
-    link.download = `mc-complete-map-${worldNameSlug}-${new Date().toISOString().split('T')[0]}.json`
+    const date = new Date().toISOString().split('T')[0]
+    link.download = `${worldNameSlug}-${worldType || 'overworld'}-${date}.json`
     link.click()
     
     URL.revokeObjectURL(link.href)
