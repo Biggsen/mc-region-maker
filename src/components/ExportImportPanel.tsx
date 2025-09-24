@@ -43,11 +43,11 @@ export function ExportImportPanel() {
   }
 
   const handleGenerateAchievements = () => {
-    generateAchievementsYAML(regions.regions)
+    generateAchievementsYAML(regions.regions, worldType.worldType)
   }
 
   const handleGenerateEventConditions = () => {
-    generateEventConditionsYAML(regions.regions)
+    generateEventConditionsYAML(regions.regions, worldType.worldType)
   }
 
   const handleGenerateLevelledMobsRules = () => {

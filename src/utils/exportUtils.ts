@@ -167,7 +167,7 @@ function generateSpawnRegionYAML(spawnCoordinates: { x: number; z: number; radiu
 }
 
 // Generate achievements YAML for regions and villages
-export function generateAchievementsYAML(regions: Region[]): void {
+export function generateAchievementsYAML(regions: Region[], worldType?: 'overworld' | 'nether'): void {
   if (regions.length === 0) {
     alert('No regions to generate achievements for')
     return
@@ -181,21 +181,36 @@ export function generateAchievementsYAML(regions: Region[]): void {
     const regionKey = region.name.replace(/\s+/g, '')
     const achievementKey = `discover${regionKey}`
     
+    // Determine messages based on world type
+    const regionMessage = worldType === 'nether' 
+      ? `You discovered the nether region of ${region.name}`
+      : `You discovered the region of ${region.name}`
+    const regionDisplayName = worldType === 'nether' 
+      ? 'Nether Region Discovery'
+      : 'Region Discovery'
+    
     yamlContent += `  ${achievementKey}:\n`
     yamlContent += `    Goal: Discover ${region.name} Region\n`
-    yamlContent += `    Message: You discovered the region of ${region.name}\n`
+    yamlContent += `    Message: ${regionMessage}\n`
     yamlContent += `    Name: discover_${region.name.toLowerCase().replace(/\s+/g, '_')}\n`
-    yamlContent += `    DisplayName: Region Discovery\n`
+    yamlContent += `    DisplayName: ${regionDisplayName}\n`
     yamlContent += `    Type: normal\n`
     achievementCount++
 
     // Generate heart achievement for this region
     const heartKey = `discoverHeartOf${regionKey}`
+    const heartMessage = worldType === 'nether'
+      ? `You discovered the nether ${region.name.toLowerCase().replace(/\s+/g, '_')}`
+      : `You discovered the Heart of ${region.name}`
+    const heartDisplayName = worldType === 'nether'
+      ? 'Nether Heart Discovery'
+      : 'Heart Discovery'
+    
     yamlContent += `  ${heartKey}:\n`
     yamlContent += `    Goal: Discover the Heart of ${region.name}\n`
-    yamlContent += `    Message: You discovered the Heart of ${region.name}\n`
+    yamlContent += `    Message: ${heartMessage}\n`
     yamlContent += `    Name: discover_heart_of_${region.name.toLowerCase().replace(/\s+/g, '_')}\n`
-    yamlContent += `    DisplayName: Heart Discovery\n`
+    yamlContent += `    DisplayName: ${heartDisplayName}\n`
     yamlContent += `    Type: normal\n`
     achievementCount++
 
@@ -231,7 +246,7 @@ export function generateAchievementsYAML(regions: Region[]): void {
 }
 
 // Generate event conditions YAML for regions and villages
-export function generateEventConditionsYAML(regions: Region[]): void {
+export function generateEventConditionsYAML(regions: Region[], worldType?: 'overworld' | 'nether'): void {
   if (regions.length === 0) {
     alert('No regions to generate event conditions for')
     return
@@ -254,8 +269,7 @@ export function generateEventConditionsYAML(regions: Region[]): void {
     yamlContent += `      default:\n`
     yamlContent += `        - 'wait: 5'\n`
     yamlContent += `        - 'console_command: aach give discover${region.name.replace(/\s+/g, '')} %player%'\n`
-    yamlContent += `        - 'console_command: aach add 1 Custom.regions_discovered %player%'\n`
-    yamlContent += `        - 'console_command: aach add 1 Custom.total_discovered %player%'\n`
+    yamlContent += `        - 'console_command: aach add 1 Custom.${worldType === 'nether' ? 'nether_' : ''}regions_discovered %player%'\n`
     yamlContent += `        - 'console_command: cc give virtual RegionCrate 1 %player%'\n`
     eventCount++
 
@@ -270,7 +284,7 @@ export function generateEventConditionsYAML(regions: Region[]): void {
     yamlContent += `      default:\n`
     yamlContent += `        - 'wait: 5'\n`
     yamlContent += `        - 'console_command: aach give discoverHeartOf${region.name.replace(/\s+/g, '')} %player%'\n`
-    yamlContent += `        - 'console_command: aach add 1 Custom.hearts_discovered %player%'\n`
+    yamlContent += `        - 'console_command: aach add 1 Custom.${worldType === 'nether' ? 'nether_' : ''}hearts_discovered %player%'\n`
     yamlContent += `        - 'console_command: cc give virtual RegionCrate 1 %player%'\n`
     eventCount++
 
