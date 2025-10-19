@@ -5,7 +5,8 @@ const prefixes = [
   'Bro', 'Sil', 'Gol', 'Obs', 'Gra', 'Mar', 'Jad', 'Ara', 'Val', 'Nor',
   'Eas', 'Wes', 'Sou', 'Nor', 'Mid', 'Upp', 'Low', 'Out', 'Inn', 'Cen',
   'Sum', 'Kra', 'Dem', 'Hel', 'Kam', 'Zor', 'Vex', 'Nyx', 'Rav', 'Sol',
-  'Lun', 'Ast', 'Cos', 'Neb', 'Gal', 'Sta', 'Com', 'Met', 'Aur', 'Ion'
+  'Lun', 'Ast', 'Cos', 'Neb', 'Gal', 'Sta', 'Com', 'Met', 'Aur', 'Ion',
+  'Ony', 'Top', 'Ame', 'Tur', 'Qua', 'Plu', 'Cob', 'Tin', 'Cop', 'Zin'
 ]
 
 const suffixes = [
@@ -16,7 +17,8 @@ const suffixes = [
   'glade', 'meadow', 'field', 'plains', 'hills', 'mountains', 'valley', 'canyon', 'ravine',
   'spring', 'falls', 'lake', 'river', 'stream', 'pond', 'bay', 'cove', 'harbor', 'port',
   'esi', 'ado', 'ish', 'itha', 'masa', 'dora', 'nara', 'kora', 'lara', 'vara',
-  'thos', 'mos', 'dos', 'tos', 'nos', 'ros', 'kos', 'los', 'vos', 'zos'
+  'thos', 'mos', 'dos', 'tos', 'nos', 'ros', 'kos', 'los', 'vos', 'zos',
+  'uria', 'ethia', 'noria', 'calia', 'donia', 'cliff', 'bluff', 'crest', 'summit', 'plateau'
 ]
 
 const themes = [
@@ -26,7 +28,8 @@ const themes = [
   'Storm', 'Thunder', 'Lightning', 'Fire', 'Ice', 'Wind', 'Earth', 'Water', 'Light', 'Shadow',
   'Dawn', 'Dusk', 'Midnight', 'Noon', 'Twilight', 'Sunrise', 'Sunset', 'Moon', 'Star', 'Comet',
   'Crystal', 'Magic', 'Mystic', 'Ancient', 'Eternal', 'Sacred', 'Blessed', 'Cursed', 'Holy', 'Profane',
-  'Kama', 'Lida', 'Masa', 'Nara', 'Kora', 'Lara', 'Vara', 'Thos', 'Mos', 'Dos'
+  'Kama', 'Lida', 'Masa', 'Nara', 'Kora', 'Lara', 'Vara', 'Thos', 'Mos', 'Dos',
+  'Basilisk', 'Pegasus', 'Minotaur', 'Bard', 'Paladin', 'Frost', 'Mist', 'Aurora', 'Divine', 'Zara'
 ]
 
 const connectors = ['of', 'the', 'in', 'at', 'by', 'near', 'beyond', 'within', 'under', 'over']
@@ -34,7 +37,8 @@ const connectors = ['of', 'the', 'in', 'at', 'by', 'near', 'beyond', 'within', '
 const complexSyllables = [
   'ka', 'ma', 'li', 'da', 'mu', 'sa', 'na', 'ra', 'ko', 'la', 'va', 'tho', 'mo', 'do', 'to', 'no', 'ro', 'ko', 'lo', 'vo', 'zo',
   'dra', 'mys', 'sha', 'gol', 'cry', 'dar', 'lig', 'sac', 'hid', 'los', 'for', 'ete', 'anc', 'enc', 'ble', 'cur', 'hol', 'pro', 'whi', 'sil',
-  'thu', 'fro', 'bur', 'eme', 'sap', 'rub', 'dia', 'iro', 'ste', 'bro', 'obs', 'gra', 'mar', 'jad', 'ara', 'val', 'nor', 'eas', 'wes', 'sou'
+  'thu', 'fro', 'bur', 'eme', 'sap', 'rub', 'dia', 'iro', 'ste', 'bro', 'obs', 'gra', 'mar', 'jad', 'ara', 'val', 'nor', 'eas', 'wes', 'sou',
+  'ony', 'top', 'ame', 'tur', 'qua', 'plu', 'cob', 'tin', 'cop', 'zin'
 ]
 
 // Medieval village name generator - Clean historical place names
@@ -206,11 +210,17 @@ export function generateMedievalName(): string {
   const random = Math.random()
   
   // Different name patterns with different probabilities
-  if (random < 0.4) {
+  if (random < 0.3) {
     // Pattern: "Prefix + Suffix" (e.g., "Dramonia", "Mystaria")
     const prefix = prefixes[Math.floor(Math.random() * prefixes.length)]
     const suffix = suffixes[Math.floor(Math.random() * suffixes.length)]
     return `${prefix}${suffix}`
+  } else if (random < 0.5) {
+    // Pattern: "Prefix + Syllable + Suffix" (e.g., "Drakamonia", "Myslaria")
+    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)]
+    const syllable = complexSyllables[Math.floor(Math.random() * complexSyllables.length)]
+    const suffix = suffixes[Math.floor(Math.random() * suffixes.length)]
+    return `${prefix}${syllable}${suffix}`
   } else if (random < 0.7) {
     // Pattern: "Theme + Suffix" (e.g., "Dragonland", "Crystalrealm")
     const theme = themes[Math.floor(Math.random() * themes.length)]
@@ -218,7 +228,7 @@ export function generateMedievalName(): string {
     return `${theme}${suffix}`
   } else if (random < 0.9) {
     // Pattern: Complex multi-syllable name (e.g., "Kamalidumasana")
-    const syllableCount = Math.floor(Math.random() * 3) + 3 // 3-5 syllables
+    const syllableCount = Math.floor(Math.random() * 2) + 3 // 3-4 syllables
     let complexName = ''
     for (let i = 0; i < syllableCount; i++) {
       const syllable = complexSyllables[Math.floor(Math.random() * complexSyllables.length)]
