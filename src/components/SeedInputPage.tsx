@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 export function SeedInputPage() {
   const [seed, setSeed] = useState('')
   const [dimension, setDimension] = useState('overworld')
+  const [overworldWorldSize, setOverworldWorldSize] = useState('8k')
   const [isLoading, setIsLoading] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -24,7 +25,8 @@ export function SeedInputPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           seed: seed.trim(),
-          dimension: dimension
+          dimension: dimension,
+          overworldWorldSize: overworldWorldSize
         })
       })
       
@@ -111,6 +113,24 @@ export function SeedInputPage() {
           </p>
         </div>
 
+        {dimension === 'overworld' && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">World Size:</label>
+            <select
+              value={overworldWorldSize}
+              onChange={(e) => setOverworldWorldSize(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isLoading}
+            >
+              <option value="8k">8K World Size (1000x1000)</option>
+              <option value="16k">16K World Size (2000x2000)</option>
+            </select>
+            <p className="text-xs text-gray-400 mt-1">
+              Choose the world size for overworld maps
+            </p>
+          </div>
+        )}
+
         {error && (
           <div className="mb-4 p-3 bg-red-900 border border-red-700 rounded-md">
             <p className="text-red-200 text-sm">{error}</p>
@@ -156,11 +176,13 @@ export function SeedInputPage() {
         )}
 
         <div className="mt-6 text-xs text-gray-400">
-          <p>This will generate a high-quality 2000x2000 map screenshot showing:</p>
+          <p>This will generate a high-quality map screenshot showing:</p>
           <ul className="list-disc list-inside mt-1 space-y-1">
             <li>Biome information</li>
             <li>Village locations (Overworld only)</li>
             <li>Clean interface without UI elements</li>
+            <li>8K World Size: 1000x1000 final image</li>
+            <li>16K World Size: 2000x2000 final image</li>
           </ul>
         </div>
       </div>

@@ -25,11 +25,13 @@ async function takeScreenshot() {
     // Use seed and dimension from environment variables or defaults
     const seed = process.env.MC_SEED || '-8570592621265448642';
     const dimension = process.env.MC_DIMENSION || 'overworld';
+    const overworldWorldSize = process.env.MC_OVERWORLD_WORLD_SIZE || '8k';
     
     // Debug: Log all environment variables
     console.log('Environment variables:');
     console.log('MC_SEED:', process.env.MC_SEED);
     console.log('MC_DIMENSION:', process.env.MC_DIMENSION);
+    console.log('MC_OVERWORLD_WORLD_SIZE:', process.env.MC_OVERWORLD_WORLD_SIZE);
     
     // Build URL with dimension in the path
     // For nether, don't include zoom parameter; for other dimensions, use zoom level -3
@@ -121,7 +123,9 @@ async function takeScreenshot() {
     // Take screenshot
     console.log('Taking screenshot...');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `mcseedmap-${dimension}-screenshot-${timestamp}.png`;
+    // Include world size in filename for overworld
+    const worldSizeSuffix = dimension === 'overworld' ? `-${overworldWorldSize}` : '';
+    const filename = `mcseedmap-${dimension}${worldSizeSuffix}-screenshot-${timestamp}.png`;
     // Save to screenshots folder (go up one directory from scripts folder)
     const screenshotsDir = join(__dirname, '..', 'screenshots');
     const filepath = join(screenshotsDir, filename);
@@ -140,31 +144,54 @@ async function takeScreenshot() {
     const croppedFilename = filename.replace('.png', '-cropped.png');
     const croppedFilepath = join(screenshotsDir, croppedFilename);
     
-    // Set dimensions based on the dimension type
-    let finalSize;
+    // Set crop parameters and final size based on the dimension type and world size
+    let cropParams, finalSize;
     if (dimension === 'nether') {
-      // Nether has 1:8 scale, so we need larger final size
-      finalSize = 1024;
+      // Nether crop parameters (always the same)
+      cropParams = {
+        left: 720,    // 720px from the left
+        top: 120,     // 120px from the top
+        width: 2000,  // 2000px width
+        height: 2000  // 2000px height
+      };
+      finalSize = 1000;
     } else {
-      // Overworld and End use standard size
-      finalSize = 1024;
+      // Overworld crop parameters based on world size setting
+      if (overworldWorldSize.toLowerCase() === '16k') {
+        // 16K world size: larger crop, higher resolution
+        cropParams = {
+          left: 720,    // 720px from the left
+          top: 120,     // 120px from the top
+          width: 2000,  // 2000px width
+          height: 2000  // 2000px height
+        };
+        finalSize = 2000;
+      } else {
+        // 8K world size: smaller crop, standard resolution (default)
+        cropParams = {
+          left: 1220,   // 1220px from the left
+          top: 620,     // 620px from the top
+          width: 1000,  // 1000px width
+          height: 1000  // 1000px height
+        };
+        finalSize = 1000;
+      }
     }
     
+    console.log(`Cropping ${dimension}${dimension === 'overworld' ? ` (${overworldWorldSize} world size)` : ''} with params:`, cropParams);
     console.log(`Resizing to ${finalSize}x${finalSize} for ${dimension} dimension`);
     
     await sharp(filepath)
-      .extract({
-        left: 720,    // 720px from the left
-        top: 120,     // 120px from the top
-        width: 2000,  // 2000px width (3840 - 720 - 1120 = 2000)
-        height: 2000  // 2000px height (2220 - 120 - 100 = 2000)
-      })
+      .extract(cropParams)
       .resize(finalSize, finalSize)
       .png()
       .toFile(croppedFilepath);
     
     console.log(`Cropped screenshot saved as: ${croppedFilename}`);
     console.log(`Cropped file path: ${croppedFilepath}`);
+    
+    // Output the generated filename for the API to capture
+    console.log(`GENERATED_FILE:${croppedFilename}`);
     
   } catch (error) {
     console.error('Error taking screenshot:', error);
