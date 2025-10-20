@@ -296,3 +296,77 @@ export function doublePolygonVertices(
   }
   return result
 }
+
+/**
+ * Remove every other vertex to approximately halve vertex count, preserving a valid polygon (min 3).
+ */
+export function halvePolygonVertices(
+  points: { x: number; z: number }[]
+): { x: number; z: number }[] {
+  if (points.length <= 3) return points
+  const kept: { x: number; z: number }[] = []
+  for (let i = 0; i < points.length; i++) {
+    if (i % 2 === 0) kept.push(points[i])
+  }
+  if (kept.length < 3) {
+    // Ensure at least 3 by adding back some points
+    const needed = 3 - kept.length
+    for (let i = 0; i < needed; i++) {
+      kept.push(points[(2 * i + 1) % points.length])
+    }
+  }
+  return kept
+}
+
+/**
+ * Simplify polygon using Ramer–Douglas–Peucker while preserving overall shape.
+ * Tolerance controls allowable deviation; higher values remove more points.
+ */
+export function simplifyPolygonVertices(
+  points: { x: number; z: number }[],
+  tolerance: number
+): { x: number; z: number }[] {
+  if (points.length <= 3) return points
+  const eps = Math.max(0, tolerance)
+
+  // Treat as closed polygon: simplify the open ring and then reconstruct
+  const open = [...points]
+
+  function perpendicularDistance(p: { x: number; z: number }, a: { x: number; z: number }, b: { x: number; z: number }) {
+    const dx = b.x - a.x
+    const dz = b.z - a.z
+    if (dx === 0 && dz === 0) return Math.hypot(p.x - a.x, p.z - a.z)
+    const t = ((p.x - a.x) * dx + (p.z - a.z) * dz) / (dx * dx + dz * dz)
+    const projX = a.x + t * dx
+    const projZ = a.z + t * dz
+    return Math.hypot(p.x - projX, p.z - projZ)
+  }
+
+  function rdp(pts: { x: number; z: number }[], first: number, last: number, keep: boolean[]) {
+    let maxDist = 0
+    let index = -1
+    for (let i = first + 1; i < last; i++) {
+      const d = perpendicularDistance(pts[i], pts[first], pts[last])
+      if (d > maxDist) {
+        maxDist = d
+        index = i
+      }
+    }
+    if (maxDist > eps && index !== -1) {
+      keep[index] = true
+      rdp(pts, first, index, keep)
+      rdp(pts, index, last, keep)
+    }
+  }
+
+  // Run RDP over the open ring, then ensure closure by keeping first point
+  const keepFlags = new Array(open.length).fill(false)
+  keepFlags[0] = true
+  keepFlags[open.length - 1] = true
+  rdp(open, 0, open.length - 1, keepFlags)
+  const simplified = open.filter((_, i) => keepFlags[i])
+
+  // For polygons, ensure we have at least 3 points
+  if (simplified.length < 3) return points
+  return simplified
+}

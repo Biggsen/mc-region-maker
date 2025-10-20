@@ -30,7 +30,9 @@ export function RegionPanel() {
     setCustomCenterPoint,
     startMoveRegion,
     cancelMoveRegion,
-    doubleRegionVertices
+    doubleRegionVertices,
+    halveRegionVertices,
+    simplifyRegionVertices
   } = regions
 
   const { startSettingCenterPoint } = useAppContext().mapCanvas
@@ -740,6 +742,39 @@ export function RegionPanel() {
             >
               Double Vertices
             </button>
+            <button
+              onClick={() => halveRegionVertices(selectedRegion.id)}
+              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded"
+            >
+              Halve Vertices
+            </button>
+          </div>
+
+          <div className="bg-gray-700 rounded p-3 border border-gray-600">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm text-gray-300">Simplify</div>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => simplifyRegionVertices(selectedRegion.id, 2)}
+                className="bg-gray-600 hover:bg-gray-700 text-white text-sm py-2 px-2 rounded"
+              >
+                Low
+              </button>
+              <button
+                onClick={() => simplifyRegionVertices(selectedRegion.id, 5)}
+                className="bg-gray-600 hover:bg-gray-700 text-white text-sm py-2 px-2 rounded"
+              >
+                Medium
+              </button>
+              <button
+                onClick={() => simplifyRegionVertices(selectedRegion.id, 10)}
+                className="bg-gray-600 hover:bg-gray-700 text-white text-sm py-2 px-2 rounded"
+              >
+                High
+              </button>
+            </div>
+            <p className="text-gray-400 text-xs mt-2">Reduces vertices while preserving the overall outline.</p>
           </div>
 
           <div className="flex space-x-2">
