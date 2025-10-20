@@ -254,6 +254,39 @@ export function moveRegionToCenter(
 }
 
 /**
+ * Resize a region by scaling all points around a center point
+ * @param points Array of region points
+ * @param centerX Center X coordinate for scaling
+ * @param centerZ Center Z coordinate for scaling
+ * @param scaleFactor Scale factor (1.0 = no change, 1.5 = 150%, 0.5 = 50%)
+ * @returns New array of scaled points
+ */
+export function resizeRegionPoints(
+  points: { x: number; z: number }[],
+  centerX: number,
+  centerZ: number,
+  scaleFactor: number
+): { x: number; z: number }[] {
+  if (points.length === 0 || scaleFactor <= 0) return points
+  
+  return points.map(p => {
+    // Calculate offset from center
+    const offsetX = p.x - centerX
+    const offsetZ = p.z - centerZ
+    
+    // Scale the offset
+    const scaledOffsetX = offsetX * scaleFactor
+    const scaledOffsetZ = offsetZ * scaleFactor
+    
+    // Return new point
+    return {
+      x: centerX + scaledOffsetX,
+      z: centerZ + scaledOffsetZ
+    }
+  })
+}
+
+/**
  * Push points away from a center within a radius by a strength factor.
  * Strength is the maximum displacement at the center; it eases to 0 at radius.
  */

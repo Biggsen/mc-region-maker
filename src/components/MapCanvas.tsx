@@ -153,14 +153,13 @@ export function MapCanvas() {
 
     if (e.button === 0) { // Left click
       setIsMouseDown(true)
-      // If in edit mode, don't handle other interactions
-      if (editMode.isEditing) {
-        return
-      }
-
+      
       if (isSpacePressed) {
-        // Prioritize panning when space is pressed
+        // Prioritize panning when space is pressed (even in edit mode)
         startDragging(x, y)
+      } else if (editMode.isEditing) {
+        // If in edit mode and space is not pressed, don't handle other interactions
+        return
       } else if (!mapState.originSelected && mapState.image) {
         // Set origin
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
@@ -514,6 +513,7 @@ export function MapCanvas() {
             highlightMode={highlightMode}
             regions={regions.regions}
             spawnCoordinates={spawnState.coordinates}
+            isSpacePressed={isSpacePressed}
             onPointMouseDown={handlePointMouseDown}
             onPointMouseMove={handlePointMouseMove}
             onPointMouseUp={handlePointMouseUp}

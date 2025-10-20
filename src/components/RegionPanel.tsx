@@ -32,7 +32,8 @@ export function RegionPanel() {
     cancelMoveRegion,
     doubleRegionVertices,
     halveRegionVertices,
-    simplifyRegionVertices
+    simplifyRegionVertices,
+    resizeRegion
   } = regions
 
   const { startSettingCenterPoint } = useAppContext().mapCanvas
@@ -50,6 +51,7 @@ export function RegionPanel() {
   const [customCenterZ, setCustomCenterZ] = useState('')
   const [showCustomCenterForm, setShowCustomCenterForm] = useState(false)
   const [showChallengeCounts, setShowChallengeCounts] = useState(false)
+  const [resizePercentage, setResizePercentage] = useState('100')
 
   // Generate a random name when the form is shown
   useEffect(() => {
@@ -57,6 +59,11 @@ export function RegionPanel() {
       setNewRegionName(generateRegionName(worldType.worldType))
     }
   }, [showNewRegionForm, newRegionName, worldType.worldType])
+
+  // Reset resize percentage when region changes
+  useEffect(() => {
+    setResizePercentage('100')
+  }, [selectedRegionId])
 
   const handleGenerateNewName = () => {
     setNewRegionName(generateRegionName(worldType.worldType))
@@ -787,6 +794,36 @@ export function RegionPanel() {
             >
               Halve Vertices
             </button>
+          </div>
+
+          <div className="bg-gray-700 rounded p-3 border border-gray-600">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm text-gray-300">Region Scale</div>
+            </div>
+            <div className="flex space-x-2">
+              <input
+                type="number"
+                value={resizePercentage}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setResizePercentage(value)
+                  
+                  // Apply resize in real-time
+                  const percentage = parseFloat(value)
+                  if (!isNaN(percentage) && percentage > 0 && selectedRegion) {
+                    const scaleFactor = percentage / 100
+                    resizeRegion(selectedRegion.id, scaleFactor)
+                  }
+                }}
+                placeholder="100"
+                min="10"
+                max="500"
+                step="1"
+                className="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
+              />
+              <span className="text-gray-300 text-sm flex items-center">%</span>
+            </div>
+            <p className="text-gray-400 text-xs mt-2">Scale region around its center point. 100% = original size.</p>
           </div>
 
           <div className="bg-gray-700 rounded p-3 border border-gray-600">

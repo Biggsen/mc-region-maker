@@ -19,6 +19,7 @@ interface RegionOverlayProps {
   highlightMode: HighlightMode
   regions?: Region[]
   spawnCoordinates?: WorldCoordinate | null
+  isSpacePressed?: boolean
   onPointMouseDown?: (regionId: string, pointIndex: number, event: React.MouseEvent) => void
   onPointMouseMove?: (regionId: string, pointIndex: number, x: number, z: number) => void
   onPointMouseUp?: () => void
@@ -35,6 +36,7 @@ export function RegionOverlay({
   highlightMode,
   regions = [],
   spawnCoordinates,
+  isSpacePressed = false,
   onPointMouseDown,
   onPointMouseMove,
   onPointMouseUp,
@@ -476,12 +478,26 @@ export function RegionOverlay({
   return (
     <canvas
       ref={overlayRef}
-      className={`absolute top-0 left-0 ${editMode.isEditing ? 'pointer-events-auto cursor-grab' : 'pointer-events-none'}`}
+      className={`absolute top-0 left-0 ${editMode.isEditing && !isSpacePressed ? 'pointer-events-auto cursor-grab' : 'pointer-events-none'}`}
       style={{ width: canvas.width, height: canvas.height }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onDoubleClick={handleDoubleClick}
+      onWheel={(e) => {
+        // Allow wheel events to pass through to the main canvas for zooming
+        e.stopPropagation()
+        const mainCanvas = canvas
+        if (mainCanvas) {
+          const wheelEvent = new WheelEvent('wheel', {
+            deltaY: e.deltaY,
+            clientX: e.clientX,
+            clientY: e.clientY,
+            bubbles: true
+          })
+          mainCanvas.dispatchEvent(wheelEvent)
+        }
+      }}
     />
   )
 }

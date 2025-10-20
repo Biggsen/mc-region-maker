@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Region, EditMode, HighlightMode } from '../types'
-import { generateId, generateRegionYAML, moveRegionPoints, calculateRegionCenter, warpRegionPoints, doublePolygonVertices, halvePolygonVertices, simplifyPolygonVertices } from '../utils/polygonUtils'
+import { generateId, generateRegionYAML, moveRegionPoints, calculateRegionCenter, warpRegionPoints, resizeRegionPoints, doublePolygonVertices, halvePolygonVertices, simplifyPolygonVertices } from '../utils/polygonUtils'
 import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
 import { parseVillageCSV, createVillageSubregion, findParentRegion } from '../utils/villageUtils'
 import { generateVillageNameByWorldType } from '../utils/nameGenerator'
@@ -33,12 +33,13 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     const savedRegions = loadRegions()
     const savedSelectedRegion = loadSelectedRegion()
     
-    // Migrate existing regions to include centerPoint, challengeLevel, and hasSpawn properties
+    // Migrate existing regions to include centerPoint, challengeLevel, hasSpawn, and originalPoints properties
     const migratedRegions = savedRegions.map(region => ({
       ...region,
       centerPoint: region.centerPoint || null,
       challengeLevel: region.challengeLevel || 'Vanilla',
-      hasSpawn: region.hasSpawn || false
+      hasSpawn: region.hasSpawn || false,
+      originalPoints: region.originalPoints || region.points // Use current points as original if not set
     }))
     
     setRegions(migratedRegions)
@@ -63,7 +64,8 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
   const addRegion = useCallback((region: Omit<Region, 'id'>) => {
     const newRegion: Region = {
       ...region,
-      id: generateId()
+      id: generateId(),
+      originalPoints: region.points // Store original points for resizing
     }
     setRegions(prev => [...prev, newRegion])
     setSelectedRegionId(newRegion.id)
@@ -230,6 +232,20 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     setRegions(prev => prev.map(region => {
       if (region.id === regionId) {
         const newPoints = warpRegionPoints(region.points, centerX, centerZ, radius, strength)
+        return { ...region, points: newPoints }
+      }
+      return region
+    }))
+  }, [])
+
+  const resizeRegion = useCallback((regionId: string, scaleFactor: number) => {
+    setRegions(prev => prev.map(region => {
+      if (region.id === regionId) {
+        // Use original points if available, otherwise use current points
+        const pointsToScale = region.originalPoints || region.points
+        // Use the region's center point if available, otherwise calculate it from original points
+        const center = region.centerPoint || calculateRegionCenter({ ...region, points: pointsToScale })
+        const newPoints = resizeRegionPoints(pointsToScale, center.x, center.z, scaleFactor)
         return { ...region, points: newPoints }
       }
       return region
@@ -567,8 +583,9 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     removeSubregionFromRegion,
     updateSubregionName,
     regenerateVillageNames,
-    setCustomCenterPoint
-    ,warpRegion,
+    setCustomCenterPoint,
+    warpRegion,
+    resizeRegion,
     doubleRegionVertices,
     halveRegionVertices,
     simplifyRegionVertices

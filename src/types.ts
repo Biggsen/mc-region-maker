@@ -4,6 +4,7 @@ export type Region = {
   id: string
   name: string
   points: { x: number; z: number }[]
+  originalPoints?: { x: number; z: number }[]
   minY: number
   maxY: number
   centerPoint?: { x: number; z: number } | null
