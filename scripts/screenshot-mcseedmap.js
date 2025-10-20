@@ -144,10 +144,10 @@ async function takeScreenshot() {
     let finalSize;
     if (dimension === 'nether') {
       // Nether has 1:8 scale, so we need larger final size
-      finalSize = 1000;
+      finalSize = 1024;
     } else {
       // Overworld and End use standard size
-      finalSize = 1000;
+      finalSize = 1024;
     }
     
     console.log(`Resizing to ${finalSize}x${finalSize} for ${dimension} dimension`);

@@ -43,9 +43,9 @@ export function GridOverlay({ canvas, mapState, isVisible }: GridOverlayProps) {
       // Use origin as reference point - ensure origin aligns with grid intersection
       const originX = mapState.originOffset.x
       const originZ = mapState.originOffset.y
-      // Grid extends from -4000 to +4000 blocks (8000 blocks total = 64 chunks)
-      // In pixels: 8000 * pixelsPerBlock
-      const gridRadiusInPixels = 4000 * pixelsPerBlock
+      // Grid extends from -4096 to +4096 blocks (8192 blocks total = 64 chunks)
+      // In pixels: 8192 * pixelsPerBlock
+      const gridRadiusInPixels = 4096 * pixelsPerBlock
       // Align grid so origin is at a grid intersection
       startX = originX - Math.floor(gridRadiusInPixels / blockSize) * blockSize
       endX = originX + Math.ceil(gridRadiusInPixels / blockSize) * blockSize
