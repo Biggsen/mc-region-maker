@@ -29,7 +29,8 @@ export function RegionPanel() {
     updateSubregionName,
     setCustomCenterPoint,
     startMoveRegion,
-    cancelMoveRegion
+    cancelMoveRegion,
+    doubleRegionVertices
   } = regions
 
   const { startSettingCenterPoint } = useAppContext().mapCanvas
@@ -730,6 +731,15 @@ export function RegionPanel() {
               </div>
             </div>
             <p className="text-gray-400 text-xs mt-2">Click map to push vertices outward within radius.</p>
+          </div>
+
+          <div className="flex space-x-2">
+            <button
+              onClick={() => doubleRegionVertices(selectedRegion.id)}
+              className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded"
+            >
+              Double Vertices
+            </button>
           </div>
 
           <div className="flex space-x-2">

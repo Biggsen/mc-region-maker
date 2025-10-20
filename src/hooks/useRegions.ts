@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Region, EditMode, HighlightMode } from '../types'
-import { generateId, generateRegionYAML, moveRegionPoints, calculateRegionCenter, warpRegionPoints } from '../utils/polygonUtils'
+import { generateId, generateRegionYAML, moveRegionPoints, calculateRegionCenter, warpRegionPoints, doublePolygonVertices } from '../utils/polygonUtils'
 import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
 import { parseVillageCSV, createVillageSubregion, findParentRegion } from '../utils/villageUtils'
 import { generateVillageNameByWorldType } from '../utils/nameGenerator'
@@ -218,6 +218,15 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
       if (region.id === regionId) {
         const newPoints = warpRegionPoints(region.points, centerX, centerZ, radius, strength)
         return { ...region, points: newPoints }
+      }
+      return region
+    }))
+  }, [])
+
+  const doubleRegionVertices = useCallback((regionId: string) => {
+    setRegions(prev => prev.map(region => {
+      if (region.id === regionId) {
+        return { ...region, points: doublePolygonVertices(region.points) }
       }
       return region
     }))
@@ -525,6 +534,7 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     updateSubregionName,
     regenerateVillageNames,
     setCustomCenterPoint
-    ,warpRegion
+    ,warpRegion,
+    doubleRegionVertices
   }
 }

@@ -279,3 +279,20 @@ export function warpRegionPoints(
     return { x: p.x + ux * displacement, z: p.z + uz * displacement }
   })
 }
+
+/**
+ * Insert a midpoint between every consecutive pair of polygon vertices.
+ */
+export function doublePolygonVertices(
+  points: { x: number; z: number }[]
+): { x: number; z: number }[] {
+  if (points.length < 2) return points
+  const result: { x: number; z: number }[] = []
+  for (let i = 0; i < points.length; i++) {
+    const a = points[i]
+    const b = points[(i + 1) % points.length]
+    result.push(a)
+    result.push({ x: (a.x + b.x) / 2, z: (a.z + b.z) / 2 })
+  }
+  return result
+}
