@@ -29,13 +29,11 @@ export function RegionPanel() {
     updateSubregionName,
     setCustomCenterPoint,
     startMoveRegion,
-    updateMoveRegion,
-    moveRegionToPosition,
-    finishMoveRegion,
     cancelMoveRegion
   } = regions
 
   const { startSettingCenterPoint } = useAppContext().mapCanvas
+  const { isWarping, setIsWarping, warpRadius, setWarpRadius, warpStrength, setWarpStrength } = useAppContext().mapCanvas
 
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
@@ -696,6 +694,42 @@ export function RegionPanel() {
             >
               Copy YAML
             </button>
+          </div>
+
+          <div className="bg-gray-700 rounded p-3 border border-gray-600">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm text-gray-300">Warp Brush</div>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={isWarping}
+                  onChange={(e) => setIsWarping(e.target.checked)}
+                  className="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
+                />
+                <span className="text-xs text-gray-300">Enable</span>
+              </label>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Radius</label>
+                <input
+                  type="number"
+                  value={warpRadius}
+                  onChange={(e) => setWarpRadius(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-purple-400 focus:outline-none text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Strength</label>
+                <input
+                  type="number"
+                  value={warpStrength}
+                  onChange={(e) => setWarpStrength(parseInt(e.target.value) || 0)}
+                  className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-purple-400 focus:outline-none text-sm"
+                />
+              </div>
+            </div>
+            <p className="text-gray-400 text-xs mt-2">Click map to push vertices outward within radius.</p>
           </div>
 
           <div className="flex space-x-2">

@@ -252,3 +252,30 @@ export function moveRegionToCenter(
   // Apply offset to all points
   return moveRegionPoints(points, offsetX, offsetZ)
 }
+
+/**
+ * Push points away from a center within a radius by a strength factor.
+ * Strength is the maximum displacement at the center; it eases to 0 at radius.
+ */
+export function warpRegionPoints(
+  points: { x: number; z: number }[],
+  centerX: number,
+  centerZ: number,
+  radius: number,
+  strength: number
+): { x: number; z: number }[] {
+  if (points.length === 0 || radius <= 0 || strength === 0) return points
+  const radiusSq = radius * radius
+  return points.map(p => {
+    const dx = p.x - centerX
+    const dz = p.z - centerZ
+    const distSq = dx * dx + dz * dz
+    if (distSq >= radiusSq) return p
+    const dist = Math.sqrt(Math.max(distSq, 1e-8))
+    const falloff = 1 - dist / radius
+    const displacement = strength * falloff
+    const ux = dx / dist
+    const uz = dz / dist
+    return { x: p.x + ux * displacement, z: p.z + uz * displacement }
+  })
+}

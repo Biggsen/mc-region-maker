@@ -23,12 +23,14 @@ export function MapCanvas() {
     startMoveRegion,
     updateMoveRegion,
     moveRegionToPosition,
-    finishMoveRegion
+    finishMoveRegion,
+    warpRegion
   } = regions
   const { spawnState, setSpawnCoordinates } = spawn
-  const { isSettingCenterPoint, centerPointRegionId, stopSettingCenterPoint } = mapCanvas
+  const { isSettingCenterPoint, centerPointRegionId, stopSettingCenterPoint, isWarping, warpRadius, warpStrength } = mapCanvas
   const [isSpacePressed, setIsSpacePressed] = useState(false)
   const [mouseCoordinates, setMouseCoordinates] = useState<{ x: number; z: number } | null>(null)
+  const [isMouseDown, setIsMouseDown] = useState(false)
 
   // Debug mapState changes
   useEffect(() => {
@@ -136,6 +138,7 @@ export function MapCanvas() {
     const y = e.clientY - rect.top
 
     if (e.button === 0) { // Left click
+      setIsMouseDown(true)
       // If in edit mode, don't handle other interactions
       if (editMode.isEditing) {
         return
@@ -197,6 +200,12 @@ export function MapCanvas() {
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
         const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image.width, mapState.image.height, mapState.originOffset)
         
+        // Warp brush applies to selected region if enabled
+        if (isWarping && regions.selectedRegionId) {
+          warpRegion(regions.selectedRegionId, worldPos.x, worldPos.z, warpRadius, warpStrength)
+          return
+        }
+
         // Check each region to see if the click is inside
         for (let i = regions.regions.length - 1; i >= 0; i--) {
           const region = regions.regions[i]
@@ -216,6 +225,7 @@ export function MapCanvas() {
   const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (e.button === 0) {
       stopDragging()
+      setIsMouseDown(false)
     }
   }, [stopDragging])
 
@@ -237,12 +247,17 @@ export function MapCanvas() {
       if (editMode.isMovingRegion) {
         updateMoveRegion(worldPos.x, worldPos.z)
       }
+
+      // Continuous warp while holding mouse
+      if (isWarping && isMouseDown && regions.selectedRegionId && !isSpacePressed && !editMode.isEditing && !editMode.isMovingRegion) {
+        warpRegion(regions.selectedRegionId, worldPos.x, worldPos.z, warpRadius, warpStrength)
+      }
     } else {
       setMouseCoordinates(null)
     }
 
     handleMouseMove(x, y)
-  }, [mapState.image, mapState.originSelected, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, handleMouseMove, editMode.isMovingRegion, updateMoveRegion])
+  }, [mapState.image, mapState.originSelected, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, handleMouseMove, editMode.isMovingRegion, updateMoveRegion, isWarping, isMouseDown, regions.selectedRegionId, isSpacePressed, editMode.isEditing, warpRegion, warpRadius, warpStrength])
 
   const onWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault()
