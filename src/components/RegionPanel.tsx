@@ -40,6 +40,7 @@ export function RegionPanel() {
 
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
+  const [freehandLocal, setFreehandLocal] = useState(false)
   const [showYAML, setShowYAML] = useState(false)
   const [showAllRegions, setShowAllRegions] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -63,9 +64,11 @@ export function RegionPanel() {
 
   const handleStartDrawing = () => {
     if (newRegionName.trim()) {
+      regions.setFreehandEnabled(freehandLocal)
       startDrawingRegion(newRegionName.trim())
       setNewRegionName('')
       setShowNewRegionForm(false)
+      setFreehandLocal(false)
     }
   }
 
@@ -389,6 +392,15 @@ export function RegionPanel() {
                     🎲
                   </button>
                 </div>
+                <label className="flex items-center space-x-2 text-sm text-gray-300">
+                  <input
+                    type="checkbox"
+                    checked={freehandLocal}
+                    onChange={(e) => setFreehandLocal(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                  />
+                  <span>Freehand (click and drag)</span>
+                </label>
                 <div className="flex space-x-2">
                   <button
                     onClick={handleStartDrawing}
@@ -408,13 +420,31 @@ export function RegionPanel() {
           </div>
 
           {drawingRegion && (
-            <div className="mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded">
-              <p className="text-yellow-200 text-sm">
-                Drawing: <strong>{drawingRegion.name}</strong>
+            <div className="mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-yellow-200 text-sm">
+                  Drawing: <strong>{drawingRegion.name}</strong>
+                </p>
+                <span className="text-xs text-gray-200">{drawingRegion.points.length} pts</span>
+              </div>
+              <p className="text-yellow-300 text-xs">
+                {regions.freehandEnabled ? 'Drag to draw; release to place points.' : 'Click to add points.'}
               </p>
-              <p className="text-yellow-300 text-xs mt-1">
-                Click on map to add points. Click on a previous point to finish.
-              </p>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => regions.finishDrawingRegion()}
+                  disabled={drawingRegion.points.length < 3}
+                  className={`flex-1 font-medium py-2 px-4 rounded ${drawingRegion.points.length < 3 ? 'bg-gray-600 text-gray-300' : 'bg-green-600 hover:bg-green-700 text-white'}`}
+                >
+                  Finish
+                </button>
+                <button
+                  onClick={() => regions.cancelDrawingRegion()}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           )}
 

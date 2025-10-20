@@ -31,6 +31,7 @@ export function MapCanvas() {
   const [isSpacePressed, setIsSpacePressed] = useState(false)
   const [mouseCoordinates, setMouseCoordinates] = useState<{ x: number; z: number } | null>(null)
   const [isMouseDown, setIsMouseDown] = useState(false)
+  const lastFreehandPointRef = useRef<{ x: number; z: number } | null>(null)
 
   // Debug mapState changes
   useEffect(() => {
@@ -161,21 +162,28 @@ export function MapCanvas() {
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
         const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image!.width, mapState.image!.height, mapState.originOffset)
         
-        // Check if clicking near any previous point (within 20 pixels tolerance)
-        const tolerance = 20 / mapState.scale // Convert to world coordinates
-        const isNearPreviousPoint = drawingRegion.points.some(point => {
-          const distance = Math.sqrt(
-            Math.pow(point.x - worldPos.x, 2) + Math.pow(point.z - worldPos.z, 2)
-          )
-          return distance <= tolerance
-        })
-        
-        if (isNearPreviousPoint && drawingRegion.points.length >= 3) {
-          // Close the polygon
-          finishDrawingRegion()
-        } else {
-          // Add point to drawing region
+        if (regions.freehandEnabled) {
+          // Start freehand stroke
           addPointToDrawing(worldPos.x, worldPos.z)
+          lastFreehandPointRef.current = worldPos
+        } else {
+          // Check if clicking near any previous point (within 20 pixels tolerance)
+          // Convert pixel tolerance to world units (8 world units per image pixel)
+          const tolerance = (20 / mapState.scale) * 8
+          const isNearPreviousPoint = drawingRegion.points.some(point => {
+            const distance = Math.sqrt(
+              Math.pow(point.x - worldPos.x, 2) + Math.pow(point.z - worldPos.z, 2)
+            )
+            return distance <= tolerance
+          })
+          
+          if (isNearPreviousPoint && drawingRegion.points.length >= 3) {
+            // Close the polygon
+            finishDrawingRegion()
+          } else {
+            // Add point to drawing region
+            addPointToDrawing(worldPos.x, worldPos.z)
+          }
         }
       } else if (isSettingCenterPoint && mapState.image && mapState.originSelected) {
         // Set custom center point for the selected region
@@ -226,6 +234,11 @@ export function MapCanvas() {
     if (e.button === 0) {
       stopDragging()
       setIsMouseDown(false)
+      // Always attempt to finalize a drawing on mouse up when we have a valid polygon
+      if (drawingRegion && drawingRegion.points.length >= 3) {
+        finishDrawingRegion()
+      }
+      lastFreehandPointRef.current = null
     }
   }, [stopDragging])
 
@@ -251,6 +264,18 @@ export function MapCanvas() {
       // Continuous warp while holding mouse
       if (isWarping && isMouseDown && regions.selectedRegionId && !isSpacePressed && !editMode.isEditing && !editMode.isMovingRegion) {
         warpRegion(regions.selectedRegionId, worldPos.x, worldPos.z, warpRadius, warpStrength)
+      }
+
+      // Freehand sampling while dragging
+      if (
+        drawingRegion && regions.freehandEnabled && isMouseDown && !isSpacePressed && !editMode.isEditing && !editMode.isMovingRegion
+      ) {
+        const last = lastFreehandPointRef.current
+        const minWorldSpacing = 8 // ~1 block increments; tweak as needed
+        if (!last || Math.hypot(worldPos.x - last.x, worldPos.z - last.z) >= minWorldSpacing) {
+          addPointToDrawing(worldPos.x, worldPos.z)
+          lastFreehandPointRef.current = worldPos
+        }
       }
     } else {
       setMouseCoordinates(null)

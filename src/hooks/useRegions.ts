@@ -9,6 +9,7 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
   const [regions, setRegions] = useState<Region[]>([])
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null)
   const [drawingRegion, setDrawingRegion] = useState<Region | null>(null)
+  const [freehandEnabled, setFreehandEnabled] = useState<boolean>(false)
   const [isInitialized, setIsInitialized] = useState(false)
   const [editMode, setEditMode] = useState<EditMode>({
     isEditing: false,
@@ -121,9 +122,21 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
 
   const finishDrawingRegion = useCallback(() => {
     if (drawingRegion && drawingRegion.points.length >= 3) {
-      addRegion(drawingRegion)
+      // If freehand, lightly simplify before saving to reduce noise
+      const points = freehandEnabled
+        ? simplifyPolygonVertices(drawingRegion.points, 3)
+        : drawingRegion.points
+
+      addRegion({
+        ...drawingRegion,
+        points
+      })
     }
   }, [drawingRegion, addRegion])
+
+  const cancelDrawingRegion = useCallback(() => {
+    setDrawingRegion(null)
+  }, [])
 
   const getSelectedRegion = useCallback(() => {
     return regions.find(region => region.id === selectedRegionId) || null
@@ -518,6 +531,7 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     regions,
     selectedRegionId,
     drawingRegion,
+    freehandEnabled,
     editMode,
     highlightMode,
     addRegion,
@@ -528,6 +542,8 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     startDrawingRegion,
     addPointToDrawing,
     finishDrawingRegion,
+    cancelDrawingRegion,
+    setFreehandEnabled,
     getSelectedRegion,
     getRegionYAML,
     startEditMode,
