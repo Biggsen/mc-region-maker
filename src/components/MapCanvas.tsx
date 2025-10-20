@@ -30,7 +30,7 @@ export function MapCanvas() {
   } = regions
   const { spawnState, setSpawnCoordinates } = spawn
   const { isSettingCenterPoint, centerPointRegionId, stopSettingCenterPoint, isWarping, warpRadius, warpStrength } = mapCanvas
-  const { customMarker, setMarker } = customMarkers
+  const { customMarker, setMarker, orphanedVillageMarkers, showOrphanedVillages } = customMarkers
   const [isSpacePressed, setIsSpacePressed] = useState(false)
   const [mouseCoordinates, setMouseCoordinates] = useState<{ x: number; z: number } | null>(null)
   const [isMouseDown, setIsMouseDown] = useState(false)
@@ -524,6 +524,8 @@ export function MapCanvas() {
             canvas={canvasRef.current}
             mapState={mapState}
             customMarker={customMarker}
+            orphanedVillageMarkers={orphanedVillageMarkers}
+            showOrphanedVillages={showOrphanedVillages}
           />
         </>
       )}

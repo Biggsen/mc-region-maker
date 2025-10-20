@@ -5,7 +5,7 @@ import { exportRegionsYAML, exportCompleteMap, importMapData, loadImageFromSrc, 
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
-  const { regions, mapState, worldName, spawn, worldType } = useAppContext()
+  const { regions, mapState, worldName, spawn, worldType, customMarkers } = useAppContext()
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const villageFileInputRef = useRef<HTMLInputElement>(null)
@@ -182,6 +182,9 @@ export function ExportImportPanel() {
           results.orphanedVillages.forEach(village => {
             message += `\n• ${village.type} at (${village.x}, ${village.z}) - ${village.details}`
           })
+          
+          // Add orphaned villages as markers
+          customMarkers.addOrphanedVillageMarkers(results.orphanedVillages)
         }
       }
       

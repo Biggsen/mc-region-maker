@@ -74,4 +74,7 @@ export type HighlightMode = {
 export type CustomMarker = {
   id: string
   coordinates: WorldCoordinate
+  type?: 'custom' | 'orphaned_village'
+  details?: string
+  villageType?: string
 }

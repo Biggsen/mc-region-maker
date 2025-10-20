@@ -6,7 +6,7 @@ import { generateRegionName } from '../utils/nameGenerator'
 import { ChallengeLevel } from '../types'
 
 export function RegionPanel() {
-  const { regions, worldType } = useAppContext()
+  const { regions, worldType, customMarkers } = useAppContext()
   const {
     regions: regionsList,
     selectedRegionId,
@@ -38,6 +38,7 @@ export function RegionPanel() {
 
   const { startSettingCenterPoint } = useAppContext().mapCanvas
   const { isWarping, setIsWarping, warpRadius, setWarpRadius, warpStrength, setWarpStrength } = useAppContext().mapCanvas
+  const { orphanedVillageMarkers, showOrphanedVillages, toggleShowOrphanedVillages } = customMarkers
 
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
@@ -276,6 +277,19 @@ export function RegionPanel() {
                 >
                   {highlightMode.showVillages ? 'Hide' : 'Show'} Villages
                 </button>
+                {orphanedVillageMarkers.length > 0 && (
+                  <button
+                    onClick={toggleShowOrphanedVillages}
+                    className={`text-sm px-2 py-1 rounded border ${
+                      showOrphanedVillages
+                        ? 'bg-amber-600 text-white border-amber-500'
+                        : 'text-amber-400 hover:text-amber-300 border-amber-400 hover:border-amber-300'
+                    }`}
+                    title="Show/hide orphaned village markers"
+                  >
+                    {showOrphanedVillages ? 'Hide' : 'Show'} Orphaned ({orphanedVillageMarkers.length})
+                  </button>
+                )}
                 <button
                   onClick={toggleShowCenterPoints}
                   className={`text-sm px-2 py-1 rounded border ${
