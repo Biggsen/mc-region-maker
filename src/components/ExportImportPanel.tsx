@@ -16,6 +16,7 @@ export function ExportImportPanel() {
   const [showExportDialog, setShowExportDialog] = useState(false)
   const [hasVillages, setHasVillages] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(true)
+  const [importRegionsOnly, setImportRegionsOnly] = useState(false)
 
 
   const handleExportYAML = () => {
@@ -69,54 +70,62 @@ export function ExportImportPanel() {
     try {
       const importData = await importMapData(file)
       
-      // Load the image if it exists
-      if ('imageData' in importData && importData.imageData) {
-        // New format with embedded image data
-        try {
-          const image = await loadImageFromBase64(importData.imageData)
-          mapState.setImage(image)
-          console.log('Loaded embedded image from complete map export')
-        } catch (error) {
-          console.warn('Failed to load embedded image, continuing without image')
+      if (importRegionsOnly) {
+        // Import only regions, ignore all other data
+        regions.replaceRegions(importData.regions)
+        regions.setSelectedRegionId(null)
+        console.log('Imported regions only from map export')
+      } else {
+        // Import everything (original behavior)
+        // Load the image if it exists
+        if ('imageData' in importData && importData.imageData) {
+          // New format with embedded image data
+          try {
+            const image = await loadImageFromBase64(importData.imageData)
+            mapState.setImage(image)
+            console.log('Loaded embedded image from complete map export')
+          } catch (error) {
+            console.warn('Failed to load embedded image, continuing without image')
+          }
+        } else if (importData.mapState.imageSrc) {
+          // Legacy format with image source URL
+          try {
+            const image = await loadImageFromSrc(importData.mapState.imageSrc)
+            mapState.setImage(image)
+          } catch (error) {
+            console.warn('Failed to load image from import, continuing without image')
+          }
         }
-      } else if (importData.mapState.imageSrc) {
-        // Legacy format with image source URL
-        try {
-          const image = await loadImageFromSrc(importData.mapState.imageSrc)
-          mapState.setImage(image)
-        } catch (error) {
-          console.warn('Failed to load image from import, continuing without image')
+
+        // Update map state
+        mapState.setScale(importData.mapState.scale)
+        mapState.setOffset(importData.mapState.offsetX, importData.mapState.offsetY)
+        mapState.setOriginSelected(importData.mapState.originSelected)
+        if (importData.mapState.originOffset) {
+          mapState.setOriginOffset(importData.mapState.originOffset)
         }
-      }
 
-      // Update map state
-      mapState.setScale(importData.mapState.scale)
-      mapState.setOffset(importData.mapState.offsetX, importData.mapState.offsetY)
-      mapState.setOriginSelected(importData.mapState.originSelected)
-      if (importData.mapState.originOffset) {
-        mapState.setOriginOffset(importData.mapState.originOffset)
-      }
+        // Replace all regions
+        regions.replaceRegions(importData.regions)
+        regions.setSelectedRegionId(null)
 
-      // Replace all regions
-      regions.replaceRegions(importData.regions)
-      regions.setSelectedRegionId(null)
+        // Update world name if it exists in import data
+        if (importData.worldName) {
+          worldName.updateWorldName(importData.worldName)
+        }
 
-      // Update world name if it exists in import data
-      if (importData.worldName) {
-        worldName.updateWorldName(importData.worldName)
-      }
+        // Update world type if it exists in import data
+        if (importData.worldType) {
+          worldType.setWorldType(importData.worldType)
+        }
 
-      // Update world type if it exists in import data
-      if (importData.worldType) {
-        worldType.setWorldType(importData.worldType)
-      }
-
-      // Update spawn coordinates if they exist in import data
-      if (importData.spawnCoordinates) {
-        spawn.setSpawnCoordinates(importData.spawnCoordinates)
-        // Update radius if it exists in import data
-        if (importData.spawnCoordinates.radius) {
-          spawn.setSpawnRadius(importData.spawnCoordinates.radius)
+        // Update spawn coordinates if they exist in import data
+        if (importData.spawnCoordinates) {
+          spawn.setSpawnCoordinates(importData.spawnCoordinates)
+          // Update radius if it exists in import data
+          if (importData.spawnCoordinates.radius) {
+            spawn.setSpawnRadius(importData.spawnCoordinates.radius)
+          }
         }
       }
 
@@ -249,12 +258,30 @@ export function ExportImportPanel() {
           )}
         </div>
 
+        <div className="space-y-2">
+          <label className="flex items-center space-x-2 text-sm">
+            <input
+              type="checkbox"
+              checked={importRegionsOnly}
+              onChange={(e) => setImportRegionsOnly(e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-gray-700">Import regions only</span>
+          </label>
+          <div className="text-xs text-gray-500">
+            {importRegionsOnly 
+              ? 'Will only import regions, ignoring map state, world name, spawn, and image data'
+              : 'Supports complete map exports (with embedded image)'
+            }
+          </div>
+        </div>
+
         <button
           onClick={triggerFileInput}
           disabled={isImporting}
           className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
-          {isImporting ? 'Importing...' : 'Import'}
+          {isImporting ? 'Importing...' : (importRegionsOnly ? 'Import Regions Only' : 'Import')}
         </button>
 
         <input
@@ -264,10 +291,6 @@ export function ExportImportPanel() {
           onChange={handleImport}
           className="hidden"
         />
-        
-        <div className="text-xs text-gray-500 mt-2">
-          Supports complete map exports (with embedded image)
-        </div>
 
         <button
           onClick={handleGenerateAchievements}
