@@ -19,7 +19,11 @@ export function MapCanvas() {
     stopDraggingPoint,
     updatePointPosition,
     addPointToRegion,
-    removePointFromRegion
+    removePointFromRegion,
+    startMoveRegion,
+    updateMoveRegion,
+    moveRegionToPosition,
+    finishMoveRegion
   } = regions
   const { spawnState, setSpawnCoordinates } = spawn
   const { isSettingCenterPoint, centerPointRegionId, stopSettingCenterPoint } = mapCanvas
@@ -179,6 +183,15 @@ export function MapCanvas() {
           regions.setCustomCenterPoint(centerPointRegionId, worldPos)
           stopSettingCenterPoint()
         }
+      } else if (editMode.isMovingRegion && mapState.image && mapState.originSelected) {
+        // Move region to new position
+        const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
+        const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image.width, mapState.image.height, mapState.originOffset)
+        
+        if (editMode.movingRegionId) {
+          moveRegionToPosition(editMode.movingRegionId, worldPos.x, worldPos.z)
+        }
+        finishMoveRegion()
       } else if (mapState.image && mapState.originSelected) {
         // Check if clicking on a region
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
@@ -219,12 +232,17 @@ export function MapCanvas() {
       const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
       const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image.width, mapState.image.height, mapState.originOffset)
       setMouseCoordinates(worldPos)
+      
+      // Real-time region movement preview
+      if (editMode.isMovingRegion) {
+        updateMoveRegion(worldPos.x, worldPos.z)
+      }
     } else {
       setMouseCoordinates(null)
     }
 
     handleMouseMove(x, y)
-  }, [mapState.image, mapState.originSelected, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, handleMouseMove])
+  }, [mapState.image, mapState.originSelected, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, handleMouseMove, editMode.isMovingRegion, updateMoveRegion])
 
   const onWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault()

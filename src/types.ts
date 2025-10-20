@@ -56,6 +56,10 @@ export type EditMode = {
   isEditing: boolean
   editingRegionId: string | null
   draggingPointIndex: number | null
+  isMovingRegion: boolean
+  movingRegionId: string | null
+  moveStartPosition: { x: number; z: number } | null
+  originalRegionPoints: { x: number; z: number }[] | null
 }
 
 export type HighlightMode = {

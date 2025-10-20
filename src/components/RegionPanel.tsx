@@ -27,7 +27,12 @@ export function RegionPanel() {
     toggleShowGrid,
     removeSubregionFromRegion,
     updateSubregionName,
-    setCustomCenterPoint
+    setCustomCenterPoint,
+    startMoveRegion,
+    updateMoveRegion,
+    moveRegionToPosition,
+    finishMoveRegion,
+    cancelMoveRegion
   } = regions
 
   const { startSettingCenterPoint } = useAppContext().mapCanvas
@@ -676,9 +681,9 @@ export function RegionPanel() {
           <div className="flex space-x-2">
             <button
               onClick={() => startEditMode(selectedRegion.id)}
-              disabled={isEditing}
+              disabled={isEditing || editMode.isMovingRegion}
               className={`flex-1 font-medium py-2 px-4 rounded ${
-                isEditing
+                isEditing || editMode.isMovingRegion
                   ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
                   : 'bg-orange-600 hover:bg-orange-700 text-white'
               }`}
@@ -691,6 +696,34 @@ export function RegionPanel() {
             >
               Copy YAML
             </button>
+          </div>
+
+          <div className="flex space-x-2">
+            <button
+              onClick={() => {
+                if (editMode.isMovingRegion) {
+                  cancelMoveRegion()
+                } else {
+                  // Start move mode - user will click on map to set new position
+                  const center = calculateRegionCenter(selectedRegion)
+                  startMoveRegion(selectedRegion.id, center.x, center.z)
+                }
+              }}
+              className={`flex-1 font-medium py-2 px-4 rounded ${
+                editMode.isMovingRegion
+                  ? 'bg-red-600 hover:bg-red-700 text-white'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}
+            >
+              {editMode.isMovingRegion ? 'Cancel Move' : 'Move Region'}
+            </button>
+            {editMode.isMovingRegion && (
+              <div className="flex-1 bg-yellow-900 border border-yellow-600 rounded p-2">
+                <p className="text-yellow-200 text-xs text-center">
+                  Click on map to move region
+                </p>
+              </div>
+            )}
           </div>
 
           <div>

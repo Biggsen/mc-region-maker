@@ -211,3 +211,44 @@ export function calculateRegionCenter(region: Region): { x: number; z: number } 
   }
   return calculatePolygonCenter(region.points)
 }
+
+/**
+ * Move all points in a region by an offset
+ * @param points Array of region points
+ * @param offsetX Offset to apply to x coordinate
+ * @param offsetZ Offset to apply to z coordinate
+ * @returns New array of points with offsets applied
+ */
+export function moveRegionPoints(
+  points: { x: number; z: number }[],
+  offsetX: number,
+  offsetZ: number
+): { x: number; z: number }[] {
+  if (points.length === 0) return points
+  return points.map(p => ({ x: p.x + offsetX, z: p.z + offsetZ }))
+}
+
+/**
+ * Move a region to a new center position
+ * @param points Array of region points
+ * @param newCenterX New center X coordinate
+ * @param newCenterZ New center Z coordinate
+ * @returns New array of points centered at the new position
+ */
+export function moveRegionToCenter(
+  points: { x: number; z: number }[],
+  newCenterX: number,
+  newCenterZ: number
+): { x: number; z: number }[] {
+  if (points.length === 0) return points
+  
+  // Calculate current center
+  const currentCenter = calculatePolygonCenter(points)
+  
+  // Calculate offset needed
+  const offsetX = newCenterX - currentCenter.x
+  const offsetZ = newCenterZ - currentCenter.z
+  
+  // Apply offset to all points
+  return moveRegionPoints(points, offsetX, offsetZ)
+}

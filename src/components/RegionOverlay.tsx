@@ -71,9 +71,10 @@ export function RegionOverlay({
     regions.forEach(region => {
       const isSelected = region.id === selectedRegionId
       const isEditing = editMode.isEditing && editMode.editingRegionId === region.id
+      const isMoving = editMode.isMovingRegion && editMode.movingRegionId === region.id
       const isHighlighted = highlightMode.highlightAll
       const showChallengeLevels = highlightMode.showChallengeLevels
-      drawRegion(ctx, region, mapState, isSelected, false, isEditing, isHighlighted, showChallengeLevels)
+      drawRegion(ctx, region, mapState, isSelected, false, isEditing, isHighlighted, showChallengeLevels, isMoving)
       
       // Draw center point for each region
       if (highlightMode.showCenterPoints) {
@@ -106,7 +107,8 @@ export function RegionOverlay({
     isDrawing: boolean = false,
     isEditing: boolean = false,
     isHighlighted: boolean = false,
-    showChallengeLevels: boolean = false
+    showChallengeLevels: boolean = false,
+    isMoving: boolean = false
   ) => {
     if (region.points.length < 2) return
 
@@ -118,7 +120,9 @@ export function RegionOverlay({
 
     // Draw polygon fill
     let fillColor: string
-    if (isSelected) {
+    if (isMoving) {
+      fillColor = 'rgba(255, 165, 0, 0.4)' // Orange for moving regions
+    } else if (isSelected) {
       fillColor = 'rgba(0, 255, 0, 0.3)'
     } else if (isDrawing) {
       fillColor = 'rgba(255, 255, 0, 0.2)'
@@ -142,7 +146,9 @@ export function RegionOverlay({
 
     // Draw polygon outline
     let strokeColor: string
-    if (isSelected) {
+    if (isMoving) {
+      strokeColor = 'rgba(255, 165, 0, 1)' // Orange outline for moving regions
+    } else if (isSelected) {
       strokeColor = 'rgba(0, 255, 0, 0.8)'
     } else if (isDrawing) {
       strokeColor = 'rgba(255, 255, 0, 0.8)'
@@ -155,7 +161,7 @@ export function RegionOverlay({
       strokeColor = 'rgba(0, 100, 255, 0.8)'
     }
     ctx.strokeStyle = strokeColor
-    ctx.lineWidth = isSelected ? 3 : isHighlighted ? 4 : 2
+    ctx.lineWidth = isMoving ? 4 : isSelected ? 3 : isHighlighted ? 4 : 2
     
     ctx.beginPath()
     ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y)

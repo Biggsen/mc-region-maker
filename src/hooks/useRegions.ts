@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Region, EditMode, HighlightMode } from '../types'
-import { generateId, generateRegionYAML } from '../utils/polygonUtils'
+import { generateId, generateRegionYAML, moveRegionPoints, calculateRegionCenter } from '../utils/polygonUtils'
 import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
 import { parseVillageCSV, createVillageSubregion, findParentRegion } from '../utils/villageUtils'
 import { generateVillageNameByWorldType } from '../utils/nameGenerator'
@@ -13,7 +13,11 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
   const [editMode, setEditMode] = useState<EditMode>({
     isEditing: false,
     editingRegionId: null,
-    draggingPointIndex: null
+    draggingPointIndex: null,
+    isMovingRegion: false,
+    movingRegionId: null,
+    moveStartPosition: null,
+    originalRegionPoints: null
   })
   const [highlightMode, setHighlightMode] = useState<HighlightMode>({
     highlightAll: false,
@@ -148,7 +152,11 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     setEditMode({
       isEditing: false,
       editingRegionId: null,
-      draggingPointIndex: null
+      draggingPointIndex: null,
+      isMovingRegion: false,
+      movingRegionId: null,
+      moveStartPosition: null,
+      originalRegionPoints: null
     })
   }, [])
 
@@ -204,6 +212,89 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
       return region
     }))
   }, [])
+
+  // Move region functions
+  const startMoveRegion = useCallback((regionId: string, startX: number, startZ: number) => {
+    const region = regions.find(r => r.id === regionId)
+    if (!region) return
+
+    setEditMode({
+      isEditing: false,
+      editingRegionId: null,
+      draggingPointIndex: null,
+      isMovingRegion: true,
+      movingRegionId: regionId,
+      moveStartPosition: { x: startX, z: startZ },
+      originalRegionPoints: [...region.points] // Store original points for preview
+    })
+    setSelectedRegionId(regionId)
+  }, [regions])
+
+  const updateMoveRegion = useCallback((currentX: number, currentZ: number) => {
+    if (!editMode.isMovingRegion || !editMode.movingRegionId || !editMode.moveStartPosition || !editMode.originalRegionPoints) return
+
+    const offsetX = currentX - editMode.moveStartPosition.x
+    const offsetZ = currentZ - editMode.moveStartPosition.z
+
+    setRegions(prev => prev.map(region => {
+      if (region.id === editMode.movingRegionId) {
+        // Use original points for preview, not the current modified points
+        const newPoints = moveRegionPoints(editMode.originalRegionPoints, offsetX, offsetZ)
+        return { ...region, points: newPoints }
+      }
+      return region
+    }))
+  }, [editMode.isMovingRegion, editMode.movingRegionId, editMode.moveStartPosition, editMode.originalRegionPoints])
+
+  const moveRegionToPosition = useCallback((regionId: string, targetX: number, targetZ: number) => {
+    const region = regions.find(r => r.id === regionId)
+    if (!region) return
+
+    // Calculate the current center of the region
+    const currentCenter = calculateRegionCenter(region)
+    
+    // Calculate the offset needed to move the center to the target position
+    const offsetX = targetX - currentCenter.x
+    const offsetZ = targetZ - currentCenter.z
+
+    setRegions(prev => prev.map(r => {
+      if (r.id === regionId) {
+        const newPoints = moveRegionPoints(r.points, offsetX, offsetZ)
+        return { ...r, points: newPoints }
+      }
+      return r
+    }))
+  }, [regions])
+
+  const finishMoveRegion = useCallback(() => {
+    setEditMode(prev => ({
+      ...prev,
+      isMovingRegion: false,
+      movingRegionId: null,
+      moveStartPosition: null,
+      originalRegionPoints: null
+    }))
+  }, [])
+
+  const cancelMoveRegion = useCallback(() => {
+    if (!editMode.movingRegionId || !editMode.originalRegionPoints) return
+
+    // Restore original points
+    setRegions(prev => prev.map(region => {
+      if (region.id === editMode.movingRegionId) {
+        return { ...region, points: [...editMode.originalRegionPoints!] }
+      }
+      return region
+    }))
+
+    setEditMode(prev => ({
+      ...prev,
+      isMovingRegion: false,
+      movingRegionId: null,
+      moveStartPosition: null,
+      originalRegionPoints: null
+    }))
+  }, [editMode.movingRegionId, editMode.originalRegionPoints])
 
   const toggleHighlightAll = useCallback(() => {
     setHighlightMode(prev => ({ ...prev, highlightAll: !prev.highlightAll }))
@@ -409,6 +500,11 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     updatePointPosition,
     addPointToRegion,
     removePointFromRegion,
+    startMoveRegion,
+    updateMoveRegion,
+    moveRegionToPosition,
+    finishMoveRegion,
+    cancelMoveRegion,
     toggleHighlightAll,
     toggleShowVillages,
     toggleShowCenterPoints,
