@@ -69,3 +69,8 @@ export type HighlightMode = {
   showChallengeLevels: boolean
   showGrid: boolean
 }
+
+export type CustomMarker = {
+  id: string
+  coordinates: WorldCoordinate
+}

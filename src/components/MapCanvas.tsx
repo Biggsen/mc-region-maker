@@ -1,12 +1,14 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { canvasToImage, pixelToWorld, isPointInPolygon } from '../utils/coordinateUtils'
+import { canvasToImage, pixelToWorld, isPointInPolygon, worldToPixel } from '../utils/coordinateUtils'
 import { GridOverlay } from './GridOverlay'
 import { RegionOverlay } from './RegionOverlay'
+import { CustomMarkerOverlay } from './CustomMarkerOverlay'
+import { CoordinateInputDialog } from './CoordinateInputDialog'
 
 export function MapCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { mapState: mapStateHook, regions, spawn, mapCanvas } = useAppContext()
+  const { mapState: mapStateHook, regions, spawn, mapCanvas, customMarkers } = useAppContext()
   const { mapState, setImage, setOffset, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
   const { 
     drawingRegion, 
@@ -28,10 +30,16 @@ export function MapCanvas() {
   } = regions
   const { spawnState, setSpawnCoordinates } = spawn
   const { isSettingCenterPoint, centerPointRegionId, stopSettingCenterPoint, isWarping, warpRadius, warpStrength } = mapCanvas
+  const { customMarker, setMarker } = customMarkers
   const [isSpacePressed, setIsSpacePressed] = useState(false)
   const [mouseCoordinates, setMouseCoordinates] = useState<{ x: number; z: number } | null>(null)
   const [isMouseDown, setIsMouseDown] = useState(false)
+  const [isCoordinateDialogOpen, setIsCoordinateDialogOpen] = useState(false)
   const lastFreehandPointRef = useRef<{ x: number; z: number } | null>(null)
+
+  const handleCoordinateSubmit = useCallback((coordinates: { x: number; z: number }) => {
+    setMarker(coordinates)
+  }, [setMarker])
 
   // Debug mapState changes
   useEffect(() => {
@@ -49,6 +57,11 @@ export function MapCanvas() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space' && !isSpacePressed) {
+        // Don't capture space if user is typing in an input field
+        const target = e.target as HTMLElement
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+          return
+        }
         e.preventDefault()
         setIsSpacePressed(true)
       }
@@ -457,8 +470,18 @@ export function MapCanvas() {
       )}
       
       {mouseCoordinates && (
-        <div className="absolute bottom-4 left-4 z-10 bg-gray-800 text-white px-3 py-2 rounded text-sm border border-gray-600 font-mono">
-          X: {Math.round(mouseCoordinates.x)} Z: {Math.round(mouseCoordinates.z)}
+        <div className="absolute bottom-4 left-4 z-10 bg-gray-800 text-white px-3 py-2 rounded text-sm border border-gray-600 font-mono flex items-center space-x-2">
+          <span>X: {Math.round(mouseCoordinates.x)} Z: {Math.round(mouseCoordinates.z)}</span>
+          <button
+            onClick={() => setIsCoordinateDialogOpen(true)}
+            className="ml-2 p-1 hover:bg-gray-700 rounded transition-colors"
+            title="Add custom marker"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
         </div>
       )}
       
@@ -497,8 +520,19 @@ export function MapCanvas() {
             onInsertPointClick={handleInsertPointClick}
             onPointDoubleClick={handlePointDoubleClick}
           />
+          <CustomMarkerOverlay
+            canvas={canvasRef.current}
+            mapState={mapState}
+            customMarker={customMarker}
+          />
         </>
       )}
+      
+      <CoordinateInputDialog
+        isOpen={isCoordinateDialogOpen}
+        onClose={() => setIsCoordinateDialogOpen(false)}
+        onSubmit={handleCoordinateSubmit}
+      />
     </div>
   )
 }

@@ -530,12 +530,21 @@ export function RegionPanel() {
           )}
 
           <div>
-            <input
-              type="text"
-              value={selectedRegion.name}
-              onChange={(e) => updateRegion(selectedRegion.id, { name: e.target.value })}
-              className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-            />
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={selectedRegion.name}
+                onChange={(e) => updateRegion(selectedRegion.id, { name: e.target.value })}
+                className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+              />
+              <button
+                onClick={() => updateRegion(selectedRegion.id, { name: generateRegionName(worldType.worldType) })}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded border border-purple-500 focus:outline-none"
+                title="Generate random medieval name"
+              >
+                🎲
+              </button>
+            </div>
             <div className="flex justify-between items-center mt-1">
               <p className="text-gray-400 text-xs">
                 {selectedRegion.points.length} points
