@@ -74,6 +74,7 @@ export function RegionOverlay({
       const isSelected = region.id === selectedRegionId
       const isEditing = editMode.isEditing && editMode.editingRegionId === region.id
       const isMoving = editMode.isMovingRegion && editMode.movingRegionId === region.id
+      const isSplitting = editMode.isSplittingRegion && editMode.splittingRegionId === region.id
       const isHighlighted = highlightMode.highlightAll
       const showChallengeLevels = highlightMode.showChallengeLevels
       drawRegion(ctx, region, mapState, isSelected, false, isEditing, isHighlighted, showChallengeLevels, isMoving)
@@ -81,6 +82,11 @@ export function RegionOverlay({
       // Draw center point for each region
       if (highlightMode.showCenterPoints) {
         drawCenterPoint(ctx, region, mapState, isSelected)
+      }
+
+      // Draw split points and line if splitting this region
+      if (isSplitting) {
+        drawSplitPoints(ctx, mapState, editMode.splitPoints)
       }
     })
 
@@ -358,6 +364,53 @@ export function RegionOverlay({
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText('Spawn', canvasPos.x, canvasPos.y + 10)
+  }
+
+  const drawSplitPoints = (
+    ctx: CanvasRenderingContext2D,
+    mapState: MapState,
+    splitPoints: { x: number; z: number }[]
+  ) => {
+    if (splitPoints.length === 0) return
+
+    // Draw split points
+    splitPoints.forEach((point, index) => {
+      const pixelPos = worldToPixel(point.x, point.z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+      const canvasPos = imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+      
+      // Draw split point
+      ctx.fillStyle = 'rgba(255, 0, 255, 0.8)'
+      ctx.strokeStyle = 'rgba(255, 0, 255, 1)'
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      ctx.arc(canvasPos.x, canvasPos.y, 6, 0, 2 * Math.PI)
+      ctx.fill()
+      ctx.stroke()
+      
+      // Draw point number
+      ctx.fillStyle = 'rgba(255, 0, 255, 1)'
+      ctx.font = 'bold 10px Arial'
+      ctx.textAlign = 'center'
+      ctx.fillText((index + 1).toString(), canvasPos.x, canvasPos.y + 3)
+    })
+
+    // Draw split line if we have 2 points
+    if (splitPoints.length === 2) {
+      const pixelPos1 = worldToPixel(splitPoints[0].x, splitPoints[0].z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+      const pixelPos2 = worldToPixel(splitPoints[1].x, splitPoints[1].z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+      const canvasPos1 = imageToCanvas(pixelPos1.x, pixelPos1.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+      const canvasPos2 = imageToCanvas(pixelPos2.x, pixelPos2.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+      
+      // Draw split line
+      ctx.strokeStyle = 'rgba(255, 0, 255, 0.8)'
+      ctx.lineWidth = 3
+      ctx.setLineDash([5, 5])
+      ctx.beginPath()
+      ctx.moveTo(canvasPos1.x, canvasPos1.y)
+      ctx.lineTo(canvasPos2.x, canvasPos2.y)
+      ctx.stroke()
+      ctx.setLineDash([])
+    }
   }
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {

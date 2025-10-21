@@ -403,3 +403,112 @@ export function simplifyPolygonVertices(
   if (simplified.length < 3) return points
   return simplified
 }
+
+/**
+ * Split a polygon into two parts using a line defined by two points
+ * @param points Array of polygon points
+ * @param splitPoint1 First point of the split line
+ * @param splitPoint2 Second point of the split line
+ * @returns Array containing two polygons (left and right of the split line)
+ */
+export function splitPolygon(
+  points: { x: number; z: number }[],
+  splitPoint1: { x: number; z: number },
+  splitPoint2: { x: number; z: number }
+): { x: number; z: number }[][] {
+  if (points.length < 3) return [points, []]
+  
+  // Calculate the line equation: ax + bz + c = 0
+  const dx = splitPoint2.x - splitPoint1.x
+  const dz = splitPoint2.z - splitPoint1.z
+  
+  // Handle vertical line case
+  if (Math.abs(dx) < 1e-10) {
+    const xLine = splitPoint1.x
+    const leftPoints: { x: number; z: number }[] = []
+    const rightPoints: { x: number; z: number }[] = []
+    
+    for (const point of points) {
+      if (point.x <= xLine) {
+        leftPoints.push(point)
+      } else {
+        rightPoints.push(point)
+      }
+    }
+    
+    return [leftPoints, rightPoints]
+  }
+  
+  // Calculate line coefficients
+  const a = dz
+  const b = -dx
+  const c = -(a * splitPoint1.x + b * splitPoint1.z)
+  
+  const leftPoints: { x: number; z: number }[] = []
+  const rightPoints: { x: number; z: number }[] = []
+  
+  for (const point of points) {
+    const side = a * point.x + b * point.z + c
+    if (side <= 0) {
+      leftPoints.push(point)
+    } else {
+      rightPoints.push(point)
+    }
+  }
+  
+  // Ensure both polygons have at least 3 points
+  if (leftPoints.length < 3 || rightPoints.length < 3) {
+    return [points, []]
+  }
+  
+  return [leftPoints, rightPoints]
+}
+
+/**
+ * Find the closest point on a polygon edge to a given point
+ * @param point The point to find the closest edge point for
+ * @param polygon Array of polygon points
+ * @returns The closest point on the polygon edge
+ */
+export function findClosestPointOnPolygonEdge(
+  point: { x: number; z: number },
+  polygon: { x: number; z: number }[]
+): { x: number; z: number } {
+  let closestPoint = polygon[0]
+  let minDistance = Math.hypot(point.x - polygon[0].x, point.z - polygon[0].z)
+  
+  for (let i = 0; i < polygon.length; i++) {
+    const p1 = polygon[i]
+    const p2 = polygon[(i + 1) % polygon.length]
+    
+    // Find closest point on line segment p1-p2
+    const dx = p2.x - p1.x
+    const dz = p2.z - p1.z
+    const lengthSq = dx * dx + dz * dz
+    
+    if (lengthSq === 0) {
+      // Degenerate line segment
+      const distance = Math.hypot(point.x - p1.x, point.z - p1.z)
+      if (distance < minDistance) {
+        minDistance = distance
+        closestPoint = p1
+      }
+      continue
+    }
+    
+    // Project point onto line segment
+    const t = Math.max(0, Math.min(1, ((point.x - p1.x) * dx + (point.z - p1.z) * dz) / lengthSq))
+    const closest = {
+      x: p1.x + t * dx,
+      z: p1.z + t * dz
+    }
+    
+    const distance = Math.hypot(point.x - closest.x, point.z - closest.z)
+    if (distance < minDistance) {
+      minDistance = distance
+      closestPoint = closest
+    }
+  }
+  
+  return closestPoint
+}

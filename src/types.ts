@@ -62,6 +62,9 @@ export type EditMode = {
   movingRegionId: string | null
   moveStartPosition: { x: number; z: number } | null
   originalRegionPoints: { x: number; z: number }[] | null
+  isSplittingRegion: boolean
+  splittingRegionId: string | null
+  splitPoints: { x: number; z: number }[]
 }
 
 export type HighlightMode = {

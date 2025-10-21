@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Region, EditMode, HighlightMode } from '../types'
-import { generateId, generateRegionYAML, moveRegionPoints, calculateRegionCenter, warpRegionPoints, resizeRegionPoints, doublePolygonVertices, halvePolygonVertices, simplifyPolygonVertices } from '../utils/polygonUtils'
+import { generateId, generateRegionYAML, moveRegionPoints, calculateRegionCenter, warpRegionPoints, resizeRegionPoints, doublePolygonVertices, halvePolygonVertices, simplifyPolygonVertices, splitPolygon, findClosestPointOnPolygonEdge } from '../utils/polygonUtils'
 import { saveRegions, loadRegions, saveSelectedRegion, loadSelectedRegion } from '../utils/persistenceUtils'
 import { parseVillageCSV, createVillageSubregion, findParentRegion } from '../utils/villageUtils'
 import { generateVillageNameByWorldType } from '../utils/nameGenerator'
@@ -18,7 +18,10 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     isMovingRegion: false,
     movingRegionId: null,
     moveStartPosition: null,
-    originalRegionPoints: null
+    originalRegionPoints: null,
+    isSplittingRegion: false,
+    splittingRegionId: null,
+    splitPoints: []
   })
   const [highlightMode, setHighlightMode] = useState<HighlightMode>({
     highlightAll: false,
@@ -90,7 +93,14 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
       setEditMode({
         isEditing: false,
         editingRegionId: null,
-        draggingPointIndex: null
+        draggingPointIndex: null,
+        isMovingRegion: false,
+        movingRegionId: null,
+        moveStartPosition: null,
+        originalRegionPoints: null,
+        isSplittingRegion: false,
+        splittingRegionId: null,
+        splitPoints: []
       })
     }
   }, [selectedRegionId, editMode.editingRegionId])
@@ -111,7 +121,14 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     setEditMode({
       isEditing: false,
       editingRegionId: null,
-      draggingPointIndex: null
+      draggingPointIndex: null,
+      isMovingRegion: false,
+      movingRegionId: null,
+      moveStartPosition: null,
+      originalRegionPoints: null,
+      isSplittingRegion: false,
+      splittingRegionId: null,
+      splitPoints: []
     })
   }, [])
 
@@ -160,7 +177,14 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     setEditMode({
       isEditing: true,
       editingRegionId: regionId,
-      draggingPointIndex: null
+      draggingPointIndex: null,
+      isMovingRegion: false,
+      movingRegionId: null,
+      moveStartPosition: null,
+      originalRegionPoints: null,
+      isSplittingRegion: false,
+      splittingRegionId: null,
+      splitPoints: []
     })
     setSelectedRegionId(regionId)
   }, [])
@@ -173,7 +197,10 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
       isMovingRegion: false,
       movingRegionId: null,
       moveStartPosition: null,
-      originalRegionPoints: null
+      originalRegionPoints: null,
+      isSplittingRegion: false,
+      splittingRegionId: null,
+      splitPoints: []
     })
   }, [])
 
@@ -293,7 +320,10 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
       isMovingRegion: true,
       movingRegionId: regionId,
       moveStartPosition: { x: startX, z: startZ },
-      originalRegionPoints: [...region.points] // Store original points for preview
+      originalRegionPoints: [...region.points], // Store original points for preview
+      isSplittingRegion: false,
+      splittingRegionId: null,
+      splitPoints: []
     })
     setSelectedRegionId(regionId)
   }, [regions])
@@ -307,7 +337,7 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     setRegions(prev => prev.map(region => {
       if (region.id === editMode.movingRegionId) {
         // Use original points for preview, not the current modified points
-        const newPoints = moveRegionPoints(editMode.originalRegionPoints, offsetX, offsetZ)
+        const newPoints = moveRegionPoints(editMode.originalRegionPoints!, offsetX, offsetZ)
         return { ...region, points: newPoints }
       }
       return region
@@ -545,6 +575,104 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     ))
   }, [])
 
+  // Split region functions
+  const startSplitRegion = useCallback((regionId: string) => {
+    setEditMode({
+      isEditing: false,
+      editingRegionId: null,
+      draggingPointIndex: null,
+      isMovingRegion: false,
+      movingRegionId: null,
+      moveStartPosition: null,
+      originalRegionPoints: null,
+      isSplittingRegion: true,
+      splittingRegionId: regionId,
+      splitPoints: []
+    })
+    setSelectedRegionId(regionId)
+  }, [])
+
+  const addSplitPoint = useCallback((x: number, z: number) => {
+    if (!editMode.isSplittingRegion || !editMode.splittingRegionId) return
+
+    const region = regions.find(r => r.id === editMode.splittingRegionId)
+    if (!region) return
+
+    // Find the closest point on the polygon edge
+    const closestPoint = findClosestPointOnPolygonEdge({ x, z }, region.points)
+    
+    setEditMode(prev => ({
+      ...prev,
+      splitPoints: [...prev.splitPoints, closestPoint]
+    }))
+  }, [editMode.isSplittingRegion, editMode.splittingRegionId, regions])
+
+  const finishSplitRegion = useCallback(() => {
+    if (!editMode.isSplittingRegion || !editMode.splittingRegionId || editMode.splitPoints.length !== 2) return
+
+    const region = regions.find(r => r.id === editMode.splittingRegionId)
+    if (!region) return
+
+    const [leftPoints, rightPoints] = splitPolygon(region.points, editMode.splitPoints[0], editMode.splitPoints[1])
+    
+    if (leftPoints.length >= 3 && rightPoints.length >= 3) {
+      // Create two new regions
+      const leftRegion: Region = {
+        ...region,
+        id: generateId(),
+        name: `${region.name} (Left)`,
+        points: leftPoints,
+        originalPoints: leftPoints,
+        scaleFactor: 1.0
+      }
+      
+      const rightRegion: Region = {
+        ...region,
+        id: generateId(),
+        name: `${region.name} (Right)`,
+        points: rightPoints,
+        originalPoints: rightPoints,
+        scaleFactor: 1.0
+      }
+
+      // Replace the original region with the two new ones
+      setRegions(prev => prev.map(r => 
+        r.id === editMode.splittingRegionId ? leftRegion : r
+      ).concat(rightRegion))
+      
+      setSelectedRegionId(leftRegion.id)
+    }
+
+    // Reset split mode
+    setEditMode({
+      isEditing: false,
+      editingRegionId: null,
+      draggingPointIndex: null,
+      isMovingRegion: false,
+      movingRegionId: null,
+      moveStartPosition: null,
+      originalRegionPoints: null,
+      isSplittingRegion: false,
+      splittingRegionId: null,
+      splitPoints: []
+    })
+  }, [editMode, regions])
+
+  const cancelSplitRegion = useCallback(() => {
+    setEditMode({
+      isEditing: false,
+      editingRegionId: null,
+      draggingPointIndex: null,
+      isMovingRegion: false,
+      movingRegionId: null,
+      moveStartPosition: null,
+      originalRegionPoints: null,
+      isSplittingRegion: false,
+      splittingRegionId: null,
+      splitPoints: []
+    })
+  }, [])
+
   return {
     regions,
     selectedRegionId,
@@ -590,6 +718,10 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     resizeRegion,
     doubleRegionVertices,
     halveRegionVertices,
-    simplifyRegionVertices
+    simplifyRegionVertices,
+    startSplitRegion,
+    addSplitPoint,
+    finishSplitRegion,
+    cancelSplitRegion
   }
 }

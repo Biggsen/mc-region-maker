@@ -26,7 +26,8 @@ export function MapCanvas() {
     updateMoveRegion,
     moveRegionToPosition,
     finishMoveRegion,
-    warpRegion
+    warpRegion,
+    addSplitPoint
   } = regions
   const { spawnState, setSpawnCoordinates } = spawn
   const { isSettingCenterPoint, centerPointRegionId, stopSettingCenterPoint, isWarping, warpRadius, warpStrength } = mapCanvas
@@ -223,6 +224,12 @@ export function MapCanvas() {
         // Warp brush applies to selected region if enabled
         if (isWarping && regions.selectedRegionId) {
           warpRegion(regions.selectedRegionId, worldPos.x, worldPos.z, warpRadius, warpStrength)
+          return
+        }
+
+        // Handle split point selection
+        if (editMode.isSplittingRegion && editMode.splitPoints.length < 2) {
+          addSplitPoint(worldPos.x, worldPos.z)
           return
         }
 

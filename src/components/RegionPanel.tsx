@@ -33,7 +33,10 @@ export function RegionPanel() {
     doubleRegionVertices,
     halveRegionVertices,
     simplifyRegionVertices,
-    resizeRegion
+    resizeRegion,
+    startSplitRegion,
+    finishSplitRegion,
+    cancelSplitRegion
   } = regions
 
   const { startSettingCenterPoint } = useAppContext().mapCanvas
@@ -915,6 +918,43 @@ export function RegionPanel() {
               <div className="flex-1 bg-yellow-900 border border-yellow-600 rounded p-2">
                 <p className="text-yellow-200 text-xs text-center">
                   Click on map to move region
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex space-x-2">
+            <button
+              onClick={() => {
+                if (editMode.isSplittingRegion) {
+                  if (editMode.splitPoints.length === 2) {
+                    finishSplitRegion()
+                  } else {
+                    cancelSplitRegion()
+                  }
+                } else {
+                  startSplitRegion(selectedRegion.id)
+                }
+              }}
+              className={`flex-1 font-medium py-2 px-4 rounded ${
+                editMode.isSplittingRegion
+                  ? editMode.splitPoints.length === 2
+                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                    : 'bg-red-600 hover:bg-red-700 text-white'
+                  : 'bg-purple-600 hover:bg-purple-700 text-white'
+              }`}
+            >
+              {editMode.isSplittingRegion 
+                ? editMode.splitPoints.length === 2 
+                  ? 'Split Region' 
+                  : 'Cancel Split'
+                : 'Split Region'
+              }
+            </button>
+            {editMode.isSplittingRegion && (
+              <div className="flex-1 bg-purple-900 border border-purple-600 rounded p-2">
+                <p className="text-purple-200 text-xs text-center">
+                  Click 2 points on region edge to split ({editMode.splitPoints.length}/2)
                 </p>
               </div>
             )}
