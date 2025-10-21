@@ -388,8 +388,23 @@ export function MapCanvas() {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    canvas.width = window.innerWidth - 400 // Leave space for sidebar
-    canvas.height = window.innerHeight - 100 // Leave space for header
+    const updateCanvasSize = () => {
+      // Get the available space by subtracting the sidebar width (320px = w-80)
+      const sidebarWidth = 320
+      canvas.width = window.innerWidth - sidebarWidth
+      canvas.height = window.innerHeight
+    }
+
+    // Set initial size
+    updateCanvasSize()
+
+    // Add resize listener
+    window.addEventListener('resize', updateCanvasSize)
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', updateCanvasSize)
+    }
   }, [])
 
   const [imageUrl, setImageUrl] = useState('http://localhost:3000/mc-map.png')
@@ -402,7 +417,7 @@ export function MapCanvas() {
   }
 
   return (
-    <div className="flex-1 relative">
+    <div className="flex-1 relative h-full">
       <div className="absolute top-4 left-4 z-10 space-y-2">
         <input
           type="file"

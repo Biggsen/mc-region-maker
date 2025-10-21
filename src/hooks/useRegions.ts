@@ -33,13 +33,14 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     const savedRegions = loadRegions()
     const savedSelectedRegion = loadSelectedRegion()
     
-    // Migrate existing regions to include centerPoint, challengeLevel, hasSpawn, and originalPoints properties
+    // Migrate existing regions to include centerPoint, challengeLevel, hasSpawn, originalPoints, and scaleFactor properties
     const migratedRegions = savedRegions.map(region => ({
       ...region,
       centerPoint: region.centerPoint || null,
       challengeLevel: region.challengeLevel || 'Vanilla',
       hasSpawn: region.hasSpawn || false,
-      originalPoints: region.originalPoints || region.points // Use current points as original if not set
+      originalPoints: region.originalPoints || region.points, // Use current points as original if not set
+      scaleFactor: region.scaleFactor || 1.0 // Default to 100% scale
     }))
     
     setRegions(migratedRegions)
@@ -65,7 +66,8 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     const newRegion: Region = {
       ...region,
       id: generateId(),
-      originalPoints: region.points // Store original points for resizing
+      originalPoints: region.points, // Store original points for resizing
+      scaleFactor: region.scaleFactor || 1.0 // Default to 100% scale
     }
     setRegions(prev => [...prev, newRegion])
     setSelectedRegionId(newRegion.id)
@@ -246,7 +248,7 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
         // Use the region's center point if available, otherwise calculate it from original points
         const center = region.centerPoint || calculateRegionCenter({ ...region, points: pointsToScale })
         const newPoints = resizeRegionPoints(pointsToScale, center.x, center.z, scaleFactor)
-        return { ...region, points: newPoints }
+        return { ...region, points: newPoints, scaleFactor }
       }
       return region
     }))

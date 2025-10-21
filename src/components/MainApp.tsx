@@ -26,8 +26,8 @@ function MainAppContent() {
   return (
     <>
       <ImageImportHandler />
-      <div className="min-h-screen bg-gray-900 text-white flex relative">
-        <div className="flex-1 min-w-0">
+      <div className="h-screen bg-gray-900 text-white flex relative">
+        <div className="flex-1 min-w-0 h-full">
           <MapCanvas />
         </div>
         <div className="w-80 bg-gray-800 p-4 overflow-y-auto h-screen flex-shrink-0 fixed right-0 top-0 z-10">

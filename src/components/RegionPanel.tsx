@@ -231,6 +231,16 @@ export function RegionPanel() {
   const isEditing = editMode.isEditing && editMode.editingRegionId === selectedRegionId
   const hasVillages = regionsList.some(region => region.subregions && region.subregions.length > 0)
   const totalVillages = regionsList.reduce((total, region) => total + (region.subregions?.length || 0), 0)
+
+  // Update resize percentage when selected region changes
+  useEffect(() => {
+    if (selectedRegion) {
+      const percentage = Math.round((selectedRegion.scaleFactor || 1.0) * 100)
+      setResizePercentage(percentage.toString())
+    } else {
+      setResizePercentage('100')
+    }
+  }, [selectedRegion])
   
 
   
@@ -388,12 +398,27 @@ export function RegionPanel() {
             </div>
             
             {!showNewRegionForm ? (
-              <button
-                onClick={() => setShowNewRegionForm(true)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
-              >
-                Create New Region
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setShowNewRegionForm(true)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+                >
+                  Create New Region
+                </button>
+                {regionsList.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (confirm(`Are you sure you want to delete all ${regionsList.length} regions? This action cannot be undone.`)) {
+                        regions.replaceRegions([])
+                        regions.setSelectedRegionId(null)
+                      }
+                    }}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded"
+                  >
+                    Delete All Regions
+                  </button>
+                )}
+              </div>
             ) : (
               <div className="space-y-2">
                 <div className="flex space-x-2">
