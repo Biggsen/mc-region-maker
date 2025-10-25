@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 export function SeedInputPage() {
   const [seed, setSeed] = useState('')
   const [dimension, setDimension] = useState('overworld')
-  const [overworldWorldSize, setOverworldWorldSize] = useState('8k')
+  const [worldSize, setWorldSize] = useState(8)
   const [isLoading, setIsLoading] = useState(false)
   const [isPolling, setIsPolling] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
@@ -28,7 +28,7 @@ export function SeedInputPage() {
         body: JSON.stringify({ 
           seed: seed.trim(),
           dimension: dimension,
-          size: overworldWorldSize === '16k' ? 16 : 8
+          size: worldSize
         })
       })
       
@@ -168,19 +168,29 @@ export function SeedInputPage() {
 
         {dimension === 'overworld' && (
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">World Size:</label>
-            <select
-              value={overworldWorldSize}
-              onChange={(e) => setOverworldWorldSize(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <label className="block text-sm font-medium mb-2">
+              World Size: {worldSize}k ({worldSize * 125}x{worldSize * 125})
+            </label>
+            <input
+              type="range"
+              min="2"
+              max="16"
+              step="1"
+              value={worldSize}
+              onChange={(e) => setWorldSize(parseInt(e.target.value))}
+              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
               disabled={isLoading}
-            >
-              <option value="8k">8K World Size (1000x1000)</option>
-              <option value="16k">16K World Size (2000x2000)</option>
-            </select>
-            <p className="text-xs text-gray-400 mt-1">
-              Choose the world size for overworld maps
-            </p>
+            />
+            <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <span>2k</span>
+              <span>4k</span>
+              <span>6k</span>
+              <span>8k</span>
+              <span>10k</span>
+              <span>12k</span>
+              <span>14k</span>
+              <span>16k</span>
+            </div>
           </div>
         )}
 
