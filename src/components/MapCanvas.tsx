@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { canvasToImage, pixelToWorld, isPointInPolygon, worldToPixel } from '../utils/coordinateUtils'
+import { canvasToImage, pixelToWorld, isPointInPolygon } from '../utils/coordinateUtils'
 import { GridOverlay } from './GridOverlay'
 import { RegionOverlay } from './RegionOverlay'
 import { CustomMarkerOverlay } from './CustomMarkerOverlay'
@@ -9,7 +9,7 @@ import { CoordinateInputDialog } from './CoordinateInputDialog'
 export function MapCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { mapState: mapStateHook, regions, spawn, mapCanvas, customMarkers } = useAppContext()
-  const { mapState, setImage, setOffset, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
+  const { mapState, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
   const { 
     drawingRegion, 
     addPointToDrawing, 
@@ -22,7 +22,6 @@ export function MapCanvas() {
     updatePointPosition,
     addPointToRegion,
     removePointFromRegion,
-    startMoveRegion,
     updateMoveRegion,
     moveRegionToPosition,
     finishMoveRegion,
@@ -344,8 +343,8 @@ export function MapCanvas() {
     if (!canvas) return
 
     const updateCanvasSize = () => {
-      // Get the available space by subtracting the sidebar width (320px = w-80)
-      const sidebarWidth = 320
+      // Get the available space by subtracting the sidebar width (384px = w-96)
+      const sidebarWidth = 384
       canvas.width = window.innerWidth - sidebarWidth
       canvas.height = window.innerHeight
     }

@@ -44,7 +44,7 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
 function MainAppContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabType>('map')
-  const { worldType, mapState } = useAppContext()
+  const { worldType } = useAppContext()
 
   useEffect(() => {
     // Hide loading after a short delay to allow data to load
@@ -62,25 +62,23 @@ function MainAppContent() {
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         
         <div className="flex-1 flex overflow-hidden">
-          {(activeTab !== 'map' || !mapState.mapState.image) && (
-            <div className="w-96 bg-gray-800 p-4 overflow-y-auto border-r border-gray-700">
-              {activeTab === 'map' && (
-                <MapLoaderControls />
-              )}
-              
-              {activeTab === 'regions' && (
-                <>
-                  <WorldNameHeading />
-                  {worldType.worldType !== 'nether' && <SpawnButton />}
-                  <RegionPanel />
-                </>
-              )}
-              
-              {activeTab === 'export' && (
-                <ExportImportPanel />
-              )}
-            </div>
-          )}
+          <div className="w-96 bg-gray-800 p-4 overflow-y-auto border-r border-gray-700">
+            {activeTab === 'map' && (
+              <MapLoaderControls />
+            )}
+            
+            {activeTab === 'regions' && (
+              <>
+                <WorldNameHeading />
+                {worldType.worldType !== 'nether' && <SpawnButton />}
+                <RegionPanel />
+              </>
+            )}
+            
+            {activeTab === 'export' && (
+              <ExportImportPanel />
+            )}
+          </div>
           
           <div className="flex-1 h-full">
             <MapCanvas />

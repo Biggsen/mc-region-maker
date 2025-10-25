@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react'
 import { useAppContext } from '../context/AppContext'
+import { clearSavedData } from '../utils/persistenceUtils'
 
 export function MapLoaderControls() {
-  const { mapState } = useAppContext()
+  const { mapState, regions } = useAppContext()
   const [imageUrl, setImageUrl] = useState('http://localhost:3000/mc-map.png')
   const [seed, setSeed] = useState('')
   const [dimension, setDimension] = useState('overworld')
@@ -11,6 +12,12 @@ export function MapLoaderControls() {
   const [isPolling, setIsPolling] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [loadedMapDetails, setLoadedMapDetails] = useState<{
+    seed?: string
+    dimension?: string
+    worldSize?: number
+    imageSize?: { width: number; height: number }
+  } | null>(null)
   const { setImage, setOffset } = mapState
 
   const handleImageUrl = useCallback((url: string) => {
@@ -24,12 +31,18 @@ export function MapLoaderControls() {
       })
       setImage(img)
       // Center the image
-      const canvasWidth = window.innerWidth - 384 // Account for sidebar
+      const canvasWidth = window.innerWidth - 384 // Account for sidebar (w-96 = 384px)
       const canvasHeight = window.innerHeight - 64 // Account for nav bar
       const centerX = (canvasWidth - img.width) / 2
       const centerY = (canvasHeight - img.height) / 2
       console.log('Setting offset:', { centerX, centerY })
       setOffset(centerX, centerY)
+      
+      // Update loaded map details with image size
+      setLoadedMapDetails(prev => ({
+        ...prev,
+        imageSize: { width: img.width, height: img.height }
+      }))
     }
     img.onerror = () => {
       alert('Failed to load image from URL. Please check the URL and try again.')
@@ -137,6 +150,13 @@ export function MapLoaderControls() {
       )
       
       if (confirmed) {
+        // Set map details before importing
+        setLoadedMapDetails({
+          seed: seed,
+          dimension: dimension,
+          worldSize: worldSize,
+          imageSize: { width: 0, height: 0 } // Will be updated when image loads
+        })
         handleImageUrl(generatedImage)
         setGeneratedImage(null)
       }
@@ -147,6 +167,14 @@ export function MapLoaderControls() {
     e.preventDefault()
     if (imageUrl.trim()) {
       handleImageUrl(imageUrl.trim())
+    }
+  }
+
+  const handleClearData = () => {
+    if (confirm('Are you sure you want to clear all saved data? This will remove the loaded image and all regions.')) {
+      clearSavedData()
+      setLoadedMapDetails(null)
+      window.location.reload()
     }
   }
 
@@ -278,6 +306,40 @@ export function MapLoaderControls() {
       <p className="text-xs text-gray-500">
         After loading an image, click on the compass or a known reference point to set the world center (0,0).
       </p>
+      
+      {/* Map Details Panel */}
+      {mapState.mapState.image && loadedMapDetails && (
+        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <h4 className="text-sm font-semibold text-blue-800 mb-2">Map Details</h4>
+          <div className="space-y-1 text-xs text-blue-700">
+            {loadedMapDetails.seed && (
+              <div><span className="font-medium">Seed:</span> {loadedMapDetails.seed}</div>
+            )}
+            {loadedMapDetails.dimension && (
+              <div><span className="font-medium">Dimension:</span> {loadedMapDetails.dimension}</div>
+            )}
+            {loadedMapDetails.worldSize && (
+              <div><span className="font-medium">World Size:</span> {loadedMapDetails.worldSize}k x {loadedMapDetails.worldSize}k</div>
+            )}
+            {loadedMapDetails.imageSize && (
+              <div><span className="font-medium">Image Size:</span> {loadedMapDetails.imageSize.width} x {loadedMapDetails.imageSize.height}</div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Clear All Data Button - Only show if there's data to clear */}
+      {(mapState.mapState.image || regions.regions.length > 0) && (
+        <div className="mt-4 pt-4 border-t border-gray-300">
+          <button
+            onClick={handleClearData}
+            className="w-full text-red-600 hover:text-red-700 text-sm py-2 px-4 rounded border border-red-300 hover:border-red-400 hover:bg-red-50 transition-colors"
+            title="Clear all saved data"
+          >
+            Clear All Data
+          </button>
+        </div>
+      )}
     </div>
   )
 }
