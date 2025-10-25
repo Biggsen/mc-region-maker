@@ -7,6 +7,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainApp />} />
+        <Route path="/regions" element={<MainApp />} />
         <Route path="/seed-input" element={<SeedInputPage />} />
       </Routes>
     </BrowserRouter>
