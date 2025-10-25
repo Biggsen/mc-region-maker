@@ -8,6 +8,7 @@ import { MapControls } from './MapControls'
 import { VillageManager } from './VillageManager'
 import { YAMLDisplay } from './YAMLDisplay'
 import { RegionActions } from './RegionActions'
+import { RegionCreationForm } from './RegionCreationForm'
 
 export function RegionPanel() {
   const { regions, worldType, customMarkers } = useAppContext()
@@ -47,9 +48,6 @@ export function RegionPanel() {
   const { isWarping, setIsWarping, warpRadius, setWarpRadius, warpStrength, setWarpStrength } = useAppContext().mapCanvas
   const { orphanedVillageMarkers, showOrphanedVillages, toggleShowOrphanedVillages } = customMarkers
 
-  const [newRegionName, setNewRegionName] = useState('')
-  const [showNewRegionForm, setShowNewRegionForm] = useState(false)
-  const [freehandLocal, setFreehandLocal] = useState(false)
   const [showAllRegions, setShowAllRegions] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [customCenterX, setCustomCenterX] = useState('')
@@ -57,31 +55,13 @@ export function RegionPanel() {
   const [showCustomCenterForm, setShowCustomCenterForm] = useState(false)
   const [resizePercentage, setResizePercentage] = useState('100')
 
-  // Generate a random name when the form is shown
-  useEffect(() => {
-    if (showNewRegionForm && !newRegionName) {
-      setNewRegionName(generateRegionName(worldType.worldType))
-    }
-  }, [showNewRegionForm, newRegionName, worldType.worldType])
 
   // Reset resize percentage when region changes
   useEffect(() => {
     setResizePercentage('100')
   }, [selectedRegionId])
 
-  const handleGenerateNewName = () => {
-    setNewRegionName(generateRegionName(worldType.worldType))
-  }
 
-  const handleStartDrawing = () => {
-    if (newRegionName.trim()) {
-      regions.setFreehandEnabled(freehandLocal)
-      startDrawingRegion(newRegionName.trim())
-      setNewRegionName('')
-      setShowNewRegionForm(false)
-      setFreehandLocal(false)
-    }
-  }
 
   const handleCopyYAML = async (regionId: string) => {
     const yaml = getRegionYAML(regionId)
@@ -261,72 +241,20 @@ export function RegionPanel() {
               />
             </div>
             
-            {!showNewRegionForm ? (
-              <div className="space-y-2">
-                <button
-                  onClick={() => setShowNewRegionForm(true)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
-                >
-                  Create New Region
-                </button>
-                {regionsList.length > 0 && (
-                  <button
-                    onClick={() => {
-                      if (confirm(`Are you sure you want to delete all ${regionsList.length} regions? This action cannot be undone.`)) {
-                        regions.replaceRegions([])
-                        regions.setSelectedRegionId(null)
-                      }
-                    }}
-                    className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded"
-                  >
-                    Delete All Regions
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={newRegionName}
-                    onChange={(e) => setNewRegionName(e.target.value)}
-                    placeholder="Region name"
-                    className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-                    onKeyPress={(e) => e.key === 'Enter' && handleStartDrawing()}
-                  />
-                  <button
-                    onClick={handleGenerateNewName}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded border border-purple-500 focus:outline-none"
-                    title="Generate random medieval name"
-                  >
-                    🎲
-                  </button>
-                </div>
-                <label className="flex items-center space-x-2 text-sm text-gray-300">
-                  <input
-                    type="checkbox"
-                    checked={freehandLocal}
-                    onChange={(e) => setFreehandLocal(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
-                  />
-                  <span>Freehand (click and drag)</span>
-                </label>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleStartDrawing}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
-                  >
-                    Start Drawing
-                  </button>
-                  <button
-                    onClick={() => setShowNewRegionForm(false)}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
+            <RegionCreationForm
+              worldType={worldType.worldType}
+              regionsCount={regionsList.length}
+              onStartDrawing={(name, freehand) => {
+                regions.setFreehandEnabled(freehand)
+                startDrawingRegion(name)
+              }}
+              onDeleteAllRegions={() => {
+                if (confirm(`Are you sure you want to delete all ${regionsList.length} regions? This action cannot be undone.`)) {
+                  regions.replaceRegions([])
+                  regions.setSelectedRegionId(null)
+                }
+              }}
+            />
           </div>
 
           {drawingRegion && (
