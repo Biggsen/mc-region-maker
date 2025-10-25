@@ -5,6 +5,7 @@ import { clearSavedData } from '../utils/persistenceUtils'
 import { generateRegionName } from '../utils/nameGenerator'
 import { ChallengeLevel } from '../types'
 import { MapControls } from './MapControls'
+import { VillageManager } from './VillageManager'
 
 export function RegionPanel() {
   const { regions, worldType, customMarkers } = useAppContext()
@@ -50,8 +51,6 @@ export function RegionPanel() {
   const [showYAML, setShowYAML] = useState(false)
   const [showAllRegions, setShowAllRegions] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [editingVillageId, setEditingVillageId] = useState<string | null>(null)
-  const [editingVillageName, setEditingVillageName] = useState('')
   const [customCenterX, setCustomCenterX] = useState('')
   const [customCenterZ, setCustomCenterZ] = useState('')
   const [showCustomCenterForm, setShowCustomCenterForm] = useState(false)
@@ -101,23 +100,6 @@ export function RegionPanel() {
     }
   }
 
-  const handleStartVillageRename = (villageId: string, currentName: string) => {
-    setEditingVillageId(villageId)
-    setEditingVillageName(currentName)
-  }
-
-  const handleSaveVillageRename = () => {
-    if (editingVillageId && selectedRegion && editingVillageName.trim()) {
-      updateSubregionName(selectedRegion.id, editingVillageId, editingVillageName.trim())
-      setEditingVillageId(null)
-      setEditingVillageName('')
-    }
-  }
-
-  const handleCancelVillageRename = () => {
-    setEditingVillageId(null)
-    setEditingVillageName('')
-  }
 
   const handleSetCustomCenter = () => {
     if (selectedRegion && customCenterX && customCenterZ) {
@@ -916,76 +898,12 @@ export function RegionPanel() {
             )}
           </div>
 
-          {selectedRegion.subregions && selectedRegion.subregions.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium mb-2">Villages ({selectedRegion.subregions.length})</h4>
-              <div className="space-y-2">
-                {selectedRegion.subregions.map(subregion => (
-                  <div key={subregion.id} className="bg-gray-600 rounded p-2 text-sm">
-                    {editingVillageId === subregion.id ? (
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-1">
-                          <input
-                            type="text"
-                            value={editingVillageName}
-                            onChange={(e) => setEditingVillageName(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                handleSaveVillageRename()
-                              } else if (e.key === 'Escape') {
-                                handleCancelVillageRename()
-                              }
-                            }}
-                            className="flex-1 bg-gray-700 text-white text-xs px-2 py-1 rounded border border-gray-500 focus:outline-none focus:border-blue-400"
-                            autoFocus
-                          />
-                          <button
-                            onClick={handleSaveVillageRename}
-                            className="text-green-400 hover:text-green-300 text-xs px-1"
-                            title="Save"
-                          >
-                            ✓
-                          </button>
-                          <button
-                            onClick={handleCancelVillageRename}
-                            className="text-gray-400 hover:text-gray-300 text-xs px-1"
-                            title="Cancel"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                        <div className="text-gray-400 text-xs">
-                          ({subregion.x}, {subregion.z}) - {subregion.details}
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className="flex justify-between items-center">
-                          <span 
-                            className="cursor-pointer hover:text-blue-300 transition-colors"
-                            onClick={() => handleStartVillageRename(subregion.id, subregion.name)}
-                            title="Click to rename"
-                          >
-                            {subregion.name}
-                          </span>
-                          <button
-                            onClick={() => removeSubregionFromRegion(selectedRegion.id, subregion.id)}
-                            className="text-red-400 hover:text-red-300 text-xs"
-                            title="Remove village"
-                          >
-                            ×
-                          </button>
-                        </div>
-                        <div className="text-gray-400 text-xs">
-                          ({subregion.x}, {subregion.z}) - {subregion.details}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <VillageManager
+            subregions={selectedRegion.subregions || []}
+            regionId={selectedRegion.id}
+            onRemoveSubregion={removeSubregionFromRegion}
+            onUpdateSubregionName={updateSubregionName}
+          />
 
           {/* Clear Data Button - Bottom of sidebar */}
           <div className="mt-auto pt-4 border-t border-gray-600">
