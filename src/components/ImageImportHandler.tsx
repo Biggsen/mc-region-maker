@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
+import { saveImageDetails } from '../utils/persistenceUtils'
 
 export function ImageImportHandler() {
   const location = useLocation()
@@ -36,6 +37,19 @@ export function ImageImportHandler() {
         
         // Set the new image
         mapState.setImage(img)
+        
+        // Auto-set origin to center for square images
+        if (img.width === img.height) {
+          const centerX = Math.floor(img.width / 2)
+          const centerY = Math.floor(img.height / 2)
+          mapState.setOrigin(centerX, centerY)
+          console.log('Auto-set origin to center for square image:', { centerX, centerY })
+        }
+        
+        // Clear image details for imported image (no seed/dimension info)
+        saveImageDetails({
+          imageSize: { width: img.width, height: img.height }
+        })
         
         // Reset world name to 'World'
         worldName.updateWorldName('World')

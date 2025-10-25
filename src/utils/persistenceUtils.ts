@@ -1,9 +1,17 @@
 import { MapState, Region } from '../types'
 
+export interface ImageDetails {
+  seed?: string
+  dimension?: string
+  worldSize?: number
+  imageSize?: { width: number; height: number }
+}
+
 const STORAGE_KEYS = {
   MAP_STATE: 'mc-region-maker-map-state',
   REGIONS: 'mc-region-maker-regions',
-  SELECTED_REGION: 'mc-region-maker-selected-region'
+  SELECTED_REGION: 'mc-region-maker-selected-region',
+  IMAGE_DETAILS: 'mc-region-maker-image-details'
 }
 
 // Get image source URL for storage
@@ -101,6 +109,26 @@ export function loadSelectedRegion(): string | null {
     return saved ? JSON.parse(saved) : null
   } catch (error) {
     console.error('Failed to load selected region:', error)
+    return null
+  }
+}
+
+// Save image details to localStorage
+export function saveImageDetails(imageDetails: ImageDetails): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.IMAGE_DETAILS, JSON.stringify(imageDetails))
+  } catch (error) {
+    console.error('Failed to save image details:', error)
+  }
+}
+
+// Load image details from localStorage
+export function loadImageDetails(): ImageDetails | null {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.IMAGE_DETAILS)
+    return saved ? JSON.parse(saved) : null
+  } catch (error) {
+    console.error('Failed to load image details:', error)
     return null
   }
 }

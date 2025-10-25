@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
+import { saveImageDetails, loadImageDetails, ImageDetails } from '../utils/persistenceUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
 
 export function MapLoaderControls() {
@@ -12,13 +13,23 @@ export function MapLoaderControls() {
   const [isPolling, setIsPolling] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [loadedMapDetails, setLoadedMapDetails] = useState<{
-    seed?: string
-    dimension?: string
-    worldSize?: number
-    imageSize?: { width: number; height: number }
-  } | null>(null)
+  const [loadedMapDetails, setLoadedMapDetails] = useState<ImageDetails | null>(null)
   const { setImage, setOffset } = mapState
+
+  // Load saved image details on mount
+  useEffect(() => {
+    const savedDetails = loadImageDetails()
+    if (savedDetails) {
+      setLoadedMapDetails(savedDetails)
+    }
+  }, [])
+
+  // Save image details whenever they change
+  useEffect(() => {
+    if (loadedMapDetails) {
+      saveImageDetails(loadedMapDetails)
+    }
+  }, [loadedMapDetails])
 
   const handleImageUrl = useCallback((url: string) => {
     const img = new Image()
@@ -37,6 +48,14 @@ export function MapLoaderControls() {
       const centerY = (canvasHeight - img.height) / 2
       console.log('Setting offset:', { centerX, centerY })
       setOffset(centerX, centerY)
+      
+      // Auto-set origin to center for square images
+      if (img.width === img.height) {
+        const originX = Math.floor(img.width / 2)
+        const originY = Math.floor(img.height / 2)
+        mapState.setOrigin(originX, originY)
+        console.log('Auto-set origin to center for square image:', { originX, originY })
+      }
       
       // Update loaded map details with image size
       setLoadedMapDetails(prev => ({
