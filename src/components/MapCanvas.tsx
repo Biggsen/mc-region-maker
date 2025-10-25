@@ -5,11 +5,12 @@ import { GridOverlay } from './GridOverlay'
 import { RegionOverlay } from './RegionOverlay'
 import { CustomMarkerOverlay } from './CustomMarkerOverlay'
 import { CoordinateInputDialog } from './CoordinateInputDialog'
+import { Scan } from 'lucide-react'
 
 export function MapCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { mapState: mapStateHook, regions, spawn, mapCanvas, customMarkers } = useAppContext()
-  const { mapState, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
+  const { mapState, setScale, setOffset, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
   const { 
     drawingRegion, 
     addPointToDrawing, 
@@ -381,7 +382,7 @@ export function MapCanvas() {
       )}
       
       {isSpacePressed && (
-        <div className="absolute top-4 right-4 z-10 bg-blue-600 text-white px-3 py-1 rounded text-sm">
+        <div className="absolute bottom-4 right-4 z-10 bg-blue-600 text-white px-3 py-1 rounded text-sm">
           Pan Mode (Space)
         </div>
       )}
@@ -420,8 +421,26 @@ export function MapCanvas() {
         </div>
       )}
       
-      <div className={`absolute top-4 z-10 bg-gray-800 text-white px-3 py-1 rounded text-sm border border-gray-600 ${isSpacePressed || editMode.isEditing || isSettingCenterPoint ? 'right-32' : 'right-4'}`}>
-        {Math.round(mapState.scale * 100)}%
+      <div className={`absolute top-4 z-10 flex items-center space-x-2 ${editMode.isEditing || isSettingCenterPoint ? 'right-32' : 'right-4'}`}>
+        <div className="bg-gray-800 text-white px-3 py-1 rounded text-sm border border-gray-600">
+          {Math.round(mapState.scale * 100)}%
+        </div>
+        <button
+          onClick={() => {
+            setScale(1)
+            if (mapState.image) {
+              const canvasWidth = window.innerWidth - 384 // Account for sidebar
+              const canvasHeight = window.innerHeight - 64 // Account for nav bar
+              const centerX = (canvasWidth - mapState.image.width) / 2
+              const centerY = (canvasHeight - mapState.image.height) / 2
+              setOffset(centerX, centerY)
+            }
+          }}
+          className="bg-gray-700 hover:bg-gray-600 text-white p-1 rounded border border-gray-600 transition-colors flex items-center justify-center"
+          title="Reset zoom to 100% and center image"
+        >
+          <Scan size={14} />
+        </button>
       </div>
       
       <canvas
