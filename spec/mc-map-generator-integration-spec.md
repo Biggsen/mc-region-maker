@@ -79,13 +79,24 @@ Check job status.
 }
 ```
 
-**Response (Error):**
+**Response (Failed):**
+```json
+{
+  "success": true,
+  "jobId": "seed-12345-overworld-1703123456789",
+  "status": "failed",
+  "error": "GENERATION_FAILED",
+  "message": "Failed to generate map: Network timeout",
+  "retryable": true
+}
+```
+
+**404 - Job Not Found:**
 ```json
 {
   "success": false,
-  "jobId": "seed-12345-overworld-1703123456789",
-  "status": "error",
-  "error": "Failed to load map"
+  "error": "JOB_NOT_FOUND",
+  "message": "Job not found"
 }
 ```
 
@@ -127,12 +138,12 @@ Check job status.
          return statusResult.imageUrl
        }
        
-       if (statusResult.status === 'error') {
-         throw new Error(statusResult.error)
+       if (statusResult.status === 'failed') {
+         throw new Error(statusResult.message || 'Map generation failed')
        }
        
-       // Wait and retry
-       await new Promise(resolve => setTimeout(resolve, 1000))
+       // Wait and retry (5 second polling interval as per API docs)
+       await new Promise(resolve => setTimeout(resolve, 5000))
        return pollStatus()
      }
      
@@ -143,8 +154,9 @@ Check job status.
 
 3. **Add Progress Indicators**
    - Show "Processing..." state during polling
-   - Display estimated time from initial response
-   - Handle timeout (60 second max)
+   - Display estimated time from initial response (30-60 seconds)
+   - Handle timeout (100 second max)
+   - Show retry option if generation fails with `retryable: true`
 
 4. **Update Image Display**
    - Use full URL from `imageUrl` instead of constructing path
@@ -201,7 +213,7 @@ catch (error) {
 
 ### Timeout Handling
 ```typescript
-const maxAttempts = 60  // 60 seconds max
+const maxAttempts = 20  // 100 seconds max (20 polls * 5 seconds)
 let attempts = 0
 
 // In poll function:
@@ -211,12 +223,24 @@ if (attempts >= maxAttempts) {
 }
 ```
 
-### Job Failure
+### Job Failure Handling
 ```typescript
-if (statusResult.status === 'error') {
-  throw new Error(statusResult.error || 'Map generation failed')
+if (statusResult.status === 'failed') {
+  const errorMsg = statusResult.message || 'Map generation failed'
+  const retryable = statusResult.retryable
+  throw new Error(`${errorMsg}${retryable ? ' (You can retry)' : ''}`)
 }
 ```
+
+### Error Codes
+The service returns specific error codes that can be handled:
+- `INVALID_SEED`: Seed validation failed
+- `INVALID_DIMENSION`: Invalid dimension specified
+- `INVALID_SIZE`: Size out of range
+- `TOO_MANY_JOBS`: Rate limit exceeded (429)
+- `JOB_NOT_FOUND`: Job ID doesn't exist
+- `GENERATION_FAILED`: Screenshot process failed
+- `SERVER_ERROR`: Internal server error
 
 ## Configuration
 
@@ -262,24 +286,82 @@ const response = await fetch(`${API_URL}/api/generate`, {
 - [ ] Generate end map
 - [ ] Test with invalid seed (error handling)
 - [ ] Test connection failure (service not running)
+- [ ] Test rate limiting (4th concurrent request)
+- [ ] Test timeout scenario (cancel long-running jobs)
+- [ ] Test retry logic with retryable errors
 - [ ] Test import workflow from generated map
+
+### Additional API Endpoints
+
+**Health Check:** `GET /api/health`
+```json
+{
+  "success": true,
+  "status": "healthy",
+  "timestamp": "2023-12-21T10:30:45Z",
+  "version": "1.0.0",
+  "activeJobs": 2,
+  "maxConcurrentJobs": 3
+}
+```
+- Check service availability
+- Returns active jobs count and service status
+- Use for connection testing before making requests
+
+**Statistics:** `GET /api/stats`
+```json
+{
+  "success": true,
+  "totalJobs": 15,
+  "completedJobs": 12,
+  "failedJobs": 1,
+  "processingJobs": 2,
+  "activeJobs": 2,
+  "maxConcurrentJobs": 3
+}
+```
+- Total, completed, failed, and processing job counts
+- Useful for monitoring service usage
+- Can display queue status to users
+
+**Cleanup:** `POST /api/cleanup`
+```json
+{
+  "success": true,
+  "message": "Cleanup completed",
+  "cleanedCount": 5,
+  "remainingJobs": 10
+}
+```
+- Manual cleanup of old completed jobs
+- Optional maintenance endpoint
 
 ## Performance Considerations
 
 ### Polling Interval
-- Default: 1000ms (1 second)
-- Adjustable based on average generation time
-- Consider exponential backoff for retries
+- Default: 5000ms (5 seconds) as per API documentation
+- Generation takes 30-60 seconds
+- Maximum 20 polling attempts (100 seconds total timeout)
 
 ### Timeout Configuration
-- Maximum wait time: 60 seconds
+- Maximum wait time: 100 seconds (20 polls × 5 seconds)
+- Average generation: 30-60 seconds
 - User-configurable timeout option
 - Progress indicators during wait
 
 ### Image Loading
+- All images are 1000x1000 pixels (fixed output)
 - Implement progressive loading
 - Show thumbnail or placeholder while loading
-- Handle large image sizes (2000x2000 for 16k)
+- File size: ~200-500KB typical
+
+### Image Specifications
+- **Format**: PNG
+- **Size**: 1000x1000 pixels (fixed output regardless of world size)
+- **Quality**: High (lossless)
+- **File Size**: ~200-500KB typical
+- **Storage**: Ephemeral (lost on service restart)
+- **URL Format**: `http://localhost:3001/generated-maps/{jobId}.png`
 
 ## UI/UX Enhancements
 
@@ -327,6 +409,7 @@ None required - using existing fetch API
 - mc-map-generator-service running on port 3001
 - Puppeteer for browser automation
 - Sharp for image processing
+- Maximum 3 concurrent jobs (rate limiting)
 
 ## Documentation Updates
 
