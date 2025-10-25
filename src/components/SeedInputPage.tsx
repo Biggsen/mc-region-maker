@@ -6,6 +6,7 @@ export function SeedInputPage() {
   const [dimension, setDimension] = useState('overworld')
   const [overworldWorldSize, setOverworldWorldSize] = useState('8k')
   const [isLoading, setIsLoading] = useState(false)
+  const [isPolling, setIsPolling] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
@@ -20,27 +21,79 @@ export function SeedInputPage() {
     setError(null)
     
     try {
-      const response = await fetch('http://localhost:3001/api/generate-map', {
+      // Step 1: Start generation job
+      const generateResponse = await fetch('http://localhost:3001/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           seed: seed.trim(),
           dimension: dimension,
-          overworldWorldSize: overworldWorldSize
+          size: overworldWorldSize === '16k' ? 16 : 8
         })
       })
       
-      if (!response.ok) {
-        throw new Error('Failed to generate map')
+      if (!generateResponse.ok) {
+        throw new Error('Failed to start map generation')
       }
       
-      const result = await response.json()
-      setGeneratedImage(result.imagePath)
+      const generateResult = await generateResponse.json()
+      
+      if (!generateResult.success) {
+        throw new Error(generateResult.error || 'Failed to start generation')
+      }
+      
+      const jobId = generateResult.jobId
+      console.log('Job started:', jobId)
+      
+      setIsPolling(true)
+      
+      // Step 2: Poll for status
+      const maxAttempts = 20  // 100 seconds max (20 polls * 5 seconds)
+      let attempts = 0
+      
+      const pollStatus = async (): Promise<string> => {
+        const statusResponse = await fetch(`http://localhost:3001/api/status/${jobId}`)
+        
+        if (!statusResponse.ok) {
+          throw new Error('Failed to check job status')
+        }
+        
+        const statusResult = await statusResponse.json()
+        
+        if (statusResult.status === 'ready') {
+          return statusResult.imageUrl
+        }
+        
+        if (statusResult.status === 'failed') {
+          const errorMsg = statusResult.message || 'Map generation failed'
+          const retryable = statusResult.retryable
+          throw new Error(`${errorMsg}${retryable ? ' (You can retry)' : ''}`)
+        }
+        
+        // Still processing
+        attempts++
+        if (attempts >= maxAttempts) {
+          throw new Error('Map generation timed out. Please try again.')
+        }
+        
+        // Wait 5 seconds before next poll
+        await new Promise(resolve => setTimeout(resolve, 5000))
+        return pollStatus()
+      }
+      
+      const imageUrl = await pollStatus()
+      setGeneratedImage(imageUrl)
+      
     } catch (error) {
       console.error('Error generating map:', error)
-      setError('Failed to generate map. Make sure the API server is running.')
+      if (error instanceof TypeError) {
+        setError('Cannot connect to map generator service. Is it running?')
+      } else {
+        setError(error instanceof Error ? error.message : 'Failed to generate map. Make sure the API server is running.')
+      }
     } finally {
       setIsLoading(false)
+      setIsPolling(false)
     }
   }
 
@@ -145,7 +198,7 @@ export function SeedInputPage() {
           {isLoading ? (
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Generating Map...
+              {isPolling ? 'Generating Map... (30-60 seconds)' : 'Starting Generation...'}
             </div>
           ) : (
             'Get Map'
@@ -157,7 +210,7 @@ export function SeedInputPage() {
             <h3 className="text-lg font-medium mb-2">Generated Map:</h3>
             <div className="bg-gray-700 rounded-md p-2">
               <img 
-                src={`http://localhost:3001/screenshots/${generatedImage}`} 
+                src={generatedImage} 
                 alt="Generated map"
                 className="w-full h-auto border border-gray-600 rounded"
               />

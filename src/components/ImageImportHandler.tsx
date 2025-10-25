@@ -10,11 +10,8 @@ export function ImageImportHandler() {
   useEffect(() => {
     if (location.state?.importImage && !hasProcessedRef.current) {
       hasProcessedRef.current = true // Prevent multiple executions
-      const imagePath = location.state.importImage
-      console.log('Loading imported image:', imagePath)
-      
-      // Create image URL from the API server
-      const imageUrl = `http://localhost:3001/screenshots/${imagePath}`
+      const imageUrl = location.state.importImage  // Already full URL from service
+      console.log('Loading imported image:', imageUrl)
       
       // Load the image
       const img = new Image()
@@ -22,7 +19,7 @@ export function ImageImportHandler() {
       img.crossOrigin = 'anonymous'
       
       img.onload = () => {
-        console.log('Image loaded successfully:', imagePath)
+        console.log('Image loaded successfully:', imageUrl)
         
         // Clear all existing data for fresh start
         console.log('Clearing existing data for fresh map import...')
@@ -64,7 +61,7 @@ export function ImageImportHandler() {
           return
         }
         
-        alert(`Failed to load image: ${imagePath}. Make sure the API server is running and accessible.`)
+        alert(`Failed to load image. Make sure the API server is running and accessible.`)
       }
       
       img.src = imageUrl
