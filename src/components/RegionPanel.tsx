@@ -6,6 +6,7 @@ import { generateRegionName } from '../utils/nameGenerator'
 import { ChallengeLevel } from '../types'
 import { MapControls } from './MapControls'
 import { VillageManager } from './VillageManager'
+import { YAMLDisplay } from './YAMLDisplay'
 
 export function RegionPanel() {
   const { regions, worldType, customMarkers } = useAppContext()
@@ -48,7 +49,6 @@ export function RegionPanel() {
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
   const [freehandLocal, setFreehandLocal] = useState(false)
-  const [showYAML, setShowYAML] = useState(false)
   const [showAllRegions, setShowAllRegions] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [customCenterX, setCustomCenterX] = useState('')
@@ -700,12 +700,6 @@ export function RegionPanel() {
             >
               {isEditing ? 'Editing...' : 'Edit Points'}
             </button>
-            <button
-              onClick={() => handleCopyYAML(selectedRegion.id)}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
-            >
-              Copy YAML
-            </button>
           </div>
 
           <div className="bg-gray-700 rounded p-3 border border-gray-600">
@@ -881,22 +875,10 @@ export function RegionPanel() {
             )}
           </div>
 
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-lg font-semibold text-white">YAML Output</h3>
-              <button
-                onClick={() => setShowYAML(!showYAML)}
-                className="text-blue-400 hover:text-blue-300 text-sm"
-              >
-                {showYAML ? 'Hide' : 'Show'}
-              </button>
-            </div>
-            {showYAML && (
-              <pre className="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
-                {getRegionYAML(selectedRegion.id)}
-              </pre>
-            )}
-          </div>
+          <YAMLDisplay
+            yamlContent={getRegionYAML(selectedRegion.id)}
+            onCopyYAML={handleCopyYAML}
+          />
 
           <VillageManager
             subregions={selectedRegion.subregions || []}
