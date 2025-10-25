@@ -14,18 +14,16 @@
 ### **✅ What's IN the MVP**
 - **Core Region Creation**: Upload map → Set origin → Draw regions → Export YAML
 - **Clean UI**: 3-tab interface (Upload → Draw → Export)
-- **Basic Features**: Region naming, list view, YAML export
+- **All Plugin Generators**: Keep achievements, events, LevelledMobs generators
 - **Onboarding**: Step-by-step user guidance
 - **Mobile Support**: Responsive design
+- **All Advanced Features**: Keep locally, organize better
 
-### **❌ What's OUT of the MVP**
-- Advanced editing (warp, split, scale, simplify)
-- Village import system
-- Challenge levels and spawn management
-- Multiple export formats
-- Seed generation
-- Custom markers and orphaned villages
-- User accounts and cloud storage
+### **🎯 Strategy: Keep All Functionality**
+- **Local Development**: Full feature set with all advanced tools
+- **Production MVP**: Clean interface with progressive disclosure
+- **No Feature Loss**: All existing functionality preserved
+- **Organize, Don't Remove**: Better UI organization, not feature removal
 
 ---
 
@@ -39,99 +37,113 @@ Current Issues:
 - Advanced features mixed with basics
 - No clear user flow
 - Poor mobile experience
+
+Current Strengths:
+- Excellent region creation experience
+- Powerful coordinate math
+- Comprehensive plugin generators
+- Working localStorage persistence
+- Solid component architecture
 ```
 
-### **MVP Architecture**
+### **MVP Architecture Strategy**
 ```
+Keep Existing Structure:
 src/
+├── components/                     # Keep existing folder structure
+│   ├── MainApp.tsx                # Add tab navigation
+│   ├── RegionPanel.tsx            # Extract components, keep functionality
+│   ├── ExportImportPanel.tsx      # Organize better, keep all features
+│   ├── MapCanvas.tsx              # (existing - excellent)
+│   └── [other existing components] # Keep all existing components
+├── hooks/                         # Keep existing hooks
+├── utils/                         # Keep existing utilities
+└── types.ts                       # Keep existing types
+
+Add New Components:
 ├── components/
-│   ├── mvp/
-│   │   ├── OnboardingFlow.tsx      # Step-by-step guide
-│   │   ├── UploadTab.tsx           # Map upload interface
-│   │   ├── DrawTab.tsx             # Region creation tools
-│   │   ├── ExportTab.tsx           # YAML export interface
-│   │   └── RegionList.tsx          # Simple region list
-│   ├── core/                       # Keep existing core components
-│   │   ├── MapCanvas.tsx           # (existing - excellent)
-│   │   ├── RegionOverlay.tsx       # (existing - excellent)
-│   │   └── GridOverlay.tsx         # (existing - excellent)
-│   └── shared/
-│       ├── Header.tsx              # Clean header with branding
-│       ├── TabNavigation.tsx       # 3-tab navigation
-│       └── HelpModal.tsx           # Help system
-├── lib/
-│   ├── core/                       # Extract core logic
-│   │   ├── coordinateUtils.ts      # (existing - excellent)
-│   │   ├── polygonUtils.ts         # (existing - excellent)
-│   │   └── exportUtils.ts          # (existing - excellent)
-│   └── mvp/
-│       ├── onboardingSteps.ts      # Onboarding flow logic
-│       └── validation.ts            # Input validation
-└── hooks/
-    ├── useMVPFlow.ts               # MVP-specific state
-    └── useOnboarding.ts            # Onboarding state
+│   ├── TabNavigation.tsx          # 3-tab interface
+│   ├── OnboardingFlow.tsx        # Step-by-step guide
+│   └── AdvancedFeatures.tsx      # Collapsible advanced features
 ```
 
 ---
 
 ## 📅 **Development Timeline**
 
-### **Week 1: UI Cleanup & Core Features**
-**Days 1-2: Component Extraction**
-- [ ] Extract core region creation logic to `lib/core/`
-- [ ] Create new MVP component structure
-- [ ] Remove advanced features from main interface
-- [ ] Create clean 3-tab navigation
+### **Week 1: UI Cleanup & Core Features (35-40 hours)**
 
-**Days 3-4: Upload Tab**
+**Task 1.1: Simplify RegionPanel.tsx** ⏱️ 4 hours
+- [ ] Extract region creation to separate component
+- [ ] Extract region editing to separate component  
+- [ ] Extract advanced features to separate component
+- [ ] Keep main RegionPanel focused on core functionality
+
+**Task 1.2: Create 3-Tab Interface** ⏱️ 3 hours
+- [ ] Create tab navigation component
+- [ ] Organize existing components into tabs:
+  - **Upload Tab**: Map upload and origin setting
+  - **Draw Tab**: Region creation and management
+  - **Export Tab**: YAML export and plugin generators
+- [ ] Keep all functionality, just organize it better
+
+**Task 1.3: Upload Tab** ⏱️ 4 hours
 - [ ] Clean map upload interface
 - [ ] Drag & drop functionality
 - [ ] Image validation and error handling
 - [ ] Origin setting with clear instructions
 
-**Days 5-7: Draw Tab**
+**Task 1.4: Draw Tab** ⏱️ 4 hours
 - [ ] Simplified region creation interface
 - [ ] Basic drawing tools (click to place points)
 - [ ] Region naming and properties
 - [ ] Region list with basic actions
 
-### **Week 2: Polish & User Experience**
-**Days 1-2: Export Tab**
+**Task 1.5: Export Tab** ⏱️ 3 hours
 - [ ] Clean YAML export interface
-- [ ] Export options (WorldGuard format)
+- [ ] Keep all plugin generators (achievements, events, LevelledMobs)
 - [ ] Download functionality
 - [ ] Export preview
 
-**Days 3-4: Onboarding System**
+### **Week 2: Polish & User Experience (30-35 hours)**
+
+**Task 2.1: Onboarding System** ⏱️ 4 hours
 - [ ] Step-by-step user guide
 - [ ] Interactive tutorials
 - [ ] Help tooltips and documentation
 - [ ] Progress indicators
 
-**Days 5-7: Visual Polish**
+**Task 2.2: Visual Polish** ⏱️ 4 hours
 - [ ] Modern, clean design system
 - [ ] Consistent styling
 - [ ] Loading states and animations
 - [ ] Error handling and user feedback
 
-### **Week 3: Testing & Deployment**
-**Days 1-2: Testing & Bug Fixes**
+**Task 2.3: Advanced Features Organization** ⏱️ 3 hours
+- [ ] Move advanced features to collapsible sections
+- [ ] Add "Advanced" toggles where appropriate
+- [ ] Organize plugin generators
+- [ ] Keep everything accessible but organized
+
+### **Week 3: Testing & Deployment (15-25 hours)**
+
+**Task 3.1: Testing & Bug Fixes** ⏱️ 4 hours
 - [ ] Cross-browser testing
 - [ ] Mobile responsiveness
 - [ ] Performance optimization
 - [ ] User acceptance testing
 
-**Days 3-4: Production Setup**
+**Task 3.2: Production Setup** ⏱️ 3 hours
 - [ ] Vercel deployment configuration
 - [ ] Domain setup (minecraft-region-forge.com)
 - [ ] Analytics integration
 - [ ] Error monitoring
 
-**Days 5-7: Launch Preparation**
+**Task 3.3: Launch Preparation** ⏱️ 2 hours
 - [ ] Documentation and help content
+- [ ] Final testing
+- [ ] Launch checklist
 - [ ] User feedback collection
-- [ ] Performance monitoring
-- [ ] Launch announcement
 
 ---
 
@@ -354,9 +366,9 @@ export const pixelToWorld = (x: number, y: number, ...): Point => {
 
 ### **Phase 2: Advanced Features (Month 2)**
 - User accounts and cloud storage
-- Advanced region editing tools
+- Advanced region editing tools (warp, split, scale, simplify)
 - Collaboration features
-- Plugin integrations
+- Enhanced plugin integrations
 
 ### **Phase 3: Scale (Month 3)**
 - Team management
@@ -370,14 +382,15 @@ export const pixelToWorld = (x: number, y: number, ...): Point => {
 
 ### **Key Decisions**
 1. **Keep existing core logic**: The region creation math is excellent
-2. **Simplify UI**: Remove advanced features for MVP
-3. **Focus on user flow**: Clear step-by-step process
+2. **Organize UI**: Keep all features, organize better with progressive disclosure
+3. **Focus on user flow**: Clear step-by-step process with 3-tab interface
 4. **Mobile-first**: Responsive design from the start
+5. **No feature loss**: All existing functionality preserved and accessible
 
 ### **Risk Mitigation**
-- **Feature creep**: Strict MVP scope enforcement
-- **Technical debt**: Clean architecture from the start
-- **User confusion**: Comprehensive onboarding
+- **Feature creep**: Organize existing features, don't add new ones
+- **Technical debt**: Keep existing architecture, improve UI organization
+- **User confusion**: Comprehensive onboarding and progressive disclosure
 - **Performance**: Optimize for speed and reliability
 
 ### **Success Criteria**
@@ -389,4 +402,17 @@ export const pixelToWorld = (x: number, y: number, ...): Point => {
 
 ---
 
-**Next Steps**: Begin Week 1 development with component extraction and UI cleanup.
+**Next Steps**: Begin Week 1 development with component extraction and UI organization. Focus on keeping all existing functionality while creating a cleaner, more organized interface.
+
+## 🎯 **Key Principles Guiding the MVP**
+
+1. **Keep All Functionality**: No features will be lost during MVP development; they will be organized.
+2. **Focus on User Experience**: Deliver a clean 3-tab interface with progressive disclosure.
+3. **Preserve Core Logic**: The excellent region creation experience remains intact.
+4. **Organize, Don't Rebuild**: Address UI clutter by reorganizing existing, working code.
+
+## 📊 **Timeline Summary**
+- **Total**: 3 weeks to production-ready MVP
+- **Development**: 80-100 hours
+- **Buffer**: 20-30 hours for iterations
+- **Result**: Clean, professional tool ready for Minecraft server admins
