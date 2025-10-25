@@ -158,31 +158,31 @@ export function MapLoaderControls() {
       <div className="border-b pb-4">
         <h4 className="text-md font-medium text-gray-700 mb-3">Generate from Seed</h4>
         
-        <div className="mb-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Minecraft Seed:</label>
-          <input
-            type="text"
-            value={seed}
-            onChange={(e) => setSeed(e.target.value)}
-            placeholder="Enter seed number or text"
-            className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            disabled={isLoading}
-          />
-        </div>
+         <div className="mb-3">
+           <label className="block text-sm font-medium text-gray-700 mb-1">Minecraft Seed:</label>
+           <input
+             type="text"
+             value={seed}
+             onChange={(e) => setSeed(e.target.value)}
+             placeholder="Enter seed number or text"
+             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900"
+             disabled={isLoading}
+           />
+         </div>
 
-        <div className="mb-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Dimension:</label>
-          <select
-            value={dimension}
-            onChange={(e) => setDimension(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            disabled={isLoading}
-          >
-            <option value="overworld">Overworld</option>
-            <option value="nether">Nether</option>
-            <option value="end">End</option>
-          </select>
-        </div>
+         <div className="mb-3">
+           <label className="block text-sm font-medium text-gray-700 mb-1">Dimension:</label>
+           <select
+             value={dimension}
+             onChange={(e) => setDimension(e.target.value)}
+             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900"
+             disabled={isLoading}
+           >
+             <option value="overworld">Overworld</option>
+             <option value="nether">Nether</option>
+             <option value="end">End</option>
+           </select>
+         </div>
 
         {dimension === 'overworld' && (
           <div className="mb-3">

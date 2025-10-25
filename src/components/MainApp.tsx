@@ -64,17 +64,13 @@ function MainAppContent() {
         <div className="flex-1 flex overflow-hidden">
           {(activeTab !== 'map' || !mapState.mapState.image) && (
             <div className="w-96 bg-gray-800 p-4 overflow-y-auto border-r border-gray-700">
-              <WorldNameHeading />
-              
               {activeTab === 'map' && (
-                <>
-                  <MapLoaderControls />
-                  {worldType.worldType !== 'nether' && <SpawnButton />}
-                </>
+                <MapLoaderControls />
               )}
               
               {activeTab === 'regions' && (
                 <>
+                  <WorldNameHeading />
                   {worldType.worldType !== 'nether' && <SpawnButton />}
                   <RegionPanel />
                 </>
