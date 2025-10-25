@@ -337,58 +337,6 @@ export function MapCanvas() {
     removePointFromRegion(regionId, pointIndex)
   }, [removePointFromRegion])
 
-  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const img = new Image()
-      img.onload = () => {
-        console.log('Image loaded:', {
-          width: img.width,
-          height: img.height
-        })
-        setImage(img)
-        // Center the image
-        const canvas = canvasRef.current
-        if (canvas) {
-          const centerX = (canvas.width - img.width) / 2
-          const centerY = (canvas.height - img.height) / 2
-          console.log('Setting offset:', { centerX, centerY })
-          setOffset(centerX, centerY)
-        }
-      }
-      img.src = event.target?.result as string
-    }
-    reader.readAsDataURL(file)
-  }, [setImage, setOffset])
-
-  const handleImageUrl = useCallback((url: string) => {
-    const img = new Image()
-    // Set crossOrigin to anonymous to allow canvas export if the server supports CORS
-    img.crossOrigin = 'anonymous'
-    img.onload = () => {
-      console.log('Image loaded from URL:', {
-        width: img.width,
-        height: img.height
-      })
-      setImage(img)
-      // Center the image
-      const canvas = canvasRef.current
-      if (canvas) {
-        const centerX = (canvas.width - img.width) / 2
-        const centerY = (canvas.height - img.height) / 2
-        console.log('Setting offset:', { centerX, centerY })
-        setOffset(centerX, centerY)
-      }
-    }
-    img.onerror = () => {
-      alert('Failed to load image from URL. Please check the URL and try again.')
-    }
-    img.src = url
-  }, [setImage, setOffset])
-
 
 
   useEffect(() => {
@@ -414,41 +362,8 @@ export function MapCanvas() {
     }
   }, [])
 
-  const [imageUrl, setImageUrl] = useState('http://localhost:3000/mc-map.png')
-
-  const handleUrlSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (imageUrl.trim()) {
-      handleImageUrl(imageUrl.trim())
-    }
-  }
-
   return (
     <div className="flex-1 relative h-full">
-      <div className="absolute top-4 left-4 z-10 space-y-2">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="hidden block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
-        />
-        
-        <form onSubmit={handleUrlSubmit} className="flex space-x-2">
-          <input
-            type="url"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="Or enter image URL (e.g., http://localhost:3010/map.png)"
-            className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm"
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium"
-          >
-            Load
-          </button>
-        </form>
-      </div>
       
       {!mapState.image && regions.regions.length > 0 && (
         <div className="absolute top-32 left-4 z-10 bg-yellow-600 text-white px-4 py-2 rounded text-sm shadow-lg max-w-md">
