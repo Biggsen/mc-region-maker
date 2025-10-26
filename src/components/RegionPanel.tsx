@@ -94,7 +94,7 @@ export function RegionPanel() {
       {!selectedRegion ? (
         // Region List View
         <>
-          <div className="mb-6">
+          <div className="mb-2">
             {/* Search Input */}
             <div className="mb-4">
               <input
@@ -112,11 +112,34 @@ export function RegionPanel() {
                 regions.setFreehandEnabled(freehand)
                 startDrawingRegion(name)
               }}
+              onCancelDrawing={() => regions.cancelDrawingRegion()}
+              isDrawing={!!drawingRegion}
             />
           </div>
 
+          {drawingRegion && (
+            <div className="mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-yellow-200 text-base">
+                  Drawing: <strong>{drawingRegion.name}</strong>
+                </p>
+                <span className="text-sm text-gray-200">{drawingRegion.points.length} pts</span>
+              </div>
+              <p className="text-yellow-300 text-sm">
+                Click to place points or click and hold to draw
+              </p>
+              <button
+                onClick={() => regions.finishDrawingRegion()}
+                disabled={drawingRegion.points.length < 3}
+                className={`w-full font-medium py-2 px-4 rounded ${drawingRegion.points.length < 3 ? 'bg-gray-600 text-gray-300' : 'bg-green-600 hover:bg-green-700 text-white'}`}
+              >
+                Finish
+              </button>
+            </div>
+          )}
+
           {/* Region Counter */}
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 mt-6 flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">Regions ({regionsList.length})</h2>
             {regionsList.length > 0 && (
               <button
@@ -133,35 +156,6 @@ export function RegionPanel() {
               </button>
             )}
           </div>
-
-          {drawingRegion && (
-            <div className="mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="text-yellow-200 text-sm">
-                  Drawing: <strong>{drawingRegion.name}</strong>
-                </p>
-                <span className="text-xs text-gray-200">{drawingRegion.points.length} pts</span>
-              </div>
-              <p className="text-yellow-300 text-xs">
-                {regions.freehandEnabled ? 'Drag to draw; release to place points.' : 'Click to add points.'}
-              </p>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => regions.finishDrawingRegion()}
-                  disabled={drawingRegion.points.length < 3}
-                  className={`flex-1 font-medium py-2 px-4 rounded ${drawingRegion.points.length < 3 ? 'bg-gray-600 text-gray-300' : 'bg-green-600 hover:bg-green-700 text-white'}`}
-                >
-                  Finish
-                </button>
-                <button
-                  onClick={() => regions.cancelDrawingRegion()}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
 
           <div className="space-y-2 mb-6">
             {(showAllRegions ? [...filteredRegions].reverse() : filteredRegions.slice(-5).reverse()).map(region => {
