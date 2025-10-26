@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronRight, Eye, EyeOff } from 'lucide-react'
+import { ChevronRight, ChevronUp, Eye, EyeOff } from 'lucide-react'
 
 interface MapDisplayControlsProps {
   highlightMode: {
@@ -58,17 +58,9 @@ export function MapDisplayControls({
   )
 
   return (
-    <div className="absolute top-4 left-4 z-10 bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-lg">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors"
-      >
-        {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-        Display
-      </button>
-      
+    <div className="absolute bottom-4 left-[220px] z-10">
       {isExpanded && (
-        <div className="px-3 pb-3 space-y-1 border-t border-gray-700">
+        <div className="mb-2 bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-3 space-y-1">
           <ToggleButton
             isActive={highlightMode.highlightAll}
             onClick={toggleHighlightAll}
@@ -120,6 +112,14 @@ export function MapDisplayControls({
           </ToggleButton>
         </div>
       )}
+      
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 hover:text-white transition-colors bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-lg"
+      >
+        {isExpanded ? <ChevronUp size={14} /> : <ChevronRight size={14} />}
+        Display
+      </button>
     </div>
   )
 }

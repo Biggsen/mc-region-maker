@@ -407,11 +407,14 @@ export function MapCanvas() {
       )}
       
       {mouseCoordinates && (
-        <div className="absolute bottom-4 left-4 z-10 bg-gray-800 text-white px-3 py-2 rounded text-sm border border-gray-600 font-mono flex items-center space-x-2">
-          <span>X: {Math.round(mouseCoordinates.x)} Z: {Math.round(mouseCoordinates.z)}</span>
-          <button
-            onClick={() => setIsCoordinateDialogOpen(true)}
-            className="ml-2 p-1 hover:bg-gray-700 rounded transition-colors"
+        <div className="absolute bottom-4 left-4 z-10 bg-gray-800 text-white px-3 py-1 pr-2 rounded text-sm border border-gray-600 font-mono flex items-center space-x-2">
+            <span className="w-[140px]">
+              <span className="text-gray-400">X:</span> <span className="text-white inline-block w-[30px]">{Math.round(mouseCoordinates.x)}</span>{' '}
+              <span className="text-gray-400 ml-3">Z:</span> <span className="text-white inline-block w-[30px]">{Math.round(mouseCoordinates.z)}</span>
+            </span>
+            <button
+              onClick={() => setIsCoordinateDialogOpen(true)}
+              className="ml-4 p-1 hover:bg-gray-700 rounded transition-colors"
             title="Add custom marker"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
