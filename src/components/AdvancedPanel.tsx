@@ -116,12 +116,59 @@ export function AdvancedPanel() {
       <h3 className="text-lg font-semibold text-white mb-4">Advanced Tools</h3>
       
       <div className="space-y-4">
+        {/* World Type Toggle */}
+        <div>
+          <h4 className="text-sm font-medium text-gray-300 mb-2">World Type</h4>
+          <div className="flex gap-2">
+            <button
+              onClick={() => worldType.setWorldType('overworld')}
+              className={`text-sm px-3 py-1 rounded border ${
+                worldType.worldType === 'overworld'
+                  ? 'bg-green-600 text-white border-green-500'
+                  : 'text-green-400 hover:text-green-300 border-green-400 hover:border-green-300'
+              }`}
+              title="Generate overworld-style names"
+            >
+              Overworld
+            </button>
+            <button
+              onClick={() => worldType.setWorldType('nether')}
+              className={`text-sm px-3 py-1 rounded border ${
+                worldType.worldType === 'nether'
+                  ? 'bg-red-600 text-white border-red-500'
+                  : 'text-red-400 hover:text-red-300 border-red-400 hover:border-red-300'
+              }`}
+              title="Generate nether-style names"
+            >
+              Nether
+            </button>
+          </div>
+        </div>
+
         {worldType.worldType !== 'nether' && <SpawnButton />}
 
         <RegionActions
           regions={availableRegions}
           onRandomizeChallengeLevels={handleRandomizeChallengeLevels}
         />
+
+        {/* Villages Counter */}
+        {(() => {
+          const hasVillages = availableRegions.some(region => region.subregions && region.subregions.length > 0)
+          const totalVillages = availableRegions.reduce((total, region) => total + (region.subregions?.length || 0), 0)
+          
+          if (hasVillages) {
+            return (
+              <div>
+                <h4 className="text-sm font-medium text-gray-300 mb-2">Villages</h4>
+                <div className="text-lg font-semibold text-white">
+                  {totalVillages} villages across {availableRegions.length} regions
+                </div>
+              </div>
+            )
+          }
+          return null
+        })()}
 
         <div className="space-y-2">
           <button

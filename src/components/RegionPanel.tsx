@@ -79,8 +79,6 @@ export function RegionPanel() {
 
 
   const selectedRegion = regionsList.find(r => r.id === selectedRegionId)
-  const hasVillages = regionsList.some(region => region.subregions && region.subregions.length > 0)
-  const totalVillages = regionsList.reduce((total, region) => total + (region.subregions?.length || 0), 0)
 
   
 
@@ -98,9 +96,6 @@ export function RegionPanel() {
           <div className="mb-6">
             <h2 className="text-xl font-bold text-white mb-4">Regions ({regionsList.length})</h2>
             
-            {hasVillages && (
-              <h3 className="text-lg font-semibold text-white mb-4">Villages ({totalVillages})</h3>
-            )}
             
             
             {/* Search Input */}
