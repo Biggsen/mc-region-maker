@@ -4,7 +4,7 @@ import { generateRegionName } from '../utils/nameGenerator'
 import { Region, EditMode } from '../types'
 import { YAMLDisplay } from './YAMLDisplay'
 import { VillageManager } from './VillageManager'
-import { ArrowLeft, VectorSquare } from 'lucide-react'
+import { ArrowLeft, VectorSquare, Plus, Minus, BrushCleaning } from 'lucide-react'
 
 interface RegionDetailsViewProps {
   selectedRegion: Region
@@ -135,7 +135,7 @@ export function RegionDetailsView({
             }`}
           >
             <VectorSquare className="w-4 h-4" />
-            Edit Region
+            Edit Shape
           </button>
         </div>
       )}
@@ -157,9 +157,34 @@ export function RegionDetailsView({
         </div>
       )}
 
-      <div className="bg-gray-700 rounded p-3 border border-gray-600">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-sm text-gray-300">Warp Brush</div>
+      <div>
+        <h4 className="text-sm font-medium text-gray-300 mb-2">Refine Shape</h4>
+        <button
+          onClick={() => onSimplifyRegionVertices(selectedRegion.id, 10)}
+          className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 mb-3"
+        >
+          <BrushCleaning className="w-4 h-4" />
+          Simplify
+        </button>
+        <div className="flex space-x-2 mb-3">
+          <button
+            onClick={() => onDoubleRegionVertices(selectedRegion.id)}
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Double Vertices
+          </button>
+          <button
+            onClick={() => onHalveRegionVertices(selectedRegion.id)}
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2"
+          >
+            <Minus className="w-4 h-4" />
+            Halve Vertices
+          </button>
+        </div>
+        <div className="bg-gray-700 rounded p-3 border border-gray-600">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm text-gray-300">Warp BrushCleaning</div>
           <label className="flex items-center space-x-2">
             <input
               type="checkbox"
@@ -191,21 +216,7 @@ export function RegionDetailsView({
           </div>
         </div>
         <p className="text-gray-400 text-xs mt-2">Click map to push vertices outward within radius.</p>
-      </div>
-
-      <div className="flex space-x-2">
-        <button
-          onClick={() => onDoubleRegionVertices(selectedRegion.id)}
-          className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded"
-        >
-          Double Vertices
-        </button>
-        <button
-          onClick={() => onHalveRegionVertices(selectedRegion.id)}
-          className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded"
-        >
-          Halve Vertices
-        </button>
+        </div>
       </div>
 
       <div className="bg-gray-700 rounded p-3 border border-gray-600">
@@ -236,33 +247,6 @@ export function RegionDetailsView({
           <span className="text-gray-300 text-sm flex items-center">%</span>
         </div>
         <p className="text-gray-400 text-xs mt-2">Scale region around its center point. 100% = original size.</p>
-      </div>
-
-      <div className="bg-gray-700 rounded p-3 border border-gray-600">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-sm text-gray-300">Simplify</div>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            onClick={() => onSimplifyRegionVertices(selectedRegion.id, 2)}
-            className="bg-gray-600 hover:bg-gray-700 text-white text-sm py-2 px-2 rounded"
-          >
-            Low
-          </button>
-          <button
-            onClick={() => onSimplifyRegionVertices(selectedRegion.id, 5)}
-            className="bg-gray-600 hover:bg-gray-700 text-white text-sm py-2 px-2 rounded"
-          >
-            Medium
-          </button>
-          <button
-            onClick={() => onSimplifyRegionVertices(selectedRegion.id, 10)}
-            className="bg-gray-600 hover:bg-gray-700 text-white text-sm py-2 px-2 rounded"
-          >
-            High
-          </button>
-        </div>
-        <p className="text-gray-400 text-xs mt-2">Reduces vertices while preserving the overall outline.</p>
       </div>
 
       <div className="flex space-x-2">
