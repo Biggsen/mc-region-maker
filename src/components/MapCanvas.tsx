@@ -389,7 +389,7 @@ export function MapCanvas() {
       )}
 
       {editMode.isEditing && (
-        <div className="absolute top-4 right-4 z-10 bg-orange-600 text-white px-3 py-1 rounded text-sm">
+        <div className="absolute top-4 left-4 z-10 bg-green-600/90 text-white px-3 py-1 text-sm font-medium">
           Edit Mode
         </div>
       )}
@@ -425,7 +425,7 @@ export function MapCanvas() {
         </div>
       )}
       
-      <div className={`absolute top-4 z-10 flex items-center space-x-2 ${editMode.isEditing || isSettingCenterPoint ? 'right-32' : 'right-4'}`}>
+      <div className="absolute top-4 right-4 z-10 flex items-center space-x-2">
         <div className="bg-gray-800 text-white px-3 py-1 rounded text-sm border border-gray-600">
           {Math.round(mapState.scale * 100)}%
         </div>

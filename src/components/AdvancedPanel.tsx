@@ -5,7 +5,7 @@ import { RegionActions } from './RegionActions'
 import { SpawnButton } from './SpawnButton'
 
 export function AdvancedPanel() {
-  const { regions, worldType } = useAppContext()
+  const { regions, worldType, mapCanvas } = useAppContext()
   const villageFileInputRef = useRef<HTMLInputElement>(null)
   const importFileInputRef = useRef<HTMLInputElement>(null)
   const [isImportingVillages, setIsImportingVillages] = useState(false)
@@ -18,6 +18,9 @@ export function AdvancedPanel() {
   const [isVillagesExpanded, setIsVillagesExpanded] = useState(false)
   const [isImportExpanded, setIsImportExpanded] = useState(false)
   const [isRegionSpecificExpanded, setIsRegionSpecificExpanded] = useState(false)
+  const [customCenterX, setCustomCenterX] = useState('')
+  const [customCenterZ, setCustomCenterZ] = useState('')
+  const [showCustomCenterForm, setShowCustomCenterForm] = useState(false)
 
   const handleGenerateAchievements = () => {
     generateAchievementsYAML(regions.regions, worldType.worldType)
@@ -113,6 +116,42 @@ export function AdvancedPanel() {
 
   const triggerVillageFileInput = () => {
     villageFileInputRef.current?.click()
+  }
+
+  const handleSetCustomCenter = () => {
+    if (regions.selectedRegionId && customCenterX && customCenterZ) {
+      const x = parseInt(customCenterX)
+      const z = parseInt(customCenterZ)
+      if (!isNaN(x) && !isNaN(z)) {
+        regions.setCustomCenterPoint(regions.selectedRegionId, { x, z })
+        setCustomCenterX('')
+        setCustomCenterZ('')
+        setShowCustomCenterForm(false)
+      }
+    }
+  }
+
+  const handleUseCalculatedCenter = () => {
+    if (regions.selectedRegionId) {
+      regions.setCustomCenterPoint(regions.selectedRegionId, null)
+      setCustomCenterX('')
+      setCustomCenterZ('')
+      setShowCustomCenterForm(false)
+    }
+  }
+
+  const handleShowCustomCenterForm = () => {
+    if (regions.selectedRegionId) {
+      const selectedRegion = regions.regions.find(r => r.id === regions.selectedRegionId)
+      if (selectedRegion?.centerPoint) {
+        setCustomCenterX(selectedRegion.centerPoint.x.toString())
+        setCustomCenterZ(selectedRegion.centerPoint.z.toString())
+      } else {
+        setCustomCenterX('')
+        setCustomCenterZ('')
+      }
+      setShowCustomCenterForm(true)
+    }
   }
 
   const availableRegions = regions.regions.filter(r => r.points.length >= 3)
@@ -399,8 +438,209 @@ export function AdvancedPanel() {
           </button>
           {isRegionSpecificExpanded && (
             <div className="ml-4 space-y-4">
-              <div className="text-sm text-gray-400 p-3 bg-gray-800/50 rounded-md">
-                Region-specific tools will be available here.
+              <div className="space-y-2">
+                <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Challenge Level</h5>
+                <div className="text-sm text-gray-300">
+                  Set the difficulty level for the selected region
+                </div>
+                
+                {regions.selectedRegionId ? (
+                  <div className="space-y-2">
+                    <select
+                      value={regions.regions.find(r => r.id === regions.selectedRegionId)?.challengeLevel || 'Vanilla'}
+                      onChange={(e) => regions.updateRegion(regions.selectedRegionId!, { challengeLevel: e.target.value as any })}
+                      className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                    >
+                      <option value="Vanilla">Vanilla</option>
+                      <option value="Bronze">Bronze</option>
+                      <option value="Silver">Silver</option>
+                      <option value="Gold">Gold</option>
+                      <option value="Platinum">Platinum</option>
+                    </select>
+                    <p className="text-gray-400 text-xs">
+                      Sets the difficulty level for LevelledMobs plugin
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-400 p-3 bg-gray-800/50 rounded-md">
+                    Select a region to set its challenge level
+                  </div>
+                )}
+              </div>
+
+              {worldType.worldType !== 'nether' && (
+                <div className="space-y-2">
+                  <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Spawn Region</h5>
+                  <div className="text-sm text-gray-300">
+                    Mark this region as containing the world spawn point
+                  </div>
+                  
+                  {regions.selectedRegionId ? (
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={regions.regions.find(r => r.id === regions.selectedRegionId)?.hasSpawn || false}
+                          onChange={(e) => {
+                            const regionId = regions.selectedRegionId!
+                            if (e.target.checked) {
+                              // If checking this region, uncheck all other regions first
+                              regions.regions.forEach(region => {
+                                if (region.id !== regionId && region.hasSpawn) {
+                                  regions.updateRegion(region.id, { hasSpawn: false })
+                                }
+                              })
+                            }
+                            // Then update the selected region
+                            regions.updateRegion(regionId, { hasSpawn: e.target.checked })
+                          }}
+                          className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="text-sm text-gray-300">Has Spawn</span>
+                      </label>
+                      <p className="text-gray-400 text-xs">
+                        Only one region can have spawn (only one region can have spawn)
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-400 p-3 bg-gray-800/50 rounded-md">
+                      Select a region to set its spawn status
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Region Heart</h5>
+                <div className="text-sm text-gray-300">
+                  Set the center point (heart) of the selected region
+                </div>
+                
+                {regions.selectedRegionId ? (
+                  <div className="space-y-2">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          if (showCustomCenterForm) {
+                            setShowCustomCenterForm(false)
+                          } else {
+                            mapCanvas.startSettingCenterPoint(regions.selectedRegionId!)
+                          }
+                        }}
+                        className="text-blue-400 hover:text-blue-300 text-sm px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+                        title="Click on map to set region heart"
+                      >
+                        Click Map
+                      </button>
+                      <button
+                        onClick={handleShowCustomCenterForm}
+                        className="text-gray-400 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+                        title="Manually enter coordinates"
+                      >
+                        Manual
+                      </button>
+                    </div>
+                    
+                    {!showCustomCenterForm ? (
+                      <div className="bg-gray-700 p-3 rounded border border-gray-600">
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm">
+                            <span className="text-gray-400">Current: </span>
+                            <span className="text-white">
+                              X: {Math.round(regions.regions.find(r => r.id === regions.selectedRegionId)?.centerPoint?.x ?? 
+                                (() => {
+                                  const region = regions.regions.find(r => r.id === regions.selectedRegionId)
+                                  if (!region) return 0
+                                  const center = region.points.reduce((acc, point) => ({ x: acc.x + point.x, z: acc.z + point.z }), { x: 0, z: 0 })
+                                  return center.x / region.points.length
+                                })())}, Z: {Math.round(regions.regions.find(r => r.id === regions.selectedRegionId)?.centerPoint?.z ?? 
+                                (() => {
+                                  const region = regions.regions.find(r => r.id === regions.selectedRegionId)
+                                  if (!region) return 0
+                                  const center = region.points.reduce((acc, point) => ({ x: acc.x + point.x, z: acc.z + point.z }), { x: 0, z: 0 })
+                                  return center.z / region.points.length
+                                })())}
+                            </span>
+                            {regions.regions.find(r => r.id === regions.selectedRegionId)?.centerPoint && (
+                              <span className="text-blue-400 text-xs ml-2">(Custom)</span>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => {
+                              const region = regions.regions.find(r => r.id === regions.selectedRegionId)
+                              if (region) {
+                                const center = region.centerPoint || region.points.reduce((acc, point) => ({ x: acc.x + point.x, z: acc.z + point.z }), { x: 0, z: 0 })
+                                const centerX = region.centerPoint ? center.x : center.x / region.points.length
+                                const centerZ = region.centerPoint ? center.z : center.z / region.points.length
+                                const tpCommand = `/tp @s ${Math.round(centerX)} ~ ${Math.round(centerZ)}`
+                                navigator.clipboard.writeText(tpCommand)
+                              }
+                            }}
+                            className="text-blue-400 hover:text-blue-300 text-xs px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+                            title="Copy /tp command to clipboard"
+                          >
+                            Copy /tp
+                          </button>
+                        </div>
+                        {mapCanvas.isSettingCenterPoint && mapCanvas.centerPointRegionId === regions.selectedRegionId && (
+                          <div className="mt-2 p-2 bg-purple-900 border border-purple-600 rounded text-xs text-purple-200">
+                            Click anywhere on the map to set the region heart for this region
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="bg-gray-700 p-3 rounded border border-gray-600 space-y-3">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-400 mb-1">X Coordinate</label>
+                            <input
+                              type="number"
+                              value={customCenterX}
+                              onChange={(e) => setCustomCenterX(e.target.value)}
+                              placeholder="X"
+                              className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-blue-400 focus:outline-none text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-400 mb-1">Z Coordinate</label>
+                            <input
+                              type="number"
+                              value={customCenterZ}
+                              onChange={(e) => setCustomCenterZ(e.target.value)}
+                              placeholder="Z"
+                              className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-blue-400 focus:outline-none text-sm"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={handleSetCustomCenter}
+                            disabled={!customCenterX || !customCenterZ}
+                            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:text-gray-400 text-white text-sm px-2 py-1 rounded"
+                          >
+                            Set Region Heart
+                          </button>
+                          <button
+                            onClick={handleUseCalculatedCenter}
+                            className="flex-1 bg-gray-600 hover:bg-gray-700 text-white text-sm px-2 py-1 rounded"
+                          >
+                            Use Calculated
+                          </button>
+                          <button
+                            onClick={() => setShowCustomCenterForm(false)}
+                            className="flex-1 bg-gray-600 hover:bg-gray-700 text-white text-sm px-2 py-1 rounded"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-400 p-3 bg-gray-800/50 rounded-md">
+                    Select a region to set its heart
+                  </div>
+                )}
               </div>
             </div>
           )}
