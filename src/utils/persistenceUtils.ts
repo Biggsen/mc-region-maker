@@ -12,7 +12,9 @@ const STORAGE_KEYS = {
   REGIONS: 'mc-region-maker-regions',
   SELECTED_REGION: 'mc-region-maker-selected-region',
   IMAGE_DETAILS: 'mc-region-maker-image-details',
-  ACTIVE_TAB: 'mc-region-maker-active-tab'
+  ACTIVE_TAB: 'mc-region-maker-active-tab',
+  WORLD_NAME: 'mc-region-maker-world-name',
+  WORLD_TYPE: 'mc-region-maker-world-type'
 }
 
 // Get image source URL for storage
