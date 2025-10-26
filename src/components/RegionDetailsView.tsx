@@ -5,6 +5,7 @@ import { generateRegionName } from '../utils/nameGenerator'
 import { ChallengeLevel, Region, EditMode } from '../types'
 import { YAMLDisplay } from './YAMLDisplay'
 import { VillageManager } from './VillageManager'
+import { ArrowLeft } from 'lucide-react'
 
 interface RegionDetailsViewProps {
   selectedRegion: Region
@@ -123,14 +124,15 @@ export function RegionDetailsView({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center mb-4">
+      <div className="space-y-4">
         <button
           onClick={onBack}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded border border-blue-500 text-sm mr-3 transition-colors"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded border border-blue-500 transition-colors flex items-center justify-center gap-2"
         >
-          ← Back
+          <ArrowLeft className="w-4 h-4" />
+          Back
         </button>
-        <h2 className="text-xl font-bold text-white">Region Details</h2>
+        <h1 className="text-2xl font-bold text-white">{selectedRegion.name}</h1>
       </div>
 
       {isEditing && (
@@ -151,6 +153,7 @@ export function RegionDetailsView({
       )}
 
       <div>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Region name</label>
         <div className="flex space-x-2">
           <input
             type="text"
