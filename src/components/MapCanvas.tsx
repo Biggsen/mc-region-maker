@@ -36,6 +36,7 @@ export function MapCanvas() {
   const [isSpacePressed, setIsSpacePressed] = useState(false)
   const [mouseCoordinates, setMouseCoordinates] = useState<{ x: number; z: number } | null>(null)
   const [isMouseDown, setIsMouseDown] = useState(false)
+  const [isMovingRegion, setIsMovingRegion] = useState(false)
   const [isMouseOverCanvas, setIsMouseOverCanvas] = useState(false)
   const [isCoordinateDialogOpen, setIsCoordinateDialogOpen] = useState(false)
   const lastFreehandPointRef = useRef<{ x: number; z: number } | null>(null)
@@ -87,6 +88,9 @@ export function MapCanvas() {
 
   // Determine cursor style based on current mode
   const getCursorStyle = () => {
+    if (editMode.isMovingRegion) {
+      return isMovingRegion ? 'cursor-grabbing' : 'cursor-grab'
+    }
     if (editMode.isEditing) {
       return editMode.draggingPointIndex !== null ? 'cursor-grabbing' : 'cursor-grab'
     }
@@ -210,14 +214,17 @@ export function MapCanvas() {
           stopSettingCenterPoint()
         }
       } else if (editMode.isMovingRegion && mapState.image && mapState.originSelected) {
-        // Move region to new position
+        // Start dragging the region to move it - only if clicking inside the region
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
         const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image.width, mapState.image.height, mapState.originOffset)
         
         if (editMode.movingRegionId) {
-          moveRegionToPosition(editMode.movingRegionId, worldPos.x, worldPos.z)
+          const movingRegion = regions.regions.find(r => r.id === editMode.movingRegionId)
+          // Start the drag - check current position, not original
+          if (movingRegion && isPointInPolygon(worldPos, movingRegion.points)) {
+            setIsMovingRegion(true)
+          }
         }
-        finishMoveRegion()
       } else if (mapState.image && mapState.originSelected) {
         // Check if clicking on a region
         const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
@@ -249,19 +256,25 @@ export function MapCanvas() {
       }
       // Note: Panning is only allowed when space key is pressed (handled in the first condition)
     }
-  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, editMode.isEditing, setOrigin, addPointToDrawing, finishDrawingRegion, startDragging, regions, spawnState.isPlacing, setSpawnCoordinates])
+  }, [mapState.originSelected, mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, drawingRegion, isSpacePressed, editMode.isEditing, editMode.isMovingRegion, editMode.movingRegionId, editMode.originalRegionPoints, setIsMovingRegion, setOrigin, addPointToDrawing, finishDrawingRegion, startDragging, regions, spawnState.isPlacing, setSpawnCoordinates, isSettingCenterPoint, centerPointRegionId, stopSettingCenterPoint, isWarping, warpRadius, warpStrength, warpRegion, addSplitPoint, editMode.isSplittingRegion, editMode.splitPoints])
 
   const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (e.button === 0) {
       stopDragging()
       setIsMouseDown(false)
+      
+      // Stop the drag but stay in move mode so user can grab and move again
+      if (isMovingRegion) {
+        setIsMovingRegion(false)
+      }
+      
       // Always attempt to finalize a drawing on mouse up when we have a valid polygon
       if (drawingRegion && drawingRegion.points.length >= 3) {
         finishDrawingRegion()
       }
       lastFreehandPointRef.current = null
     }
-  }, [stopDragging])
+  }, [stopDragging, isMovingRegion, drawingRegion, finishDrawingRegion])
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
@@ -277,8 +290,8 @@ export function MapCanvas() {
       const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image.width, mapState.image.height, mapState.originOffset)
       setMouseCoordinates(worldPos)
       
-      // Real-time region movement preview
-      if (editMode.isMovingRegion) {
+      // Real-time region movement preview while dragging
+      if (isMovingRegion && isMouseDown) {
         updateMoveRegion(worldPos.x, worldPos.z)
       }
 
@@ -303,7 +316,7 @@ export function MapCanvas() {
     }
 
     handleMouseMove(x, y)
-  }, [mapState.image, mapState.originSelected, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, handleMouseMove, editMode.isMovingRegion, updateMoveRegion, isWarping, isMouseDown, regions.selectedRegionId, isSpacePressed, editMode.isEditing, warpRegion, warpRadius, warpStrength])
+  }, [mapState.image, mapState.originSelected, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, handleMouseMove, isMovingRegion, isMouseDown, updateMoveRegion, isWarping, regions.selectedRegionId, isSpacePressed, editMode.isEditing, warpRegion, warpRadius, warpStrength, regions.freehandEnabled, drawingRegion, addPointToDrawing])
 
   const onWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault()
@@ -392,6 +405,18 @@ export function MapCanvas() {
       {editMode.isEditing && (
         <div className="absolute top-4 left-4 z-10 bg-green-600/90 text-white px-3 py-1 text-sm font-medium">
           Edit Mode
+        </div>
+      )}
+      
+      {editMode.isMovingRegion && (
+        <div className="absolute top-4 left-4 z-10 bg-green-600/90 text-white px-3 py-1 text-sm font-medium">
+          Move Mode
+        </div>
+      )}
+      
+      {editMode.isSplittingRegion && (
+        <div className="absolute top-4 left-4 z-10 bg-green-600/90 text-white px-3 py-1 text-sm font-medium">
+          Split Mode
         </div>
       )}
       

@@ -26,6 +26,7 @@ export function RegionPanel() {
     setCustomCenterPoint,
     startMoveRegion,
     cancelMoveRegion,
+    finishMoveRegion,
     doubleRegionVertices,
     halveRegionVertices,
     simplifyRegionVertices,
@@ -228,6 +229,7 @@ export function RegionPanel() {
           onStopEditMode={stopEditMode}
           onStartMoveRegion={startMoveRegion}
           onCancelMoveRegion={cancelMoveRegion}
+          onFinishMoveRegion={finishMoveRegion}
           onStartSplitRegion={startSplitRegion}
           onFinishSplitRegion={finishSplitRegion}
           onCancelSplitRegion={cancelSplitRegion}

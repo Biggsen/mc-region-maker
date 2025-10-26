@@ -4,7 +4,7 @@ import { generateRegionName } from '../utils/nameGenerator'
 import { Region, EditMode } from '../types'
 import { YAMLDisplay } from './YAMLDisplay'
 import { VillageManager } from './VillageManager'
-import { ArrowLeft, VectorSquare, Plus, Minus, BrushCleaning, Hand, Paintbrush } from 'lucide-react'
+import { ArrowLeft, VectorSquare, Plus, Minus, BrushCleaning, Hand, Paintbrush, Move, Scissors } from 'lucide-react'
 
 interface RegionDetailsViewProps {
   selectedRegion: Region
@@ -19,6 +19,7 @@ interface RegionDetailsViewProps {
   onStopEditMode: () => void
   onStartMoveRegion: (regionId: string, x: number, z: number) => void
   onCancelMoveRegion: () => void
+  onFinishMoveRegion: () => void
   onStartSplitRegion: (regionId: string) => void
   onFinishSplitRegion: () => void
   onCancelSplitRegion: () => void
@@ -48,6 +49,7 @@ export function RegionDetailsView({
   onStopEditMode,
   onStartMoveRegion,
   onCancelMoveRegion,
+  onFinishMoveRegion,
   onStartSplitRegion,
   onFinishSplitRegion,
   onCancelSplitRegion,
@@ -260,70 +262,87 @@ export function RegionDetailsView({
         </div>
       </div>
 
-      <div className="flex space-x-2">
-        <button
-          onClick={() => {
-            if (editMode.isMovingRegion) {
-              onCancelMoveRegion()
-            } else {
+      {!editMode.isMovingRegion && (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => {
               // Start move mode - user will click on map to set new position
               const center = calculateRegionCenter(selectedRegion)
               onStartMoveRegion(selectedRegion.id, center.x, center.z)
-            }
-          }}
-          className={`flex-1 font-medium py-2 px-4 rounded ${
-            editMode.isMovingRegion
-              ? 'bg-red-600 hover:bg-red-700 text-white'
-              : 'bg-green-600 hover:bg-green-700 text-white'
-          }`}
-        >
-          {editMode.isMovingRegion ? 'Cancel Move' : 'Move Region'}
-        </button>
-        {editMode.isMovingRegion && (
-          <div className="flex-1 bg-yellow-900 border border-yellow-600 rounded p-2">
-            <p className="text-yellow-200 text-xs text-center">
-              Click on map to move region
-            </p>
-          </div>
-        )}
-      </div>
+            }}
+            className="flex-1 font-medium py-2 px-4 rounded bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
+          >
+            <Move className="w-4 h-4" />
+            Move Region
+          </button>
+        </div>
+      )}
 
-      <div className="flex space-x-2">
-        <button
-          onClick={() => {
-            if (editMode.isSplittingRegion) {
-              if (editMode.splitPoints.length === 2) {
-                onFinishSplitRegion()
-              } else {
-                onCancelSplitRegion()
-              }
-            } else {
-              onStartSplitRegion(selectedRegion.id)
-            }
-          }}
-          className={`flex-1 font-medium py-2 px-4 rounded ${
-            editMode.isSplittingRegion
-              ? editMode.splitPoints.length === 2
-                ? 'bg-green-600 hover:bg-green-700 text-white'
-                : 'bg-red-600 hover:bg-red-700 text-white'
-              : 'bg-purple-600 hover:bg-purple-700 text-white'
-          }`}
-        >
-          {editMode.isSplittingRegion 
-            ? editMode.splitPoints.length === 2 
-              ? 'Split Region' 
-              : 'Cancel Split'
-            : 'Split Region'
-          }
-        </button>
-        {editMode.isSplittingRegion && (
-          <div className="flex-1 bg-purple-900 border border-purple-600 rounded p-2">
-            <p className="text-purple-200 text-xs text-center">
-              Click 2 points on region edge to split ({editMode.splitPoints.length}/2)
-            </p>
+      {editMode.isMovingRegion && (
+        <div className="mb-4 p-3 bg-green-900 border border-green-600 rounded">
+          <p className="text-green-200 text-base">
+            <strong>Move Mode</strong>
+          </p>
+          <p className="text-green-300 text-sm mt-1">
+            Click and drag the region to move it. Release to drop it in the new location.
+          </p>
+          <div className="flex space-x-2 mt-3">
+            <button
+              onClick={onFinishMoveRegion}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
+            >
+              Done
+            </button>
+            <button
+              onClick={onCancelMoveRegion}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded"
+            >
+              Cancel
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {!editMode.isSplittingRegion && (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => {
+              onStartSplitRegion(selectedRegion.id)
+            }}
+            className="flex-1 font-medium py-2 px-4 rounded bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
+          >
+            <Scissors className="w-4 h-4" />
+            Split Region
+          </button>
+        </div>
+      )}
+
+      {editMode.isSplittingRegion && (
+        <div className="mb-4 p-3 bg-green-900 border border-green-600 rounded">
+          <p className="text-green-200 text-base">
+            <strong>Split Mode</strong>
+          </p>
+          <p className="text-green-300 text-sm mt-1">
+            Click 2 points on the region edge to define where to split it. ({editMode.splitPoints.length}/2 points selected)
+          </p>
+          <div className="flex space-x-2 mt-3">
+            {editMode.splitPoints.length === 2 && (
+              <button
+                onClick={onFinishSplitRegion}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
+              >
+                Split Region
+              </button>
+            )}
+            <button
+              onClick={onCancelSplitRegion}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <YAMLDisplay
         yamlContent={selectedRegion.id} // This will need to be passed from parent
