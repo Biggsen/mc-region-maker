@@ -4,6 +4,7 @@ import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/poly
 import { clearSavedData } from '../utils/persistenceUtils'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
+import { Trash2 } from 'lucide-react'
 
 export function RegionPanel() {
   const { regions, worldType } = useAppContext()
@@ -94,10 +95,6 @@ export function RegionPanel() {
         // Region List View
         <>
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-white mb-4">Regions ({regionsList.length})</h2>
-            
-            
-            
             {/* Search Input */}
             <div className="mb-4">
               <input
@@ -111,18 +108,30 @@ export function RegionPanel() {
             
             <RegionCreationForm
               worldType={worldType.worldType}
-              regionsCount={regionsList.length}
               onStartDrawing={(name, freehand) => {
                 regions.setFreehandEnabled(freehand)
                 startDrawingRegion(name)
               }}
-              onDeleteAllRegions={() => {
-                      if (confirm(`Are you sure you want to delete all ${regionsList.length} regions? This action cannot be undone.`)) {
-                        regions.replaceRegions([])
-                        regions.setSelectedRegionId(null)
-                      }
-                    }}
             />
+          </div>
+
+          {/* Region Counter */}
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white">Regions ({regionsList.length})</h2>
+            {regionsList.length > 0 && (
+              <button
+                onClick={() => {
+                  if (confirm(`Are you sure you want to delete all ${regionsList.length} regions? This action cannot be undone.`)) {
+                    regions.replaceRegions([])
+                    regions.setSelectedRegionId(null)
+                  }
+                }}
+                className="text-red-400 hover:text-red-300 text-sm underline hover:no-underline transition-colors flex items-center gap-1"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete all
+              </button>
+            )}
           </div>
 
           {drawingRegion && (
@@ -183,6 +192,13 @@ export function RegionPanel() {
                 </div>
               )
             })}
+            
+            {filteredRegions.length === 0 && (
+              <div className="text-center py-8 text-gray-400">
+                <p className="text-lg mb-2">No regions</p>
+                <p className="text-sm">Create your first region to get started</p>
+              </div>
+            )}
             
             {filteredRegions.length > 5 && (
               <button

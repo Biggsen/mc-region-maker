@@ -3,16 +3,12 @@ import { generateRegionName } from '../utils/nameGenerator'
 
 interface RegionCreationFormProps {
   worldType: 'overworld' | 'nether'
-  regionsCount: number
   onStartDrawing: (name: string, freehand: boolean) => void
-  onDeleteAllRegions: () => void
 }
 
 export function RegionCreationForm({ 
   worldType, 
-  regionsCount, 
-  onStartDrawing, 
-  onDeleteAllRegions 
+  onStartDrawing
 }: RegionCreationFormProps) {
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
@@ -47,14 +43,6 @@ export function RegionCreationForm({
         >
           Create New Region
         </button>
-        {regionsCount > 0 && (
-          <button
-            onClick={onDeleteAllRegions}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded"
-          >
-            Delete All Regions
-          </button>
-        )}
       </div>
     )
   }
