@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
+import { Pencil } from 'lucide-react'
 
 export function WorldNameHeading() {
   const { worldName, worldType } = useAppContext()
@@ -52,9 +53,10 @@ export function WorldNameHeading() {
       ) : (
         <h1 
           onClick={handleClick}
-          className="text-3xl font-bold text-white cursor-pointer hover:text-blue-300 transition-colors px-2 py-1 rounded"
+          className="text-3xl font-bold text-white cursor-pointer hover:text-blue-300 transition-colors px-2 py-1 rounded flex items-center gap-2"
         >
           {worldName.worldName}
+          <Pencil className="w-5 h-5 text-gray-400 hover:text-blue-300 transition-colors" />
         </h1>
       )}
       
