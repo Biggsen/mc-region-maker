@@ -97,13 +97,13 @@ export function SpawnButton() {
   }
 
   return (
-    <div className="space-y-2 mb-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-white">Spawn Point</h3>
+        <h5 className="text-sm font-medium text-white">Spawn Point</h5>
         {spawnState.coordinates && (
           <button
             onClick={handleClearSpawn}
-            className="text-red-400 hover:text-red-300 text-sm"
+            className="text-red-400 hover:text-red-300 text-xs"
             title="Clear spawn point"
           >
             Clear

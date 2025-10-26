@@ -12,6 +12,12 @@ export function AdvancedPanel() {
   const [isImporting, setIsImporting] = useState(false)
   const [villageImportError, setVillageImportError] = useState<string | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
+  const [isOtherRegionTypesExpanded, setIsOtherRegionTypesExpanded] = useState(false)
+  const [isPluginsExpanded, setIsPluginsExpanded] = useState(false)
+  const [isWorldTypeExpanded, setIsWorldTypeExpanded] = useState(false)
+  const [isVillagesExpanded, setIsVillagesExpanded] = useState(false)
+  const [isImportExpanded, setIsImportExpanded] = useState(false)
+  const [isRegionSpecificExpanded, setIsRegionSpecificExpanded] = useState(false)
 
   const handleGenerateAchievements = () => {
     generateAchievementsYAML(regions.regions, worldType.worldType)
@@ -118,136 +124,284 @@ export function AdvancedPanel() {
       <div className="space-y-4">
         {/* World Type Toggle */}
         <div>
-          <h4 className="text-sm font-medium text-gray-300 mb-2">World Type</h4>
-          <div className="flex gap-2">
-            <button
-              onClick={() => worldType.setWorldType('overworld')}
-              className={`text-sm px-3 py-1 rounded border ${
-                worldType.worldType === 'overworld'
-                  ? 'bg-green-600 text-white border-green-500'
-                  : 'text-green-400 hover:text-green-300 border-green-400 hover:border-green-300'
+          <button
+            onClick={() => setIsWorldTypeExpanded(!isWorldTypeExpanded)}
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <span>World Type</span>
+            <svg
+              className={`w-4 h-4 transition-transform duration-200 ${
+                isWorldTypeExpanded ? 'rotate-90' : ''
               }`}
-              title="Generate overworld-style names"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Overworld
-            </button>
-            <button
-              onClick={() => worldType.setWorldType('nether')}
-              className={`text-sm px-3 py-1 rounded border ${
-                worldType.worldType === 'nether'
-                  ? 'bg-red-600 text-white border-red-500'
-                  : 'text-red-400 hover:text-red-300 border-red-400 hover:border-red-300'
-              }`}
-              title="Generate nether-style names"
-            >
-              Nether
-            </button>
-          </div>
-        </div>
-
-        {worldType.worldType !== 'nether' && <SpawnButton />}
-
-        <RegionActions
-          regions={availableRegions}
-          onRandomizeChallengeLevels={handleRandomizeChallengeLevels}
-        />
-
-        {/* Villages Counter */}
-        {(() => {
-          const hasVillages = availableRegions.some(region => region.subregions && region.subregions.length > 0)
-          const totalVillages = availableRegions.reduce((total, region) => total + (region.subregions?.length || 0), 0)
-          
-          if (hasVillages) {
-            return (
-              <div>
-                <h4 className="text-sm font-medium text-gray-300 mb-2">Villages</h4>
-                <div className="text-lg font-semibold text-white">
-                  {totalVillages} villages across {availableRegions.length} regions
-                </div>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          {isWorldTypeExpanded && (
+            <div className="ml-4">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => worldType.setWorldType('overworld')}
+                  className={`text-sm px-3 py-1 rounded border ${
+                    worldType.worldType === 'overworld'
+                      ? 'bg-green-600 text-white border-green-500'
+                      : 'text-green-400 hover:text-green-300 border-green-400 hover:border-green-300'
+                  }`}
+                  title="Generate overworld-style names"
+                >
+                  Overworld
+                </button>
+                <button
+                  onClick={() => worldType.setWorldType('nether')}
+                  className={`text-sm px-3 py-1 rounded border ${
+                    worldType.worldType === 'nether'
+                      ? 'bg-red-600 text-white border-red-500'
+                      : 'text-red-400 hover:text-red-300 border-red-400 hover:border-red-300'
+                  }`}
+                  title="Generate nether-style names"
+                >
+                  Nether
+                </button>
               </div>
-            )
-          }
-          return null
-        })()}
-
-        <div className="space-y-2">
-          <button
-            onClick={handleGenerateAchievements}
-            disabled={availableRegions.length === 0}
-            className="w-full bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-          >
-            Generate Achievements
-          </button>
-
-          <button
-            onClick={handleGenerateEventConditions}
-            disabled={availableRegions.length === 0}
-            className="w-full bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-          >
-            Generate Event Conditions
-          </button>
-
-          <button
-            onClick={handleGenerateLevelledMobsRules}
-            disabled={availableRegions.length === 0}
-            className="w-full bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-          >
-            Generate LevelledMobs Rules
-          </button>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-sm text-gray-300">
-            Import regions from JSON project files
-          </div>
-          
-          <button
-            onClick={triggerFileInput}
-            disabled={isImporting}
-            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-          >
-            {isImporting ? 'Importing...' : 'Import regions'}
-          </button>
-
-          <input
-            ref={importFileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleImport}
-            className="hidden"
-          />
-
-          {importError && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-md text-sm">
-              {importError}
             </div>
           )}
         </div>
 
-        <div className="space-y-2">
-          <div className="text-sm text-gray-300">
-            Import villages from CSV files generated by seed map tools
-          </div>
-          
+
+        {/* Other region types */}
+        <div>
           <button
-            onClick={triggerVillageFileInput}
-            disabled={isImportingVillages}
-            className="w-full bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            onClick={() => setIsOtherRegionTypesExpanded(!isOtherRegionTypesExpanded)}
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            {isImportingVillages ? 'Importing...' : 'Import Villages (CSV)'}
+            <span>Spawn</span>
+            <svg
+              className={`w-4 h-4 transition-transform duration-200 ${
+                isOtherRegionTypesExpanded ? 'rotate-90' : ''
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </button>
+          {isOtherRegionTypesExpanded && (
+            <div className="space-y-2 ml-4">
+              {worldType.worldType !== 'nether' && <SpawnButton />}
+            </div>
+          )}
+        </div>
 
-          <input
-            ref={villageFileInputRef}
-            type="file"
-            accept=".csv"
-            onChange={handleVillageImport}
-            className="hidden"
-          />
+        {/* Plugins */}
+        <div>
+          <button
+            onClick={() => setIsPluginsExpanded(!isPluginsExpanded)}
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <span>Plugins</span>
+            <svg
+              className={`w-4 h-4 transition-transform duration-200 ${
+                isPluginsExpanded ? 'rotate-90' : ''
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          {isPluginsExpanded && (
+            <div className="space-y-4 ml-4">
+              <div className="space-y-2">
+                <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wide">AdvancedAchievements</h5>
+                <button
+                  onClick={handleGenerateAchievements}
+                  disabled={availableRegions.length === 0}
+                  className="w-full bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                >
+                  Generate Achievements
+                </button>
+              </div>
 
-          {villageImportError && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-md text-sm">
-              {villageImportError}
+              <div className="space-y-2">
+                <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wide">ConditionalEvents</h5>
+                <button
+                  onClick={handleGenerateEventConditions}
+                  disabled={availableRegions.length === 0}
+                  className="w-full bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                >
+                  Generate Event Conditions
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wide">LevelledMobs</h5>
+                <button
+                  onClick={handleGenerateLevelledMobsRules}
+                  disabled={availableRegions.length === 0}
+                  className="w-full bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                >
+                  Generate LevelledMobs Rules
+                </button>
+                <RegionActions
+                  regions={availableRegions}
+                  onRandomizeChallengeLevels={handleRandomizeChallengeLevels}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Villages */}
+        <div>
+          <button
+            onClick={() => setIsVillagesExpanded(!isVillagesExpanded)}
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <span>Villages</span>
+            <svg
+              className={`w-4 h-4 transition-transform duration-200 ${
+                isVillagesExpanded ? 'rotate-90' : ''
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          {isVillagesExpanded && (
+            <div className="ml-4 space-y-4">
+              {/* Villages Counter */}
+              {(() => {
+                const hasVillages = availableRegions.some(region => region.subregions && region.subregions.length > 0)
+                const totalVillages = availableRegions.reduce((total, region) => total + (region.subregions?.length || 0), 0)
+                
+                if (hasVillages) {
+                  return (
+                    <div>
+                      <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Village Count</h5>
+                      <div className="text-lg font-semibold text-white">
+                        {totalVillages} villages across {availableRegions.length} regions
+                      </div>
+                    </div>
+                  )
+                }
+                return null
+              })()}
+
+              {/* Village Import */}
+              <div className="space-y-2">
+                <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Import Villages</h5>
+                <div className="text-sm text-gray-300">
+                  Import villages from CSV files generated by seed map tools
+                </div>
+                
+                <button
+                  onClick={triggerVillageFileInput}
+                  disabled={isImportingVillages}
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                >
+                  {isImportingVillages ? 'Importing...' : 'Import Villages (CSV)'}
+                </button>
+
+                <input
+                  ref={villageFileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleVillageImport}
+                  className="hidden"
+                />
+
+                {villageImportError && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-md text-sm">
+                    {villageImportError}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Import */}
+        <div>
+          <button
+            onClick={() => setIsImportExpanded(!isImportExpanded)}
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <span>Import</span>
+            <svg
+              className={`w-4 h-4 transition-transform duration-200 ${
+                isImportExpanded ? 'rotate-90' : ''
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          {isImportExpanded && (
+            <div className="ml-4 space-y-4">
+              <div className="space-y-2">
+                <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Import Regions</h5>
+                <div className="text-sm text-gray-300">
+                  Import regions from JSON project files
+                </div>
+                
+                <button
+                  onClick={triggerFileInput}
+                  disabled={isImporting}
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                >
+                  {isImporting ? 'Importing...' : 'Import regions'}
+                </button>
+
+                <input
+                  ref={importFileInputRef}
+                  type="file"
+                  accept=".json"
+                  onChange={handleImport}
+                  className="hidden"
+                />
+
+                {importError && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-md text-sm">
+                    {importError}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Region Specific */}
+        <div>
+          <button
+            onClick={() => setIsRegionSpecificExpanded(!isRegionSpecificExpanded)}
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <span>Region Specific</span>
+            <svg
+              className={`w-4 h-4 transition-transform duration-200 ${
+                isRegionSpecificExpanded ? 'rotate-90' : ''
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          {isRegionSpecificExpanded && (
+            <div className="ml-4 space-y-4">
+              <div className="text-sm text-gray-400 p-3 bg-gray-800/50 rounded-md">
+                Region-specific tools will be available here.
+              </div>
             </div>
           )}
         </div>

@@ -35,7 +35,6 @@ export function RegionActions({ regions, onRandomizeChallengeLevels }: RegionAct
 
   return (
     <div className="mb-4">
-      <h4 className="text-sm font-medium text-gray-300 mb-2">Region Actions</h4>
       <button
         onClick={onRandomizeChallengeLevels}
         className="text-green-400 hover:text-green-300 text-sm px-3 py-2 rounded border border-green-400 hover:border-green-300 hover:bg-green-900/20 transition-colors"
