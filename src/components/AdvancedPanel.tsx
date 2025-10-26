@@ -1,12 +1,15 @@
 import React, { useRef, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
+import { generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML, importMapData } from '../utils/exportUtils'
 
 export function AdvancedPanel() {
   const { regions, worldType } = useAppContext()
   const villageFileInputRef = useRef<HTMLInputElement>(null)
+  const importFileInputRef = useRef<HTMLInputElement>(null)
   const [isImportingVillages, setIsImportingVillages] = useState(false)
+  const [isImporting, setIsImporting] = useState(false)
   const [villageImportError, setVillageImportError] = useState<string | null>(null)
+  const [importError, setImportError] = useState<string | null>(null)
 
   const handleGenerateAchievements = () => {
     generateAchievementsYAML(regions.regions, worldType.worldType)
@@ -66,6 +69,36 @@ export function AdvancedPanel() {
     }
   }
 
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setIsImporting(true)
+    setImportError(null)
+
+    try {
+      const importData = await importMapData(file)
+      
+      // Import only regions, ignore all other data
+      regions.replaceRegions(importData.regions)
+      regions.setSelectedRegionId(null)
+      console.log('Imported regions only from map export')
+      
+      // Clear the file input
+      if (importFileInputRef.current) {
+        importFileInputRef.current.value = ''
+      }
+    } catch (error) {
+      setImportError(error instanceof Error ? error.message : 'Import failed')
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
+  const triggerFileInput = () => {
+    importFileInputRef.current?.click()
+  }
+
   const triggerVillageFileInput = () => {
     villageFileInputRef.current?.click()
   }
@@ -101,6 +134,34 @@ export function AdvancedPanel() {
           >
             Generate LevelledMobs Rules
           </button>
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-sm text-gray-300">
+            Import regions from JSON project files
+          </div>
+          
+          <button
+            onClick={triggerFileInput}
+            disabled={isImporting}
+            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          >
+            {isImporting ? 'Importing...' : 'Import regions'}
+          </button>
+
+          <input
+            ref={importFileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleImport}
+            className="hidden"
+          />
+
+          {importError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-md text-sm">
+              {importError}
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
