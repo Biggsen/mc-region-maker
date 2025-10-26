@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { AppProvider, useAppContext } from '../context/AppContext'
 import { MapCanvas } from './MapCanvas'
 import { RegionPanel } from './RegionPanel'
-import { ExportImportPanel } from './ExportImportPanel'
+import { ExportPanel } from './ExportPanel'
 import { AdvancedPanel } from './AdvancedPanel'
 import { LoadingOverlay } from './LoadingOverlay'
 import { WorldNameHeading } from './WorldNameHeading'
@@ -202,7 +202,7 @@ function MainAppContent() {
             )}
             
             {activeTab === 'export' && (
-              <ExportImportPanel />
+              <ExportPanel />
             )}
             
             {activeTab === 'advanced' && (

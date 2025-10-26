@@ -3,7 +3,7 @@ import { useAppContext } from '../context/AppContext'
 import { exportRegionsYAML } from '../utils/exportUtils'
 import { ExportDialog } from './ExportDialog'
 
-export function ExportImportPanel() {
+export function ExportPanel() {
   const { regions, spawn, worldType } = useAppContext()
   const [showExportDialog, setShowExportDialog] = useState(false)
 
