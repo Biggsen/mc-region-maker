@@ -1,18 +1,14 @@
 import React, { useRef, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
-import { exportRegionsYAML, importMapData, loadImageFromSrc, loadImageFromBase64, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
+import { exportRegionsYAML, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
-  const { regions, mapState, worldName, spawn, worldType, customMarkers } = useAppContext()
+  const { regions, mapState, worldName, spawn, worldType } = useAppContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const villageFileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
-  const [isImportingVillages, setIsImportingVillages] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
-  const [villageImportError, setVillageImportError] = useState<string | null>(null)
   const [showExportDialog, setShowExportDialog] = useState(false)
-  const [hasVillages, setHasVillages] = useState(false)
   const [importRegionsOnly, setImportRegionsOnly] = useState(false)
 
 
@@ -32,22 +28,6 @@ export function ExportImportPanel() {
     exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, finalIncludeSpawnRegion, spawnData, worldType.worldType)
   }
 
-  const handleGenerateAchievements = () => {
-    generateAchievementsYAML(regions.regions, worldType.worldType)
-  }
-
-  const handleGenerateEventConditions = () => {
-    generateEventConditionsYAML(regions.regions, worldType.worldType)
-  }
-
-  const handleGenerateLevelledMobsRules = () => {
-    const spawnData = spawn.spawnState.coordinates ? {
-      x: spawn.spawnState.coordinates.x,
-      z: spawn.spawnState.coordinates.z,
-      radius: spawn.spawnState.radius
-    } : null
-    generateLevelledMobsRulesYAML(regions.regions, worldName.worldName, spawnData)
-  }
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -133,76 +113,7 @@ export function ExportImportPanel() {
     fileInputRef.current?.click()
   }
 
-  const handleVillageImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
 
-    // Check if there are existing villages
-    const existingVillages = regions.regions.some(region => 
-      region.subregions && region.subregions.some(sub => sub.type === 'village')
-    )
-
-    if (existingVillages) {
-      const confirmed = confirm(
-        'You already have villages imported. Importing new villages will replace all existing villages. Continue?'
-      )
-      if (!confirmed) {
-        // Clear the file input
-        if (villageFileInputRef.current) {
-          villageFileInputRef.current.value = ''
-        }
-        return
-      }
-    }
-
-    setIsImportingVillages(true)
-    setVillageImportError(null)
-
-    try {
-      const content = await file.text()
-      const results = regions.importVillagesFromCSV(content)
-      
-      let message = `Imported ${results.added} villages into regions.`
-      if (results.orphaned > 0) {
-        message += `\n${results.orphaned} villages were outside all regions and skipped.`
-        
-        if (results.orphanedVillages && results.orphanedVillages.length > 0) {
-          message += '\n\nOrphaned village coordinates:'
-          results.orphanedVillages.forEach(village => {
-            message += `\n• ${village.type} at (${village.x}, ${village.z}) - ${village.details}`
-          })
-          
-          // Add orphaned villages as markers
-          customMarkers.addOrphanedVillageMarkers(results.orphanedVillages)
-        }
-      }
-      
-      alert(message)
-      setHasVillages(results.added > 0)
-      
-      // Clear the file input
-      if (villageFileInputRef.current) {
-        villageFileInputRef.current.value = ''
-      }
-    } catch (error) {
-      setVillageImportError(error instanceof Error ? error.message : 'Import failed')
-    } finally {
-      setIsImportingVillages(false)
-    }
-  }
-
-  const handleRegenerateNames = () => {
-    if (confirm('This will regenerate all village names with new medieval names. Continue?')) {
-      regions.regenerateVillageNames()
-      setHasVillages(true)
-    }
-  }
-
-  const triggerVillageFileInput = () => {
-    villageFileInputRef.current?.click()
-  }
-
-  const availableRegions = regions.regions.filter(r => r.points.length >= 3)
   const computedHasVillages = regions.regions.some(region => region.subregions && region.subregions.length > 0)
 
   return (
@@ -256,29 +167,6 @@ export function ExportImportPanel() {
           className="hidden"
         />
 
-        <button
-          onClick={handleGenerateAchievements}
-          disabled={regions.regions.length === 0}
-          className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-        >
-          Generate Achievements
-        </button>
-
-        <button
-          onClick={handleGenerateEventConditions}
-          disabled={regions.regions.length === 0}
-          className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-        >
-          Generate Event Conditions
-        </button>
-
-        <button
-          onClick={handleGenerateLevelledMobsRules}
-          disabled={regions.regions.length === 0 && !spawn.spawnState.coordinates}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-        >
-          Generate LevelledMobs Rules
-        </button>
 
         {importError && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-md text-sm">
@@ -286,51 +174,6 @@ export function ExportImportPanel() {
           </div>
         )}
 
-        {/* Village Import Section */}
-        <div className="text-xs text-gray-500 mb-2">
-          Import villages from CSV files generated by seed map tools
-          {worldType.worldType === 'nether' && (
-            <div className="text-yellow-400 mt-1">
-              Note: Villages use overworld naming (villages don't exist in the nether)
-            </div>
-          )}
-        </div>
-        <button
-          onClick={triggerVillageFileInput}
-          disabled={availableRegions.length === 0 || isImportingVillages}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-        >
-          {isImportingVillages ? 'Importing...' : 'Import Villages (CSV)'}
-        </button>
-
-        <input
-          ref={villageFileInputRef}
-          type="file"
-          accept=".csv"
-          onChange={handleVillageImport}
-          className="hidden"
-        />
-
-        {hasVillages && (
-          <button
-            onClick={handleRegenerateNames}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
-          >
-            🎲 Regenerate Village Names
-          </button>
-        )}
-
-        {availableRegions.length === 0 && (
-          <div className="text-yellow-600 text-sm">
-            No regions available. Create at least one region first.
-          </div>
-        )}
-
-                 {villageImportError && (
-           <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-md text-sm">
-             {villageImportError}
-           </div>
-         )}
        </div>
 
        <ExportDialog

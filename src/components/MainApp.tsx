@@ -3,6 +3,7 @@ import { AppProvider, useAppContext } from '../context/AppContext'
 import { MapCanvas } from './MapCanvas'
 import { RegionPanel } from './RegionPanel'
 import { ExportImportPanel } from './ExportImportPanel'
+import { AdvancedPanel } from './AdvancedPanel'
 import { LoadingOverlay } from './LoadingOverlay'
 import { WorldNameHeading } from './WorldNameHeading'
 import { SpawnButton } from './SpawnButton'
@@ -10,18 +11,23 @@ import { ImageImportHandler } from './ImageImportHandler'
 import { MapLoaderControls } from './MapLoaderControls'
 import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
 import { saveActiveTab, loadActiveTab } from '../utils/persistenceUtils'
-import { Map, Edit3, Download, FolderOpen, Save } from 'lucide-react'
+import { Map, Edit3, Download, FolderOpen, Save, Settings } from 'lucide-react'
 
-type TabType = 'map' | 'regions' | 'export'
+type TabType = 'map' | 'regions' | 'export' | 'advanced'
 
 function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabChange: (tab: TabType) => void }) {
   const { regions, mapState, worldName, spawn, worldType } = useAppContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
   
+  // Check URL parameter for advanced features
+  const urlParams = new URLSearchParams(window.location.search)
+  const showAdvancedTab = urlParams.get('advanced') === 'true'
+  
   const tabs = [
     { id: 'map', label: 'Map (Generate PNG)', icon: Map },
     { id: 'regions', label: 'Regions (Editor)', icon: Edit3 },
-    { id: 'export', label: 'Export', icon: Download }
+    { id: 'export', label: 'Export', icon: Download },
+    ...(showAdvancedTab ? [{ id: 'advanced', label: 'Advanced', icon: Settings }] : [])
   ] as const
 
   const handleSave = async () => {
@@ -113,7 +119,7 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
           return (
             <button
               key={tab.id}
-              onClick={() => onTabChange(tab.id)}
+              onClick={() => onTabChange(tab.id as TabType)}
               className={`px-6 py-2 rounded-md font-medium transition-colors flex items-center space-x-2 ${
                 activeTab === tab.id
                   ? 'bg-blue-600 text-white shadow'
@@ -197,6 +203,10 @@ function MainAppContent() {
             
             {activeTab === 'export' && (
               <ExportImportPanel />
+            )}
+            
+            {activeTab === 'advanced' && (
+              <AdvancedPanel />
             )}
           </div>
           

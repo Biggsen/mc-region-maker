@@ -135,7 +135,7 @@ export function loadImageDetails(): ImageDetails | null {
 }
 
 // Save active tab to localStorage
-export function saveActiveTab(tab: 'map' | 'regions' | 'export'): void {
+export function saveActiveTab(tab: 'map' | 'regions' | 'export' | 'advanced'): void {
   try {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_TAB, tab)
   } catch (error) {
@@ -144,11 +144,11 @@ export function saveActiveTab(tab: 'map' | 'regions' | 'export'): void {
 }
 
 // Load active tab from localStorage
-export function loadActiveTab(): 'map' | 'regions' | 'export' {
+export function loadActiveTab(): 'map' | 'regions' | 'export' | 'advanced' {
   try {
     const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB)
-    if (saved && ['map', 'regions', 'export'].includes(saved)) {
-      return saved as 'map' | 'regions' | 'export'
+    if (saved && ['map', 'regions', 'export', 'advanced'].includes(saved)) {
+      return saved as 'map' | 'regions' | 'export' | 'advanced'
     }
     return 'map' // Default to map tab
   } catch (error) {
