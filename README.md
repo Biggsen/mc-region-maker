@@ -25,7 +25,12 @@ npm install
 npm run dev
 ```
 
-3. Open your browser to `http://localhost:3000`
+3. (Optional) Start the image proxy server to avoid CORS issues with external images:
+```bash
+npm run proxy
+```
+
+4. Open your browser to `http://localhost:3000`
 
 ## Usage
 
@@ -43,17 +48,29 @@ npm run dev
 - Left of image = negative X
 - Y-axis defaults to 0-255 (configurable per region)
 
+## CORS and Image Embedding
+
+When loading external images (from URLs), the app automatically uses a proxy server to avoid CORS issues. This ensures that images can be properly embedded in exported project files.
+
+- **Without proxy**: External images show a CORS dialog and can't be embedded
+- **With proxy**: All images load seamlessly and embed perfectly in exports
+
+The proxy server runs on port 3002 and is automatically used for external URLs.
+
 ## Tech Stack
 
 - React + TypeScript
 - HTML5 Canvas for rendering
 - Tailwind CSS for styling
 - Vite for development
+- Express.js for image proxy server
 
 ## Development
 
 ```bash
-npm run dev    # Start development server
-npm run build  # Build for production
-npm run preview # Preview production build
+npm run dev              # Start development server
+npm run proxy            # Start image proxy server
+npm run dev:with-proxy   # Start both frontend and proxy
+npm run build            # Build for production
+npm run preview          # Preview production build
 ```

@@ -9,6 +9,7 @@
     "autoprefixer": "^10.4.0",
     "express": "^4.18.0",
     "lucide-react": "^0.548.0",
+    "node-fetch": "^3.3.0",
     "postcss": "^8.4.0",
     "puppeteer": "^22.0.0",
     "react": "^18.2.0",
@@ -24,7 +25,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "node scripts/api-server.js",
-    "dev:full": "concurrently \"npm run dev\" \"npm run server\""
+    "proxy": "node scripts/image-proxy-server.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run server\"",
+    "dev:with-proxy": "concurrently \"npm run dev\" \"npm run proxy\""
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",

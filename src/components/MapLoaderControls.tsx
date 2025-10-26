@@ -33,12 +33,22 @@ export function MapLoaderControls() {
 
   const handleImageUrl = useCallback((url: string) => {
     const img = new Image()
-    // Set crossOrigin to anonymous to allow canvas export if the server supports CORS
+    
+    // Use proxy for external URLs to avoid CORS issues
+    const imageUrl = url.startsWith('http') && !url.includes('localhost') 
+      ? `http://localhost:3002/api/proxy-image?url=${encodeURIComponent(url)}`
+      : url
+    
+    console.log('Loading image:', { original: url, proxied: imageUrl })
+    
+    // Set crossOrigin to anonymous to allow canvas export
     img.crossOrigin = 'anonymous'
     img.onload = () => {
       console.log('Image loaded from URL:', {
         width: img.width,
-        height: img.height
+        height: img.height,
+        originalUrl: url,
+        loadedFrom: imageUrl
       })
       setImage(img)
       // Center the image
@@ -63,10 +73,11 @@ export function MapLoaderControls() {
         imageSize: { width: img.width, height: img.height }
       }))
     }
-    img.onerror = () => {
+    img.onerror = (error) => {
+      console.error('Failed to load image:', error)
       alert('Failed to load image from URL. Please check the URL and try again.')
     }
-    img.src = url
+    img.src = imageUrl
   }, [setImage, setOffset])
 
   const handleGetMap = async () => {

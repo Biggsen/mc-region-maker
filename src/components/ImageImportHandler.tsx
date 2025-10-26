@@ -16,6 +16,14 @@ export function ImageImportHandler() {
       
       // Load the image
       const img = new Image()
+      
+      // Use proxy for external URLs to avoid CORS issues
+      const proxiedImageUrl = imageUrl.startsWith('http') && !imageUrl.includes('localhost') 
+        ? `http://localhost:3002/api/proxy-image?url=${encodeURIComponent(imageUrl)}`
+        : imageUrl
+      
+      console.log('Loading imported image:', { original: imageUrl, proxied: proxiedImageUrl })
+      
       // Set crossOrigin to anonymous for CORS
       img.crossOrigin = 'anonymous'
       
@@ -71,14 +79,14 @@ export function ImageImportHandler() {
         if (img.crossOrigin === 'anonymous') {
           console.log('Retrying without crossOrigin...')
           img.crossOrigin = null
-          img.src = imageUrl
+          img.src = proxiedImageUrl
           return
         }
         
         alert(`Failed to load image. Make sure the API server is running and accessible.`)
       }
       
-      img.src = imageUrl
+      img.src = proxiedImageUrl
     }
   }, [location.state, mapState])
 
