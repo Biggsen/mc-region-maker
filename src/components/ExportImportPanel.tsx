@@ -1,12 +1,10 @@
 import React, { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
-import { exportRegionsYAML, exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
+import { exportRegionsYAML, importMapData, loadImageFromSrc, loadImageFromBase64, generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML } from '../utils/exportUtils'
 import { ExportDialog } from './ExportDialog'
 
 export function ExportImportPanel() {
   const { regions, mapState, worldName, spawn, worldType, customMarkers } = useAppContext()
-  const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const villageFileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
@@ -22,14 +20,6 @@ export function ExportImportPanel() {
     setShowExportDialog(true)
   }
 
-  const handleExportCompleteMap = async () => {
-    const spawnData = spawn.spawnState.coordinates ? {
-      x: spawn.spawnState.coordinates.x,
-      z: spawn.spawnState.coordinates.z,
-      radius: spawn.spawnState.radius
-    } : null
-    await exportCompleteMap(regions.regions, mapState.mapState, worldName.worldName, spawnData, worldType.worldType)
-  }
 
   const handleExportYAMLWithOptions = (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean, includeSpawnRegion: boolean) => {
     const spawnData = spawn.spawnState.coordinates ? {
@@ -217,7 +207,7 @@ export function ExportImportPanel() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white mb-4">Export & Import Map Data</h3>
+      <h3 className="text-lg font-semibold text-white mb-4">Export Data</h3>
       
       <div className="space-y-4">
         
@@ -230,19 +220,6 @@ export function ExportImportPanel() {
             Export YAML
           </button>
 
-          <button
-            onClick={handleExportCompleteMap}
-            disabled={!mapState.mapState.image}
-            className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-          >
-            🗺️ Export Complete Map
-          </button>
-          
-          {!mapState.mapState.image && (
-            <div className="text-yellow-600 text-sm">
-              Load a map image to use complete map export
-            </div>
-          )}
         </div>
 
         <div className="space-y-2">
