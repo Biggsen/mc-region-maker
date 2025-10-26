@@ -6,7 +6,6 @@ import { ExportPanel } from './ExportPanel'
 import { AdvancedPanel } from './AdvancedPanel'
 import { LoadingOverlay } from './LoadingOverlay'
 import { WorldNameHeading } from './WorldNameHeading'
-import { SpawnButton } from './SpawnButton'
 import { ImageImportHandler } from './ImageImportHandler'
 import { MapLoaderControls } from './MapLoaderControls'
 import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
@@ -165,7 +164,6 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
 function MainAppContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabType>(loadActiveTab())
-  const { worldType } = useAppContext()
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
@@ -196,7 +194,6 @@ function MainAppContent() {
             {activeTab === 'regions' && (
               <>
                 <WorldNameHeading />
-                {worldType.worldType !== 'nether' && <SpawnButton />}
                 <RegionPanel />
               </>
             )}

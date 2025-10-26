@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML, importMapData } from '../utils/exportUtils'
+import { RegionActions } from './RegionActions'
+import { SpawnButton } from './SpawnButton'
 
 export function AdvancedPanel() {
   const { regions, worldType } = useAppContext()
@@ -21,6 +23,10 @@ export function AdvancedPanel() {
 
   const handleGenerateLevelledMobsRules = () => {
     generateLevelledMobsRulesYAML(regions.regions, worldType.worldType)
+  }
+
+  const handleRandomizeChallengeLevels = () => {
+    regions.randomizeChallengeLevels()
   }
 
   const handleVillageImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,6 +116,13 @@ export function AdvancedPanel() {
       <h3 className="text-lg font-semibold text-white mb-4">Advanced Tools</h3>
       
       <div className="space-y-4">
+        {worldType.worldType !== 'nether' && <SpawnButton />}
+
+        <RegionActions
+          regions={availableRegions}
+          onRandomizeChallengeLevels={handleRandomizeChallengeLevels}
+        />
+
         <div className="space-y-2">
           <button
             onClick={handleGenerateAchievements}
