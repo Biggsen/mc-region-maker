@@ -225,34 +225,39 @@ export function RegionDetailsView({
         </div>
       </div>
 
-      <div className="bg-gray-700 rounded p-3 border border-gray-600">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-sm text-gray-300">Region Scale</div>
+      <div>
+        <h4 className="text-sm font-medium text-gray-300 mb-2">Transform</h4>
+      </div>
+
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-sm text-gray-300">Scale: {resizePercentage}%</div>
         </div>
-        <div className="flex space-x-2">
+        <div className="mb-2">
           <input
-            type="number"
+            type="range"
             value={resizePercentage}
             onChange={(e) => {
-              const value = e.target.value
-              setResizePercentage(value)
+              const percentage = parseFloat(e.target.value)
+              setResizePercentage(percentage.toString())
               
               // Apply resize in real-time
-              const percentage = parseFloat(value)
               if (!isNaN(percentage) && percentage > 0 && selectedRegion) {
                 const scaleFactor = percentage / 100
                 onResizeRegion(selectedRegion.id, scaleFactor)
               }
             }}
-            placeholder="100"
             min="10"
-            max="500"
+            max="200"
             step="1"
-            className="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
+            className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-600"
           />
-          <span className="text-gray-300 text-sm flex items-center">%</span>
         </div>
-        <p className="text-gray-400 text-xs mt-2">Scale region around its center point. 100% = original size.</p>
+        <div className="flex justify-between text-xs text-gray-500">
+          <span>10%</span>
+          <span className="font-medium text-gray-400">100%</span>
+          <span>200%</span>
+        </div>
       </div>
 
       <div className="flex space-x-2">
