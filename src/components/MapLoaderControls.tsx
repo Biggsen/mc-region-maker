@@ -209,31 +209,31 @@ export function MapLoaderControls() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md mb-4 p-4 space-y-4">
-      <h3 className="text-lg font-semibold text-gray-800">Load Map Image</h3>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-white">Load Map Image</h3>
       
       {/* Generate Map Section */}
-      <div className="border-b pb-4">
-        <h4 className="text-md font-medium text-gray-700 mb-3">Generate from Seed</h4>
+      <div className="border-b border-gray-600 pb-4">
+        <h4 className="text-md font-medium text-gray-300 mb-3">Generate from Seed</h4>
         
          <div className="mb-3">
-           <label className="block text-sm font-medium text-gray-700 mb-1">Minecraft Seed:</label>
+           <label className="block text-sm font-medium text-gray-300 mb-1">Minecraft Seed:</label>
            <input
              type="text"
              value={seed}
              onChange={(e) => setSeed(e.target.value)}
              placeholder="Enter seed number or text"
-             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900"
+             className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-white"
              disabled={isLoading}
            />
          </div>
 
          <div className="mb-3">
-           <label className="block text-sm font-medium text-gray-700 mb-1">Dimension:</label>
+           <label className="block text-sm font-medium text-gray-300 mb-1">Dimension:</label>
            <select
              value={dimension}
              onChange={(e) => setDimension(e.target.value)}
-             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900"
+             className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-white"
              disabled={isLoading}
            >
              <option value="overworld">Overworld</option>
@@ -244,7 +244,7 @@ export function MapLoaderControls() {
 
         {dimension === 'overworld' && (
           <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-300 mb-1">
               World Size: {worldSize}k ({worldSize * 125}x{worldSize * 125})
             </label>
             <input
@@ -254,10 +254,10 @@ export function MapLoaderControls() {
               step="1"
               value={worldSize}
               onChange={(e) => setWorldSize(parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-600"
               disabled={isLoading}
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-gray-400 mt-1">
               <span>2k</span>
               <span>4k</span>
               <span>6k</span>
@@ -271,7 +271,7 @@ export function MapLoaderControls() {
         )}
 
         {error && (
-          <div className="mb-3 p-2 bg-red-100 border border-red-300 rounded text-red-700 text-sm">
+          <div className="mb-3 p-2 bg-red-900 border border-red-700 rounded text-red-300 text-sm">
             {error}
           </div>
         )}
@@ -293,11 +293,11 @@ export function MapLoaderControls() {
 
         {generatedImage && (
           <div className="mt-3">
-            <div className="bg-gray-100 rounded p-2 mb-2">
+            <div className="bg-gray-700 rounded p-2 mb-2">
               <img 
                 src={generatedImage} 
                 alt="Generated map"
-                className="w-full h-auto border border-gray-300 rounded"
+                className="w-full h-auto border border-gray-600 rounded"
               />
             </div>
             <button
@@ -306,7 +306,7 @@ export function MapLoaderControls() {
             >
               Import Map (Fresh Start)
             </button>
-            <div className="text-xs text-yellow-600 mt-1">
+            <div className="text-xs text-yellow-400 mt-1">
               ⚠️ This will clear all existing regions and start fresh
             </div>
           </div>
@@ -315,14 +315,14 @@ export function MapLoaderControls() {
       
       {/* Load from URL Section */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Or Load from URL:</label>
+        <label className="block text-sm font-medium text-gray-300 mb-2">Or Load from URL:</label>
         <form onSubmit={handleUrlSubmit} className="flex space-x-2">
           <input
             type="url"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             placeholder="http://localhost:3000/map.png"
-            className="flex-1 bg-gray-100 text-gray-800 px-3 py-2 rounded border border-gray-300 focus:border-blue-500 focus:outline-none text-sm"
+            className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm"
           />
           <button
             type="submit"
@@ -333,15 +333,15 @@ export function MapLoaderControls() {
         </form>
       </div>
       
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-400">
         After loading an image, click on the compass or a known reference point to set the world center (0,0).
       </p>
       
       {/* Map Details Panel */}
       {mapState.mapState.image && loadedMapDetails && (
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-          <h4 className="text-sm font-semibold text-blue-800 mb-2">Map Details</h4>
-          <div className="space-y-1 text-xs text-blue-700">
+        <div className="mt-4 p-3 bg-blue-900 border border-blue-700 rounded-md">
+          <h4 className="text-sm font-semibold text-blue-200 mb-2">Map Details</h4>
+          <div className="space-y-1 text-xs text-blue-300">
             {loadedMapDetails.seed && (
               <div><span className="font-medium">Seed:</span> {loadedMapDetails.seed}</div>
             )}
@@ -360,10 +360,10 @@ export function MapLoaderControls() {
       
       {/* Clear All Data Button - Only show if there's data to clear */}
       {(mapState.mapState.image || regions.regions.length > 0) && (
-        <div className="mt-4 pt-4 border-t border-gray-300">
+        <div className="mt-4 pt-4 border-t border-gray-600">
           <button
             onClick={handleClearData}
-            className="w-full text-red-600 hover:text-red-700 text-sm py-2 px-4 rounded border border-red-300 hover:border-red-400 hover:bg-red-50 transition-colors"
+            className="w-full text-red-400 hover:text-red-300 text-sm py-2 px-4 rounded border border-red-600 hover:border-red-500 hover:bg-red-900 transition-colors"
             title="Clear all saved data"
           >
             Clear All Data
