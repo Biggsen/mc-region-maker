@@ -13,7 +13,7 @@ export function ExportPanel() {
   }
 
 
-  const handleExportYAMLWithOptions = (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean, includeSpawnRegion: boolean) => {
+  const handleExportYAMLWithOptions = (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean, includeSpawnRegion: boolean, useModernWorldHeight: boolean) => {
     const spawnData = spawn.spawnState.coordinates ? {
       x: spawn.spawnState.coordinates.x,
       z: spawn.spawnState.coordinates.z,
@@ -21,7 +21,7 @@ export function ExportPanel() {
     } : null
     // Force spawn region to false for nether since it doesn't exist
     const finalIncludeSpawnRegion = worldType.worldType === 'nether' ? false : includeSpawnRegion
-    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, finalIncludeSpawnRegion, spawnData, worldType.worldType)
+    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, finalIncludeSpawnRegion, spawnData, worldType.worldType, useModernWorldHeight)
   }
 
 

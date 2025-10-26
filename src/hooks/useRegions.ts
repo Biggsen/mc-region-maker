@@ -110,8 +110,6 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
       id: generateId(),
       name,
       points: [],
-      minY: 0,
-      maxY: 255,
       centerPoint: null,
       challengeLevel: 'Vanilla',
       hasSpawn: false

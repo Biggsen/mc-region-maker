@@ -6,8 +6,6 @@ export type Region = {
   points: { x: number; z: number }[]
   originalPoints?: { x: number; z: number }[]
   scaleFactor?: number
-  minY: number
-  maxY: number
   centerPoint?: { x: number; z: number } | null
   subregions?: Subregion[]
   challengeLevel?: ChallengeLevel
@@ -22,8 +20,6 @@ export type Subregion = {
   radius: number
   type: 'village' | 'structure'
   details?: string
-  minY: number
-  maxY: number
   parentRegionId?: string
 }
 

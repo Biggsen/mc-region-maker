@@ -179,26 +179,6 @@ export function RegionDetailsView({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-sm text-gray-300 mb-1">Min Y</label>
-          <input
-            type="number"
-            value={selectedRegion.minY}
-            onChange={(e) => onUpdateRegion(selectedRegion.id, { minY: parseInt(e.target.value) || 0 })}
-            className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-          />
-        </div>
-        <div>
-          <label className="block text-sm text-gray-300 mb-1">Max Y</label>
-          <input
-            type="number"
-            value={selectedRegion.maxY}
-            onChange={(e) => onUpdateRegion(selectedRegion.id, { maxY: parseInt(e.target.value) || 255 })}
-            className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-          />
-        </div>
-      </div>
 
       <div>
         <label className="block text-sm text-gray-300 mb-1">Challenge Level</label>

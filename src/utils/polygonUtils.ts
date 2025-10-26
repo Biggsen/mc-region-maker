@@ -39,7 +39,7 @@ function generateRandomMobList(): string[] {
   return shuffled.slice(0, count)
 }
 
-export function generateRegionYAML(region: Region, includeVillages: boolean = true, randomMobSpawn: boolean = false, includeHeartRegions: boolean = true, worldType?: 'overworld' | 'nether'): string {
+export function generateRegionYAML(region: Region, includeVillages: boolean = true, randomMobSpawn: boolean = false, includeHeartRegions: boolean = true, worldType?: 'overworld' | 'nether', useModernWorldHeight: boolean = true): string {
   const points = region.points.map(point => `      - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`).join('\n')
   
   // Check if this is a main region (not spawn, hearts, or villages)
@@ -76,10 +76,14 @@ export function generateRegionYAML(region: Region, includeVillages: boolean = tr
     ? region.name.toLowerCase().replace(/\s+/g, '_')
     : region.name
 
+  // Use world height setting instead of region's minY/maxY
+  const minY = useModernWorldHeight ? -64 : 0
+  const maxY = useModernWorldHeight ? 320 : 255
+
   let yaml = `  ${regionNameForYAML}:
     type: poly2d
-    min-y: ${region.minY}
-    max-y: ${region.maxY}
+    min-y: ${minY}
+    max-y: ${maxY}
     priority: 0
     flags:
 ${isMainRegion && region.challengeLevel ? '  ' + flags.replace(/\n/g, '\n  ') : '      ' + flags}
@@ -94,8 +98,8 @@ ${points}`
     
     yaml += `\n\n  ${heartRegionName}:
     type: cuboid
-    min: {x: ${Math.round(regionCenter.x - Math.floor(heartSize / 2))}, y: ${region.minY}, z: ${Math.round(regionCenter.z - Math.floor(heartSize / 2))}}
-    max: {x: ${Math.round(regionCenter.x + Math.floor(heartSize / 2))}, y: ${region.maxY}, z: ${Math.round(regionCenter.z + Math.floor(heartSize / 2))}}
+    min: {x: ${Math.round(regionCenter.x - Math.floor(heartSize / 2))}, y: ${minY}, z: ${Math.round(regionCenter.z - Math.floor(heartSize / 2))}}
+    max: {x: ${Math.round(regionCenter.x + Math.floor(heartSize / 2))}, y: ${maxY}, z: ${Math.round(regionCenter.z + Math.floor(heartSize / 2))}}
     members: {}
     owners: {}
     flags: {greeting-title: Heart of ${region.name}, build: deny, interact: allow, creeper-explosion: deny, other-explosion: deny, tnt: deny}
@@ -106,7 +110,7 @@ ${points}`
   if (includeVillages && region.subregions && region.subregions.length > 0) {
     yaml += '\n\n'
     yaml += region.subregions.map(subregion => 
-      generateSubregionYAML(subregion, region.name, worldType)
+      generateSubregionYAML(subregion, region.name, worldType, useModernWorldHeight)
     ).join('\n\n')
   }
   

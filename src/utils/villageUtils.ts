@@ -29,7 +29,7 @@ export function parseVillageCSV(csvContent: string): VillageData[] {
     
     const parts = line.split(';')
     if (parts.length >= 5) {
-      const [seed, structure, x, z, details] = parts
+      const [, structure, x, z, details] = parts
       villages.push({
         x: parseInt(x),
         z: parseInt(z),
@@ -81,25 +81,27 @@ export function createVillageSubregion(village: VillageData, index: number, pare
     radius: 64, // Default village radius
     type: 'village',
     details: village.details, // Keep original details for reference
-    minY: 0,
-    maxY: 255,
     parentRegionId
   }
 }
 
-export function generateSubregionYAML(subregion: Subregion, parentRegionName: string, worldType?: 'overworld' | 'nether'): string {
+export function generateSubregionYAML(subregion: Subregion, parentRegionName: string, _worldType?: 'overworld' | 'nether', useModernWorldHeight: boolean = true): string {
   const subregionName = subregion.name.toLowerCase().replace(/\s+/g, '_')
   
   // Villages always use "Welcome to" regardless of world type since villages don't exist in the nether
   const greetingText = 'Welcome to'
   
+  // Use world height setting instead of subregion's minY/maxY
+  const minY = useModernWorldHeight ? -64 : 0
+  const maxY = useModernWorldHeight ? 320 : 255
+
   return `  ${subregionName}:
     type: cuboid
-    min-y: ${subregion.minY}
-    max-y: ${subregion.maxY}
+    min-y: ${minY}
+    max-y: ${maxY}
     priority: 10
     parent: ${parentRegionName}
     flags: {greeting-title: ${greetingText} ${subregion.name} village, farewell-title: Leaving ${subregion.name} village., passthrough: allow}
-    min: {x: ${subregion.x - subregion.radius}, y: ${subregion.minY}, z: ${subregion.z - subregion.radius}}
-    max: {x: ${subregion.x + subregion.radius}, y: ${subregion.maxY}, z: ${subregion.z + subregion.radius}}`
+    min: {x: ${subregion.x - subregion.radius}, y: ${minY}, z: ${subregion.z - subregion.radius}}
+    max: {x: ${subregion.x + subregion.radius}, y: ${maxY}, z: ${subregion.z + subregion.radius}}`
 }

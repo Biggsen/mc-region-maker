@@ -58,8 +58,10 @@ type Region = {
   id: string
   name: string
   points: { x: number; z: number }[]
-  minY: number // default 0
-  maxY: number // default 255
+  centerPoint?: { x: number; z: number } | null
+  subregions?: Subregion[]
+  challengeLevel?: ChallengeLevel
+  hasSpawn?: boolean
 }
 ```
 

@@ -68,7 +68,7 @@ export async function exportCompleteMap(regions: Region[], mapState: MapState, w
         lastMousePos: mapState.lastMousePos,
         originSelected: mapState.originSelected,
         originOffset: mapState.originOffset,
-        imageSrc: mapState.image?.imageSrc || undefined
+        imageSrc: (mapState.image as any)?.imageSrc || undefined
       },
       spawnCoordinates,
       worldType,
@@ -102,7 +102,8 @@ export function exportRegionsYAML(
   includeHeartRegions: boolean = true,
   includeSpawnRegion: boolean = false,
   spawnCoordinates?: { x: number; z: number; radius?: number } | null,
-  worldType?: 'overworld' | 'nether'
+  worldType?: 'overworld' | 'nether',
+  useModernWorldHeight: boolean = true
 ): void {
   if (regions.length === 0 && (!includeSpawnRegion || worldType === 'nether')) {
     alert('No regions to export')
@@ -113,7 +114,7 @@ export function exportRegionsYAML(
   
   // Add spawn region if requested and coordinates exist (only for overworld)
   if (includeSpawnRegion && spawnCoordinates && spawnCoordinates.radius && worldType !== 'nether') {
-    const spawnRegion = generateSpawnRegionYAML(spawnCoordinates)
+    const spawnRegion = generateSpawnRegionYAML(spawnCoordinates as { x: number; z: number; radius: number }, useModernWorldHeight)
     yamlContent += spawnRegion
     if (regions.length > 0) {
       yamlContent += '\n'
@@ -121,7 +122,7 @@ export function exportRegionsYAML(
   }
   
   regions.forEach((region, index) => {
-    yamlContent += generateRegionYAML(region, includeVillages, randomMobSpawn, includeHeartRegions, worldType)
+    yamlContent += generateRegionYAML(region, includeVillages, randomMobSpawn, includeHeartRegions, worldType, useModernWorldHeight)
     // Add a blank line between regions (except after the last one)
     if (index < regions.length - 1) {
       yamlContent += '\n'
@@ -139,7 +140,7 @@ export function exportRegionsYAML(
 }
 
 // Generate spawn region YAML
-function generateSpawnRegionYAML(spawnCoordinates: { x: number; z: number; radius: number }): string {
+function generateSpawnRegionYAML(spawnCoordinates: { x: number; z: number; radius: number }, useModernWorldHeight: boolean = true): string {
   const { x, z, radius } = spawnCoordinates
   
   // Calculate cuboid bounds based on spawn point and radius
@@ -148,9 +149,13 @@ function generateSpawnRegionYAML(spawnCoordinates: { x: number; z: number; radiu
   const minZ = z - radius
   const maxZ = z + radius
   
+  // Set Y coordinates based on world height setting
+  const minY = useModernWorldHeight ? -64 : 0
+  const maxY = useModernWorldHeight ? 320 : 255
+  
   let yaml = `  spawn:\n`
-  yaml += `    min: {x: ${minX}, y: 0, z: ${minZ}}\n`
-  yaml += `    max: {x: ${maxX}, y: 255, z: ${maxZ}}\n`
+  yaml += `    min: {x: ${minX}, y: ${minY}, z: ${minZ}}\n`
+  yaml += `    max: {x: ${maxX}, y: ${maxY}, z: ${maxZ}}\n`
   yaml += `    members: {}\n`
   yaml += `    flags:\n`
   yaml += `      build: deny\n`
@@ -326,14 +331,14 @@ export function generateEventConditionsYAML(regions: Region[], worldType?: 'over
 }
 
 // Import map data from JSON file
-export function importMapData(file: File): Promise<ExportData | MapExportData> {
+export function importMapData(file: File): Promise<MapExportData> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     
     reader.onload = (event) => {
       try {
         const content = event.target?.result as string
-        const data: ExportData | MapExportData = JSON.parse(content)
+        const data: MapExportData = JSON.parse(content)
         
         // Validate the imported data
         if (!data.version || !data.regions || !data.mapState) {
@@ -484,7 +489,7 @@ export function generateLevelledMobsRulesYAML(
 }
 
 // Validate imported data structure
-export function validateImportData(data: any): data is ExportData {
+export function validateImportData(data: any): data is MapExportData {
   return (
     typeof data === 'object' &&
     data !== null &&

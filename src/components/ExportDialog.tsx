@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 interface ExportDialogProps {
   isOpen: boolean
   onClose: () => void
-  onExport: (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean, includeSpawnRegion: boolean) => void
+  onExport: (includeVillages: boolean, randomMobSpawn: boolean, includeHeartRegions: boolean, includeSpawnRegion: boolean, useModernWorldHeight: boolean) => void
   hasVillages: boolean
   hasSpawn: boolean
   worldType?: 'overworld' | 'nether'
@@ -14,11 +14,12 @@ export function ExportDialog({ isOpen, onClose, onExport, hasVillages, hasSpawn,
   const [randomMobSpawn, setRandomMobSpawn] = useState(false)
   const [includeHeartRegions, setIncludeHeartRegions] = useState(true)
   const [includeSpawnRegion, setIncludeSpawnRegion] = useState(true)
+  const [useModernWorldHeight, setUseModernWorldHeight] = useState(true)
 
   if (!isOpen) return null
 
   const handleExport = () => {
-    onExport(includeVillages, randomMobSpawn, includeHeartRegions, includeSpawnRegion)
+    onExport(includeVillages, randomMobSpawn, includeHeartRegions, includeSpawnRegion, useModernWorldHeight)
     onClose()
   }
 
@@ -28,20 +29,45 @@ export function ExportDialog({ isOpen, onClose, onExport, hasVillages, hasSpawn,
         <h3 className="text-lg font-semibold mb-4 text-white">Export Options</h3>
         
         <div className="space-y-4">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="includeVillages"
-              checked={includeVillages}
-              onChange={(e) => setIncludeVillages(e.target.checked)}
-              disabled={!hasVillages}
-              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
-            />
-            <label htmlFor="includeVillages" className="ml-2 text-white">
-              Include Villages
-              {!hasVillages && <span className="text-gray-400 ml-1">(No villages available)</span>}
-            </label>
+          {/* Settings Section */}
+          <div className="border-t border-gray-600 pt-4">
+            <h4 className="text-md font-medium text-white mb-3">Settings</h4>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="useModernWorldHeight"
+                checked={useModernWorldHeight}
+                onChange={(e) => setUseModernWorldHeight(e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label htmlFor="useModernWorldHeight" className="ml-2 text-white">
+                Use modern world height (1.18+)
+              </label>
+            </div>
+            <p className="text-gray-400 text-xs mt-1 ml-6">
+              {useModernWorldHeight ? 'Y: -64 to 320' : 'Y: 0 to 255 (legacy)'}
+            </p>
           </div>
+
+          {/* Export Options */}
+          <div className="border-t border-gray-600 pt-4">
+            <h4 className="text-md font-medium text-white mb-3">Export Options</h4>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="includeVillages"
+                checked={includeVillages}
+                onChange={(e) => setIncludeVillages(e.target.checked)}
+                disabled={!hasVillages}
+                className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label htmlFor="includeVillages" className="ml-2 text-white">
+                Include Villages
+                {!hasVillages && <span className="text-gray-400 ml-1">(No villages available)</span>}
+              </label>
+            </div>
+          </div>
+          
           <div className="flex items-center">
             <input
               type="checkbox"
