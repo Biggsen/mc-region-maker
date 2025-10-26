@@ -268,13 +268,9 @@ export function MapCanvas() {
         setIsMovingRegion(false)
       }
       
-      // Always attempt to finalize a drawing on mouse up when we have a valid polygon
-      if (drawingRegion && drawingRegion.points.length >= 3) {
-        finishDrawingRegion()
-      }
       lastFreehandPointRef.current = null
     }
-  }, [stopDragging, isMovingRegion, drawingRegion, finishDrawingRegion])
+  }, [stopDragging, isMovingRegion])
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
