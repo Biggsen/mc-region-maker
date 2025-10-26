@@ -5,7 +5,7 @@ import { clearSavedData } from '../utils/persistenceUtils'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
 import { WorldNameHeading } from './WorldNameHeading'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Search } from 'lucide-react'
 
 export function RegionPanel() {
   const { regions, worldType } = useAppContext()
@@ -91,25 +91,14 @@ export function RegionPanel() {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex-shrink-0 mb-4">
-        <WorldNameHeading />
-      </div>
-      
       {!selectedRegion ? (
         // Region List View
         <>
+          <div className="flex-shrink-0 mb-4">
+            <WorldNameHeading />
+          </div>
+          
           <div className="flex-shrink-0 mb-2">
-            {/* Search Input */}
-            <div className="mb-4">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search regions..."
-                className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-            
             <RegionCreationForm
               worldType={worldType.worldType}
               onStartDrawing={(name, freehand) => {
@@ -159,6 +148,20 @@ export function RegionPanel() {
                 Delete all
               </button>
             )}
+          </div>
+
+          {/* Search Input */}
+          <div className="flex-shrink-0 mb-4 relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search regions..."
+              className="w-full bg-gray-700 text-white pl-10 pr-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+            />
           </div>
 
           {/* Scrollable Region List - Takes remaining space */}
