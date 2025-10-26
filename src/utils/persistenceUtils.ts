@@ -11,7 +11,8 @@ const STORAGE_KEYS = {
   MAP_STATE: 'mc-region-maker-map-state',
   REGIONS: 'mc-region-maker-regions',
   SELECTED_REGION: 'mc-region-maker-selected-region',
-  IMAGE_DETAILS: 'mc-region-maker-image-details'
+  IMAGE_DETAILS: 'mc-region-maker-image-details',
+  ACTIVE_TAB: 'mc-region-maker-active-tab'
 }
 
 // Get image source URL for storage
@@ -130,6 +131,29 @@ export function loadImageDetails(): ImageDetails | null {
   } catch (error) {
     console.error('Failed to load image details:', error)
     return null
+  }
+}
+
+// Save active tab to localStorage
+export function saveActiveTab(tab: 'map' | 'regions' | 'export'): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_TAB, tab)
+  } catch (error) {
+    console.error('Failed to save active tab:', error)
+  }
+}
+
+// Load active tab from localStorage
+export function loadActiveTab(): 'map' | 'regions' | 'export' {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB)
+    if (saved && ['map', 'regions', 'export'].includes(saved)) {
+      return saved as 'map' | 'regions' | 'export'
+    }
+    return 'map' // Default to map tab
+  } catch (error) {
+    console.error('Failed to load active tab:', error)
+    return 'map'
   }
 }
 

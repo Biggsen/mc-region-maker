@@ -9,6 +9,7 @@ import { SpawnButton } from './SpawnButton'
 import { ImageImportHandler } from './ImageImportHandler'
 import { MapLoaderControls } from './MapLoaderControls'
 import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
+import { saveActiveTab, loadActiveTab } from '../utils/persistenceUtils'
 import { Map, Edit3, Download, FolderOpen, Save } from 'lucide-react'
 
 type TabType = 'map' | 'regions' | 'export'
@@ -157,8 +158,13 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
 // Component to handle image import within AppProvider context
 function MainAppContent() {
   const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<TabType>('map')
+  const [activeTab, setActiveTab] = useState<TabType>(loadActiveTab())
   const { worldType } = useAppContext()
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab)
+    saveActiveTab(tab)
+  }
 
   useEffect(() => {
     // Hide loading after a short delay to allow data to load
@@ -173,7 +179,7 @@ function MainAppContent() {
     <>
       <ImageImportHandler />
       <div className="h-screen bg-gray-900 text-white flex flex-col relative">
-        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
         
         <div className="flex-1 flex overflow-hidden">
           <div className="w-96 bg-gray-800 p-4 overflow-y-auto border-r border-gray-700">

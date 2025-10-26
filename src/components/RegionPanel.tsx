@@ -254,7 +254,7 @@ export function RegionPanel() {
           </div>
 
           {/* Clear Data Button - Bottom of sidebar */}
-          <div className="mt-auto pt-4 border-t border-gray-600">
+          <div className="fixed bottom-0 left-0 w-96 border-r border-gray-700 px-4 py-2 z-10">
             <button
               onClick={handleClearData}
               className="w-full text-red-400 hover:text-red-300 text-sm py-2 px-4 rounded border border-red-400 hover:border-red-300 hover:bg-red-900/20 transition-colors"
