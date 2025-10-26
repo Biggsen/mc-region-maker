@@ -268,11 +268,15 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
   const resizeRegion = useCallback((regionId: string, scaleFactor: number) => {
     setRegions(prev => prev.map(region => {
       if (region.id === regionId) {
-        // Use original points if available, otherwise use current points
-        const pointsToScale = region.originalPoints || region.points
-        // Use the region's center point if available, otherwise calculate it from original points
-        const center = region.centerPoint || calculateRegionCenter({ ...region, points: pointsToScale })
-        const newPoints = resizeRegionPoints(pointsToScale, center.x, center.z, scaleFactor)
+        // Calculate relative scale change from current scale factor
+        const currentScaleFactor = region.scaleFactor || 1.0
+        const relativeScaleFactor = scaleFactor / currentScaleFactor
+        
+        // Use current points for scaling to maintain current position
+        const pointsToScale = region.points
+        // Use the region's center point if available, otherwise calculate it from current points
+        const center = region.centerPoint || calculateRegionCenter(region)
+        const newPoints = resizeRegionPoints(pointsToScale, center.x, center.z, relativeScaleFactor)
         return { ...region, points: newPoints, scaleFactor }
       }
       return region
