@@ -165,7 +165,7 @@ export function formatArea(areaInBlocks: number): string {
   
   if (squareMeters >= 10000) {
     const hectares = squareMeters / 10000
-    return `${Math.round(hectares)} ha`
+    return `${Math.round(hectares)} hectares`
   } else {
     return `${Math.round(areaInBlocks).toLocaleString()} blocks²`
   }

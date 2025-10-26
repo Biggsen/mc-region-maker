@@ -4,6 +4,7 @@ import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/poly
 import { clearSavedData } from '../utils/persistenceUtils'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
+import { WorldNameHeading } from './WorldNameHeading'
 import { Trash2 } from 'lucide-react'
 
 export function RegionPanel() {
@@ -37,7 +38,6 @@ export function RegionPanel() {
   const { startSettingCenterPoint } = useAppContext().mapCanvas
   const { isWarping, setIsWarping, warpRadius, setWarpRadius, warpStrength, setWarpStrength } = useAppContext().mapCanvas
 
-  const [showAllRegions, setShowAllRegions] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
 
@@ -90,11 +90,15 @@ export function RegionPanel() {
   )
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full flex flex-col">
+      <div className="flex-shrink-0 mb-4">
+        <WorldNameHeading />
+      </div>
+      
       {!selectedRegion ? (
         // Region List View
         <>
-          <div className="mb-2">
+          <div className="flex-shrink-0 mb-2">
             {/* Search Input */}
             <div className="mb-4">
               <input
@@ -118,7 +122,7 @@ export function RegionPanel() {
           </div>
 
           {drawingRegion && (
-            <div className="mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded space-y-2">
+            <div className="flex-shrink-0 mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded space-y-2">
               <div className="flex items-center justify-between">
                 <p className="text-yellow-200 text-base">
                   Drawing: <strong>{drawingRegion.name}</strong>
@@ -139,7 +143,7 @@ export function RegionPanel() {
           )}
 
           {/* Region Counter */}
-          <div className="mb-4 mt-6 flex items-center justify-between">
+          <div className="flex-shrink-0 mb-4 mt-6 flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">Regions ({regionsList.length})</h2>
             {regionsList.length > 0 && (
               <button
@@ -157,20 +161,21 @@ export function RegionPanel() {
             )}
           </div>
 
-          <div className="space-y-2 mb-6">
-            {(showAllRegions ? [...filteredRegions].reverse() : filteredRegions.slice(-5).reverse()).map(region => {
+          {/* Scrollable Region List - Takes remaining space */}
+          <div className="flex-1 overflow-y-auto space-y-2" style={{ maxHeight: 'calc(100vh - 400px)' }}>
+            {[...filteredRegions].reverse().map(region => {
               const area = calculatePolygonArea(region.points)
               return (
                 <div
                   key={region.id}
-                  className="p-3 rounded cursor-pointer border bg-gray-700 border-gray-600 hover:bg-gray-600"
+                  className="p-2 rounded cursor-pointer border bg-gray-700 border-gray-600 hover:bg-gray-600"
                   onClick={() => setSelectedRegionId(region.id)}
                 >
                   <div className="flex justify-between items-center">
                     <div>
                       <span className="text-white font-medium">{region.name}</span>
-                      <div className="text-gray-400 text-xs mt-1">
-                        {formatArea(area)}
+                      <div className="text-gray-400 text-xs">
+                        Size: {formatArea(area)}
                       </div>
                     </div>
                     <button
@@ -178,9 +183,9 @@ export function RegionPanel() {
                         e.stopPropagation()
                         deleteRegion(region.id)
                       }}
-                      className="text-red-400 hover:text-red-300 text-sm"
+                      className="text-gray-300 hover:text-red-300 text-sm p-1 hover:bg-red-900/20 rounded transition-colors"
                     >
-                      ×
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -192,15 +197,6 @@ export function RegionPanel() {
                 <p className="text-lg mb-2">No regions</p>
                 <p className="text-sm">Create your first region to get started</p>
               </div>
-            )}
-            
-            {filteredRegions.length > 5 && (
-              <button
-                onClick={() => setShowAllRegions(!showAllRegions)}
-                className="w-full text-blue-400 hover:text-blue-300 text-sm py-2 border border-blue-400 hover:border-blue-300 rounded"
-              >
-                {showAllRegions ? 'Show Less' : `Show All (${filteredRegions.length - 5} more)`}
-              </button>
             )}
           </div>
 

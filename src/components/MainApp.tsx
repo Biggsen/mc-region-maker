@@ -5,7 +5,6 @@ import { RegionPanel } from './RegionPanel'
 import { ExportPanel } from './ExportPanel'
 import { AdvancedPanel } from './AdvancedPanel'
 import { LoadingOverlay } from './LoadingOverlay'
-import { WorldNameHeading } from './WorldNameHeading'
 import { ImageImportHandler } from './ImageImportHandler'
 import { MapLoaderControls } from './MapLoaderControls'
 import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
@@ -192,10 +191,7 @@ function MainAppContent() {
             )}
             
             {activeTab === 'regions' && (
-              <>
-                <WorldNameHeading />
-                <RegionPanel />
-              </>
+              <RegionPanel />
             )}
             
             {activeTab === 'export' && (
