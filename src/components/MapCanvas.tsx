@@ -5,6 +5,7 @@ import { GridOverlay } from './GridOverlay'
 import { RegionOverlay } from './RegionOverlay'
 import { CustomMarkerOverlay } from './CustomMarkerOverlay'
 import { CoordinateInputDialog } from './CoordinateInputDialog'
+import { MapDisplayControls } from './MapDisplayControls'
 import { Scan } from 'lucide-react'
 
 export function MapCanvas() {
@@ -481,6 +482,17 @@ export function MapCanvas() {
             customMarker={customMarker}
             orphanedVillageMarkers={orphanedVillageMarkers}
             showOrphanedVillages={showOrphanedVillages}
+          />
+          <MapDisplayControls
+            highlightMode={highlightMode}
+            orphanedVillageMarkers={orphanedVillageMarkers}
+            showOrphanedVillages={showOrphanedVillages}
+            toggleHighlightAll={regions.toggleHighlightAll}
+            toggleShowVillages={regions.toggleShowVillages}
+            toggleShowOrphanedVillages={customMarkers.toggleShowOrphanedVillages}
+            toggleShowCenterPoints={regions.toggleShowCenterPoints}
+            toggleShowChallengeLevels={regions.toggleShowChallengeLevels}
+            toggleShowGrid={regions.toggleShowGrid}
           />
         </>
       )}

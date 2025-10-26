@@ -3,19 +3,17 @@ import { useAppContext } from '../context/AppContext'
 import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/polygonUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
 import { ChallengeLevel } from '../types'
-import { MapControls } from './MapControls'
 import { RegionActions } from './RegionActions'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
 
 export function RegionPanel() {
-  const { regions, worldType, customMarkers } = useAppContext()
+  const { regions, worldType } = useAppContext()
   const {
     regions: regionsList,
     selectedRegionId,
     drawingRegion,
     editMode,
-    highlightMode,
     setSelectedRegionId,
     startDrawingRegion,
     deleteRegion,
@@ -23,11 +21,6 @@ export function RegionPanel() {
     getRegionYAML,
     startEditMode,
     stopEditMode,
-    toggleHighlightAll,
-    toggleShowVillages,
-    toggleShowCenterPoints,
-    toggleShowChallengeLevels,
-    toggleShowGrid,
     removeSubregionFromRegion,
     updateSubregionName,
     setCustomCenterPoint,
@@ -44,7 +37,6 @@ export function RegionPanel() {
 
   const { startSettingCenterPoint } = useAppContext().mapCanvas
   const { isWarping, setIsWarping, warpRadius, setWarpRadius, warpStrength, setWarpStrength } = useAppContext().mapCanvas
-  const { orphanedVillageMarkers, showOrphanedVillages, toggleShowOrphanedVillages } = customMarkers
 
   const [showAllRegions, setShowAllRegions] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -160,20 +152,6 @@ export function RegionPanel() {
               <h3 className="text-lg font-semibold text-white mb-4">Villages ({totalVillages})</h3>
             )}
             
-            {/* Map Visibility Controls */}
-            <MapControls
-              highlightMode={highlightMode}
-              orphanedVillageMarkers={orphanedVillageMarkers}
-              showOrphanedVillages={showOrphanedVillages}
-              toggleHighlightAll={toggleHighlightAll}
-              toggleShowVillages={toggleShowVillages}
-              toggleShowOrphanedVillages={toggleShowOrphanedVillages}
-              toggleShowCenterPoints={toggleShowCenterPoints}
-              toggleShowChallengeLevels={toggleShowChallengeLevels}
-              toggleShowGrid={toggleShowGrid}
-            />
-
-
             <RegionActions
               regions={regionsList}
               onRandomizeChallengeLevels={handleRandomizeChallengeLevels}
