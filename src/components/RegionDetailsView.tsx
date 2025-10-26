@@ -4,7 +4,7 @@ import { generateRegionName } from '../utils/nameGenerator'
 import { Region, EditMode } from '../types'
 import { YAMLDisplay } from './YAMLDisplay'
 import { VillageManager } from './VillageManager'
-import { ArrowLeft, VectorSquare, Plus, Minus, BrushCleaning } from 'lucide-react'
+import { ArrowLeft, VectorSquare, Plus, Minus, BrushCleaning, Hand, Paintbrush } from 'lucide-react'
 
 interface RegionDetailsViewProps {
   selectedRegion: Region
@@ -182,40 +182,46 @@ export function RegionDetailsView({
             Halve Vertices
           </button>
         </div>
-        <div className="bg-gray-700 rounded p-3 border border-gray-600">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-sm text-gray-300">Warp BrushCleaning</div>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={isWarping}
-              onChange={(e) => onSetWarping(e.target.checked)}
-              className="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
-            />
-            <span className="text-xs text-gray-300">Enable</span>
-          </label>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-xs text-gray-400 mb-1">Radius</label>
-            <input
-              type="number"
-              value={warpRadius}
-              onChange={(e) => onSetWarpRadius(Math.max(1, parseInt(e.target.value) || 1))}
-              className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-purple-400 focus:outline-none text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-400 mb-1">Strength</label>
-            <input
-              type="number"
-              value={warpStrength}
-              onChange={(e) => onSetWarpStrength(parseInt(e.target.value) || 0)}
-              className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-purple-400 focus:outline-none text-sm"
-            />
-          </div>
-        </div>
-        <p className="text-gray-400 text-xs mt-2">Click map to push vertices outward within radius.</p>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => {
+              if (isWarping && warpRadius === 200 && warpStrength === 40) {
+                onSetWarping(false)
+              } else {
+                onSetWarpRadius(200)
+                onSetWarpStrength(40)
+                onSetWarping(true)
+              }
+            }}
+            className={`w-full font-medium py-2 px-4 rounded transition-all border-2 flex items-center justify-center gap-2 ${
+              isWarping && warpRadius === 200 && warpStrength === 40
+                ? 'bg-orange-600 hover:bg-orange-700 text-white border-orange-400'
+                : 'bg-transparent hover:bg-orange-900 text-orange-100 border-orange-600'
+            }`}
+          >
+            <Paintbrush className="w-4 h-4" />
+            Warp Brush L
+          </button>
+          
+          <button
+            onClick={() => {
+              if (isWarping && warpRadius === 80 && warpStrength === 40) {
+                onSetWarping(false)
+              } else {
+                onSetWarpRadius(80)
+                onSetWarpStrength(40)
+                onSetWarping(true)
+              }
+            }}
+            className={`w-full font-medium py-2 px-4 rounded transition-all border-2 flex items-center justify-center gap-2 ${
+              isWarping && warpRadius === 80 && warpStrength === 40
+                ? 'bg-orange-600 hover:bg-orange-700 text-white border-orange-400'
+                : 'bg-transparent hover:bg-orange-900 text-orange-100 border-orange-600'
+            }`}
+          >
+            <Paintbrush className="w-4 h-4" />
+            Warp Brush S
+          </button>
         </div>
       </div>
 

@@ -36,6 +36,7 @@ export function MapCanvas() {
   const [isSpacePressed, setIsSpacePressed] = useState(false)
   const [mouseCoordinates, setMouseCoordinates] = useState<{ x: number; z: number } | null>(null)
   const [isMouseDown, setIsMouseDown] = useState(false)
+  const [isMouseOverCanvas, setIsMouseOverCanvas] = useState(false)
   const [isCoordinateDialogOpen, setIsCoordinateDialogOpen] = useState(false)
   const lastFreehandPointRef = useRef<{ x: number; z: number } | null>(null)
 
@@ -453,6 +454,8 @@ export function MapCanvas() {
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseMove={onMouseMove}
+        onMouseEnter={() => setIsMouseOverCanvas(true)}
+        onMouseLeave={() => setIsMouseOverCanvas(false)}
         onWheel={onWheel}
       />
       
@@ -478,6 +481,10 @@ export function MapCanvas() {
             onPointMouseUp={handlePointMouseUp}
             onInsertPointClick={handleInsertPointClick}
             onPointDoubleClick={handlePointDoubleClick}
+            isWarping={isWarping}
+            warpRadius={warpRadius}
+            mouseCoordinates={mouseCoordinates}
+            isMouseOverCanvas={isMouseOverCanvas}
           />
           <CustomMarkerOverlay
             canvas={canvasRef.current}
