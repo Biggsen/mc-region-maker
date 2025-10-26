@@ -22,8 +22,8 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
   const showAdvancedTab = urlParams.get('advanced') === 'true'
   
   const tabs = [
-    { id: 'map', label: 'Map (Generate PNG)', icon: Map },
-    { id: 'regions', label: 'Regions (Editor)', icon: Edit3 },
+    { id: 'map', label: 'Map', icon: Map },
+    { id: 'regions', label: 'Regions', icon: Edit3 },
     { id: 'export', label: 'Export', icon: Download },
     ...(showAdvancedTab ? [{ id: 'advanced', label: 'Advanced', icon: Settings }] : [])
   ] as const
