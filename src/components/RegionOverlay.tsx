@@ -25,6 +25,10 @@ interface RegionOverlayProps {
   onPointMouseUp?: () => void
   onInsertPointClick?: (regionId: string, pointIndex: number, x: number, z: number) => void
   onPointDoubleClick?: (regionId: string, pointIndex: number) => void
+  isWarping?: boolean
+  warpRadius?: number
+  mouseCoordinates?: { x: number; z: number } | null
+  isMouseOverCanvas?: boolean
 }
 
 export function RegionOverlay({ 
@@ -41,7 +45,11 @@ export function RegionOverlay({
   onPointMouseMove,
   onPointMouseUp,
   onInsertPointClick,
-  onPointDoubleClick
+  onPointDoubleClick,
+  isWarping = false,
+  warpRadius = 40,
+  mouseCoordinates = null,
+  isMouseOverCanvas = false
 }: RegionOverlayProps) {
   const overlayRef = useRef<HTMLCanvasElement>(null)
 
@@ -105,7 +113,12 @@ export function RegionOverlay({
       drawSpawnPoint(ctx, spawnCoordinates, mapState)
     }
 
-  }, [canvas, mapState, drawingRegion, selectedRegionId, editMode, highlightMode, regions, spawnCoordinates])
+    // Draw warp brush radius indicator (only when mouse is over canvas)
+    if (isWarping && mouseCoordinates && isMouseOverCanvas) {
+      drawWarpBrush(ctx, mouseCoordinates, mapState, warpRadius)
+    }
+
+  }, [canvas, mapState, drawingRegion, selectedRegionId, editMode, highlightMode, regions, spawnCoordinates, isWarping, warpRadius, mouseCoordinates, isMouseOverCanvas])
 
   const drawRegion = (
     ctx: CanvasRenderingContext2D, 
@@ -364,6 +377,29 @@ export function RegionOverlay({
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText('Spawn', canvasPos.x, canvasPos.y + 10)
+  }
+
+  const drawWarpBrush = (
+    ctx: CanvasRenderingContext2D,
+    mouseCoordinates: { x: number; z: number },
+    mapState: MapState,
+    radius: number
+  ) => {
+    const pixelPos = worldToPixel(mouseCoordinates.x, mouseCoordinates.z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+    const canvasPos = imageToCanvas(pixelPos.x, pixelPos.y, mapState.scale, mapState.offsetX, mapState.offsetY)
+
+    // Convert radius from world coordinates to canvas pixels
+    // Reduce visual radius by 90% (0.125 * 0.9) to better match actual effect
+    const canvasRadius = (radius * 0.1125) * mapState.scale
+
+    // Draw a semi-transparent circle
+    ctx.strokeStyle = 'rgba(147, 51, 234, 0.8)' // Purple color
+    ctx.lineWidth = 2
+    ctx.setLineDash([5, 5])
+    ctx.beginPath()
+    ctx.arc(canvasPos.x, canvasPos.y, canvasRadius, 0, 2 * Math.PI)
+    ctx.stroke()
+    ctx.setLineDash([])
   }
 
   const drawSplitPoints = (

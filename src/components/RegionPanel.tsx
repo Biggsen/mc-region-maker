@@ -226,9 +226,6 @@ export function RegionPanel() {
           onUpdateRegion={updateRegion}
           onStartEditMode={startEditMode}
           onStopEditMode={stopEditMode}
-          onStartSettingCenterPoint={startSettingCenterPoint}
-          onSetCustomCenterPoint={setCustomCenterPoint}
-          onSpawnCheckboxChange={handleSpawnCheckboxChange}
           onStartMoveRegion={startMoveRegion}
           onCancelMoveRegion={cancelMoveRegion}
           onStartSplitRegion={startSplitRegion}
