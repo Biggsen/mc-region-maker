@@ -15,7 +15,6 @@ export function ExportImportPanel() {
   const [villageImportError, setVillageImportError] = useState<string | null>(null)
   const [showExportDialog, setShowExportDialog] = useState(false)
   const [hasVillages, setHasVillages] = useState(false)
-  const [isCollapsed, setIsCollapsed] = useState(true)
   const [importRegionsOnly, setImportRegionsOnly] = useState(false)
 
 
@@ -217,25 +216,10 @@ export function ExportImportPanel() {
   const computedHasVillages = regions.regions.some(region => region.subregions && region.subregions.length > 0)
 
   return (
-    <div className="bg-white rounded-lg shadow-md mb-4">
-      <div
-        className={`flex justify-between items-center cursor-pointer py-2 px-4 ${!isCollapsed ? 'mb-3' : ''}`}
-        onClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        <h3 className="text-lg font-semibold text-gray-800">Export & Import Map Data</h3>
-        <span className="text-gray-600 hover:text-gray-800 transition-colors">
-          {isCollapsed ? '▶' : '▼'}
-        </span>
-      </div>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-white mb-4">Export & Import Map Data</h3>
       
-      {!isCollapsed && (
-        <div className="px-4 pb-4 space-y-2">
-        <button
-          onClick={() => navigate('/seed-input')}
-          className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 transform hover:scale-105"
-        >
-          🗺️ Generate Map from Seed
-        </button>
+      <div className="space-y-4">
         
         <div className="space-y-2">
           <button
@@ -371,7 +355,6 @@ export function ExportImportPanel() {
            </div>
          )}
        </div>
-       )}
 
        <ExportDialog
          isOpen={showExportDialog}
