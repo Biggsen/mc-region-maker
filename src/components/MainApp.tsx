@@ -10,6 +10,7 @@ import { MapLoaderControls } from './MapLoaderControls'
 import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
 import { saveActiveTab, loadActiveTab } from '../utils/persistenceUtils'
 import { Map, Edit3, Download, FolderOpen, Save, Settings } from 'lucide-react'
+import { ImportConfirmationModal } from './ImportConfirmationModal'
 
 type TabType = 'map' | 'regions' | 'export' | 'advanced'
 
@@ -131,6 +132,10 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
         })}
       </div>
       
+      <div className="flex items-center">
+        <span className="text-3xl font-bold text-white">Region Forge</span>
+      </div>
+      
       <div className="flex space-x-2">
         <button 
           onClick={handleLoad} 
@@ -163,10 +168,30 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
 function MainAppContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabType>(loadActiveTab())
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [importCallback, setImportCallback] = useState<(() => void) | null>(null)
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
     saveActiveTab(tab)
+  }
+
+  const showImportConfirmation = (callback: () => void) => {
+    setImportCallback(() => callback)
+    setShowImportModal(true)
+  }
+
+  const confirmImport = () => {
+    if (importCallback) {
+      importCallback()
+    }
+    setShowImportModal(false)
+    setImportCallback(null)
+  }
+
+  const cancelImport = () => {
+    setShowImportModal(false)
+    setImportCallback(null)
   }
 
   useEffect(() => {
@@ -187,7 +212,7 @@ function MainAppContent() {
         <div className="flex-1 flex overflow-hidden">
           <div className="w-96 bg-gray-800 p-4 overflow-y-auto border-r border-gray-700">
             {activeTab === 'map' && (
-              <MapLoaderControls />
+              <MapLoaderControls onShowImportConfirmation={showImportConfirmation} />
             )}
             
             {activeTab === 'regions' && (
@@ -209,6 +234,12 @@ function MainAppContent() {
         </div>
         
         {isLoading && <LoadingOverlay />}
+        
+        <ImportConfirmationModal
+          isOpen={showImportModal}
+          onConfirm={confirmImport}
+          onCancel={cancelImport}
+        />
       </div>
     </>
   )

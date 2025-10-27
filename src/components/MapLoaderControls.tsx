@@ -2,10 +2,13 @@ import { useState, useCallback, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { saveImageDetails, loadImageDetails, ImageDetails } from '../utils/persistenceUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
+interface MapLoaderControlsProps {
+  onShowImportConfirmation: (callback: () => void) => void
+}
 
-export function MapLoaderControls() {
+export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControlsProps) {
   const { mapState, regions } = useAppContext()
-  const [imageUrl, setImageUrl] = useState('http://localhost:3000/mc-map.png')
+  const [imageUrl, setImageUrl] = useState('')
   const [seed, setSeed] = useState('')
   const [dimension, setDimension] = useState('overworld')
   const [worldSize, setWorldSize] = useState(8)
@@ -168,28 +171,31 @@ export function MapLoaderControls() {
 
   const handleImportMap = () => {
     if (generatedImage) {
-      const confirmed = confirm(
-        'Importing this map will clear all existing regions and start fresh.\n\n' +
-        'This includes:\n' +
-        '• All existing regions and polygons\n' +
-        '• All village data\n' +
-        '• Current world name\n' +
-        '• Spawn coordinates\n' +
-        '• Map zoom and position\n\n' +
-        'Are you sure you want to continue?'
-      )
+      // Check if there's existing data that would be lost
+      const hasExistingData = regions.regions.length > 0 || 
+                             mapState.mapState.image || 
+                             mapState.mapState.originSelected
       
-      if (confirmed) {
-        // Set map details before importing
-        setLoadedMapDetails({
-          seed: seed,
-          dimension: dimension,
-          worldSize: worldSize,
-          imageSize: { width: 0, height: 0 } // Will be updated when image loads
-        })
-        handleImageUrl(generatedImage)
-        setGeneratedImage(null)
+      if (hasExistingData) {
+        onShowImportConfirmation(performImport)
+      } else {
+        // No existing data, proceed directly
+        performImport()
       }
+    }
+  }
+
+  const performImport = () => {
+    if (generatedImage) {
+      // Set map details before importing
+      setLoadedMapDetails({
+        seed: seed,
+        dimension: dimension,
+        worldSize: worldSize,
+        imageSize: { width: 0, height: 0 } // Will be updated when image loads
+      })
+      handleImageUrl(generatedImage)
+      setGeneratedImage(null)
     }
   }
 
@@ -284,10 +290,10 @@ export function MapLoaderControls() {
           {isLoading ? (
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              {isPolling ? 'Generating Map... (30-60 seconds)' : 'Starting Generation...'}
+              {isPolling ? 'Generating Map Image...' : 'Starting Generation...'}
             </div>
           ) : (
-            'Generate Map'
+            'Generate Map Image'
           )}
         </button>
 
@@ -304,11 +310,8 @@ export function MapLoaderControls() {
               onClick={handleImportMap}
               className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
-              Import Map (Fresh Start)
+              Import Map
             </button>
-            <div className="text-xs text-yellow-400 mt-1">
-              ⚠️ This will clear all existing regions and start fresh
-            </div>
           </div>
         )}
       </div>
@@ -316,26 +319,22 @@ export function MapLoaderControls() {
       {/* Load from URL Section */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">Or Load from URL:</label>
-        <form onSubmit={handleUrlSubmit} className="flex space-x-2">
+        <form onSubmit={handleUrlSubmit} className="space-y-2">
           <input
             type="url"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="http://localhost:3000/map.png"
-            className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm"
+            className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm"
           />
           <button
             type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
           >
             Load
           </button>
         </form>
       </div>
       
-      <p className="text-xs text-gray-400">
-        After loading an image, click on the compass or a known reference point to set the world center (0,0).
-      </p>
       
       {/* Map Details Panel */}
       {mapState.mapState.image && loadedMapDetails && (
@@ -358,18 +357,6 @@ export function MapLoaderControls() {
         </div>
       )}
       
-      {/* Clear All Data Button - Only show if there's data to clear */}
-      {(mapState.mapState.image || regions.regions.length > 0) && (
-        <div className="mt-4 pt-4 border-t border-gray-600">
-          <button
-            onClick={handleClearData}
-            className="w-full text-red-400 hover:text-red-300 text-sm py-2 px-4 rounded border border-red-600 hover:border-red-500 hover:bg-red-900 transition-colors"
-            title="Clear all saved data"
-          >
-            Clear All Data
-          </button>
-        </div>
-      )}
     </div>
   )
 }
