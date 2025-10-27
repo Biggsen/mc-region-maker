@@ -27,15 +27,19 @@ Test the region creation workflow to get a real feel for how the app works.
 - what if you make regions outside the map?
 
 ### Feature Requests / Improvements
-- add logo
-- remove the 'After loading an image, click..' text
+
+#### ✅ Completed
+- ✅ add logo - **DONE**: Added "Region Forge" logo in center of navigation
+- ✅ remove the 'After loading an image, click..' text - **DONE**: Removed instructional text
+- ✅ for the load from URL, the load button should be full width below the input - **DONE**: Made button full width and larger
+- ✅ when importing map, replace the browser popup with the notification of what will be deleted with a modal - **DONE**: Created proper modal with backdrop
+- ✅ maybe switch automatically to Region after importing map? - **DONE**: Auto-switches to Regions tab after import
+- ✅ clear all data isn't need on the Map panel - **DONE**: Removed from Map panel
+
+#### 📋 Still Needed
 - Add save PNG after generating map
 - the Regions panel needs to highlight that you'll need a map first before you can create regions
-- for the load from URL, the load button should be full width below the input
 - do I need a homepage, or an intro page somehow?
-- when importing map, replace the browser popup with the notification of what will be deleted with a modal
-- maybe switch automatically to Region after importing map?
-- clear all data isn't need on the Map panel
 - hovering over regions in the list should highlight them slightly on the map
 - buttons really need different colours. too much green
 - edit mode done needs to be more prominent. again, too much green
