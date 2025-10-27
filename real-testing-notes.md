@@ -29,6 +29,8 @@ Test the region creation workflow to get a real feel for how the app works.
 ### Feature Requests / Improvements
 - add logo
 - remove the 'After loading an image, click..' text
+- Add save PNG after generating map
+- the Regions panel needs to highlight that you'll need a map first before you can create regions
 - for the load from URL, the load button should be full width below the input
 - do I need a homepage, or an intro page somehow?
 - when importing map, replace the browser popup with the notification of what will be deleted with a modal
