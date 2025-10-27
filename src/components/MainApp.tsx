@@ -184,6 +184,9 @@ function MainAppContent() {
   const confirmImport = () => {
     if (importCallback) {
       importCallback()
+      // Auto-switch to Regions tab after successful import
+      setActiveTab('regions')
+      saveActiveTab('regions')
     }
     setShowImportModal(false)
     setImportCallback(null)
