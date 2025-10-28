@@ -48,7 +48,7 @@ export function MapDisplayControls({
       className={`flex items-center gap-2 px-2 py-1 rounded text-xs transition-colors ${
         isActive 
           ? 'bg-gray-700 text-white' 
-          : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
+          : 'text-gray-400 hover:text-gray-300 hover:bg-eerie-back'
       }`}
       title={title}
     >
@@ -60,7 +60,7 @@ export function MapDisplayControls({
   return (
     <div className="absolute bottom-4 left-[220px] z-10">
       {isExpanded && (
-        <div className="mb-2 bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-3 space-y-1">
+        <div className="mb-2 bg-gray-900/80 backdrop-blur-sm border border-gunmetal rounded-lg px-3 py-3 space-y-1">
           <ToggleButton
             isActive={highlightMode.highlightAll}
             onClick={toggleHighlightAll}
@@ -115,7 +115,7 @@ export function MapDisplayControls({
       
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 hover:text-white transition-colors bg-gray-900/80 backdrop-blur-sm border border-gray-700 rounded-lg"
+        className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 hover:text-white transition-colors bg-gray-900/80 backdrop-blur-sm border border-gunmetal rounded-lg"
       >
         {isExpanded ? <ChevronUp size={14} /> : <ChevronRight size={14} />}
         Display

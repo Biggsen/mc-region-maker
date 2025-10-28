@@ -111,7 +111,7 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
   }
 
   return (
-    <div className="flex items-center justify-between bg-gray-800 border-b border-gray-700 px-4 py-3">
+    <div className="flex items-center justify-between bg-eerie-back border-b border-gunmetal px-4 py-3">
       <div className="flex space-x-1">
         {tabs.map((tab) => {
           const IconComponent = tab.icon
@@ -121,7 +121,7 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
               onClick={() => onTabChange(tab.id as TabType)}
               className={`px-6 py-2 rounded-md font-medium transition-colors flex items-center space-x-2 ${
                 activeTab === tab.id
-                  ? 'bg-blue-600 text-white shadow'
+                  ? 'bg-lapis-lazuli text-white shadow'
                   : 'text-gray-300 hover:text-white hover:bg-gray-700'
               }`}
             >
@@ -139,14 +139,14 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
       <div className="flex space-x-2">
         <button 
           onClick={handleLoad} 
-          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium flex items-center space-x-2"
+          className="px-4 py-2 bg-viridian text-white rounded-md hover:bg-viridian/80 transition-colors font-medium flex items-center space-x-2"
         >
           <FolderOpen size={16} />
           <span>Load</span>
         </button>
         <button 
           onClick={handleSave} 
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2"
+          className="px-4 py-2 bg-lapis-lazuli text-white rounded-md hover:bg-lapis-lazuli/80 transition-colors font-medium flex items-center space-x-2"
         >
           <Save size={16} />
           <span>Save</span>
@@ -213,7 +213,7 @@ function MainAppContent() {
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
         
         <div className="flex-1 flex overflow-hidden">
-          <div className="w-96 bg-gray-800 p-4 overflow-y-auto border-r border-gray-700">
+          <div className="w-96 bg-eerie-back p-4 overflow-y-auto border-r border-gunmetal">
             {activeTab === 'map' && (
               <MapLoaderControls onShowImportConfirmation={showImportConfirmation} />
             )}

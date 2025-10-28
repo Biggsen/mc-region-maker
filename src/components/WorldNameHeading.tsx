@@ -48,15 +48,15 @@ export function WorldNameHeading() {
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className="w-full text-3xl font-bold text-white bg-transparent border-b-2 border-blue-500 focus:outline-none focus:border-blue-400 px-2 py-1"
+          className="w-full text-3xl font-bold text-white bg-transparent border-b-2 border-lapis-lazuli focus:outline-none focus:border-lapis-lazuli/80 px-2 py-1"
         />
       ) : (
         <h1 
           onClick={handleClick}
-          className="text-3xl font-bold text-white cursor-pointer hover:text-blue-300 transition-colors px-2 py-1 rounded flex items-center gap-2"
+          className="text-3xl font-bold text-white cursor-pointer hover:text-lapis-lazuli/80 transition-colors px-2 py-1 rounded flex items-center gap-2"
         >
           {worldName.worldName}
-          <Pencil className="w-5 h-5 text-gray-400 hover:text-blue-300 transition-colors" />
+          <Pencil className="w-5 h-5 text-gray-400 hover:text-lapis-lazuli/80 transition-colors" />
         </h1>
       )}
       

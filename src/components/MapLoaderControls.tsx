@@ -219,7 +219,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       <h3 className="text-lg font-semibold text-white">Load Map Image</h3>
       
       {/* Generate Map Section */}
-      <div className="border-b border-gray-600 pb-4">
+      <div className="border-b border-gunmetal pb-4">
         <h4 className="text-md font-medium text-gray-300 mb-3">Generate from Seed</h4>
         
          <div className="mb-3">
@@ -229,7 +229,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
              value={seed}
              onChange={(e) => setSeed(e.target.value)}
              placeholder="Enter seed number or text"
-             className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-white"
+             className="w-full px-3 py-2 bg-gray-700 border border-gunmetal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-white"
              disabled={isLoading}
            />
          </div>
@@ -239,7 +239,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
            <select
              value={dimension}
              onChange={(e) => setDimension(e.target.value)}
-             className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-white"
+             className="w-full px-3 py-2 bg-gray-700 border border-gunmetal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-white"
              disabled={isLoading}
            >
              <option value="overworld">Overworld</option>
@@ -285,7 +285,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
         <button
           onClick={handleGetMap}
           disabled={!seed.trim() || isLoading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          className="w-full bg-lapis-lazuli hover:bg-lapis-lazuli/80 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
           {isLoading ? (
             <div className="flex items-center justify-center">
@@ -303,12 +303,12 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
               <img 
                 src={generatedImage} 
                 alt="Generated map"
-                className="w-full h-auto border border-gray-600 rounded"
+                className="w-full h-auto border border-gunmetal rounded"
               />
             </div>
             <button
               onClick={handleImportMap}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="w-full bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               Import Map
             </button>
@@ -324,7 +324,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
             type="url"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none text-sm"
+            className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none text-sm"
           />
           <button
             type="submit"
@@ -338,9 +338,9 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       
       {/* Map Details Panel */}
       {mapState.mapState.image && loadedMapDetails && (
-        <div className="mt-4 p-3 bg-blue-900 border border-blue-700 rounded-md">
-          <h4 className="text-sm font-semibold text-blue-200 mb-2">Map Details</h4>
-          <div className="space-y-1 text-xs text-blue-300">
+        <div className="mt-4 p-3 bg-lapis-lazuli/20 border border-lapis-lazuli/50 rounded-md">
+          <h4 className="text-sm font-semibold text-lapis-lazuli mb-2">Map Details</h4>
+          <div className="space-y-1 text-xs text-lapis-lazuli/80">
             {loadedMapDetails.seed && (
               <div><span className="font-medium">Seed:</span> {loadedMapDetails.seed}</div>
             )}

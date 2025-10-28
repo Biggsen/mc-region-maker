@@ -34,7 +34,7 @@ export function CoordinateInputDialog({ isOpen, onClose, onSubmit }: CoordinateI
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 w-80">
+      <div className="bg-eerie-back border border-gunmetal rounded-lg p-6 w-80">
         <h3 className="text-white text-lg font-semibold mb-4">Add Custom Marker</h3>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -45,7 +45,7 @@ export function CoordinateInputDialog({ isOpen, onClose, onSubmit }: CoordinateI
               value={x}
               onChange={(e) => setX(e.target.value)}
               placeholder="Enter X coordinate"
-              className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+              className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
               autoFocus
               required
             />
@@ -58,7 +58,7 @@ export function CoordinateInputDialog({ isOpen, onClose, onSubmit }: CoordinateI
               value={z}
               onChange={(e) => setZ(e.target.value)}
               placeholder="Enter Z coordinate"
-              className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+              className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
               required
             />
           </div>
@@ -66,7 +66,7 @@ export function CoordinateInputDialog({ isOpen, onClose, onSubmit }: CoordinateI
           <div className="flex space-x-3 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+              className="flex-1 bg-lapis-lazuli hover:bg-lapis-lazuli/80 text-white px-4 py-2 rounded transition-colors"
             >
               Add Marker
             </button>

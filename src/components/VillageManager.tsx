@@ -66,12 +66,12 @@ export function VillageManager({
                         handleCancelVillageRename()
                       }
                     }}
-                    className="flex-1 bg-gray-700 text-white text-xs px-2 py-1 rounded border border-gray-500 focus:outline-none focus:border-blue-400"
+                    className="flex-1 bg-gray-700 text-white text-xs px-2 py-1 rounded border border-gray-500 focus:outline-none focus:border-lapis-lazuli/80"
                     autoFocus
                   />
                   <button
                     onClick={handleSaveVillageRename}
-                    className="text-green-400 hover:text-green-300 text-xs px-1"
+                    className="text-zomp/80 hover:text-zomp text-xs px-1"
                     title="Save"
                   >
                     ✓
@@ -92,7 +92,7 @@ export function VillageManager({
               <div>
                 <div className="flex justify-between items-center">
                   <span 
-                    className="cursor-pointer hover:text-blue-300 transition-colors"
+                    className="cursor-pointer hover:text-lapis-lazuli/80 transition-colors"
                     onClick={() => handleStartVillageRename(subregion.id, subregion.name)}
                     title="Click to rename"
                   >

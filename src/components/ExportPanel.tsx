@@ -39,7 +39,7 @@ export function ExportPanel() {
           <button
             onClick={handleExportYAML}
             disabled={regions.regions.length === 0}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            className="w-full bg-violet-blue hover:bg-violet-blue/80 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
           >
             Export YAML
           </button>

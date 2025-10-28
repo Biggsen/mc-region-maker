@@ -46,13 +46,13 @@ export function RegionCreationForm({
             setShowNewRegionForm(!showNewRegionForm)
           }
         }}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+        className="w-full bg-lapis-lazuli hover:bg-lapis-lazuli/80 text-white font-medium py-2 px-4 rounded"
       >
         {isDrawing ? 'Cancel' : (showNewRegionForm ? 'Cancel' : 'Create New Region')}
       </button>
       
       {showNewRegionForm && (
-        <div className="space-y-2 p-3 bg-gray-700 rounded border border-gray-600">
+        <div className="space-y-2 p-3 bg-gray-700 rounded border border-gunmetal">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Region Name
@@ -63,12 +63,12 @@ export function RegionCreationForm({
                 value={newRegionName}
                 onChange={(e) => setNewRegionName(e.target.value)}
                 placeholder="Enter region name"
-                className="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-blue-500 focus:outline-none"
+                className="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-lapis-lazuli focus:outline-none"
                 onKeyPress={(e) => e.key === 'Enter' && handleStartDrawing()}
               />
               <button
                 onClick={handleGenerateNewName}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded border border-purple-500 focus:outline-none"
+                className="bg-violet-blue hover:bg-violet-blue/80 text-white px-3 py-2 rounded border border-violet-blue/80 focus:outline-none"
                 title="Generate random medieval name"
               >
                 🎲
@@ -77,7 +77,7 @@ export function RegionCreationForm({
           </div>
           <button
             onClick={handleStartDrawing}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
+            className="w-full bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded"
           >
             Start drawing region
           </button>

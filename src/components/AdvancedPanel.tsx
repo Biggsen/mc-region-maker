@@ -165,7 +165,7 @@ export function AdvancedPanel() {
         <div>
           <button
             onClick={() => setIsWorldTypeExpanded(!isWorldTypeExpanded)}
-            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gunmetal bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lapis-lazuli focus:border-lapis-lazuli"
           >
             <span>World Type</span>
             <svg
@@ -186,8 +186,8 @@ export function AdvancedPanel() {
                   onClick={() => worldType.setWorldType('overworld')}
                   className={`text-sm px-3 py-1 rounded border ${
                     worldType.worldType === 'overworld'
-                      ? 'bg-green-600 text-white border-green-500'
-                      : 'text-green-400 hover:text-green-300 border-green-400 hover:border-green-300'
+                      ? 'bg-viridian text-white border-viridian'
+                      : 'text-zomp/80 hover:text-zomp border-zomp/80 hover:border-zomp'
                   }`}
                   title="Generate overworld-style names"
                 >
@@ -214,7 +214,7 @@ export function AdvancedPanel() {
         <div>
           <button
             onClick={() => setIsOtherRegionTypesExpanded(!isOtherRegionTypesExpanded)}
-            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gunmetal bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lapis-lazuli focus:border-lapis-lazuli"
           >
             <span>Spawn</span>
             <svg
@@ -239,7 +239,7 @@ export function AdvancedPanel() {
         <div>
           <button
             onClick={() => setIsPluginsExpanded(!isPluginsExpanded)}
-            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gunmetal bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lapis-lazuli focus:border-lapis-lazuli"
           >
             <span>Plugins</span>
             <svg
@@ -299,7 +299,7 @@ export function AdvancedPanel() {
         <div>
           <button
             onClick={() => setIsVillagesExpanded(!isVillagesExpanded)}
-            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gunmetal bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lapis-lazuli focus:border-lapis-lazuli"
           >
             <span>Villages</span>
             <svg
@@ -343,7 +343,7 @@ export function AdvancedPanel() {
                 <button
                   onClick={triggerVillageFileInput}
                   disabled={isImportingVillages}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                  className="w-full bg-viridian hover:bg-viridian/80 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
                 >
                   {isImportingVillages ? 'Importing...' : 'Import Villages (CSV)'}
                 </button>
@@ -370,7 +370,7 @@ export function AdvancedPanel() {
         <div>
           <button
             onClick={() => setIsImportExpanded(!isImportExpanded)}
-            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gunmetal bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lapis-lazuli focus:border-lapis-lazuli"
           >
             <span>Import</span>
             <svg
@@ -395,7 +395,7 @@ export function AdvancedPanel() {
                 <button
                   onClick={triggerFileInput}
                   disabled={isImporting}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                  className="w-full bg-viridian hover:bg-viridian/80 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
                 >
                   {isImporting ? 'Importing...' : 'Import regions'}
                 </button>
@@ -422,7 +422,7 @@ export function AdvancedPanel() {
         <div>
           <button
             onClick={() => setIsRegionSpecificExpanded(!isRegionSpecificExpanded)}
-            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gray-600 bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="flex items-center justify-between w-full text-left text-sm font-medium text-gray-300 mb-2 px-3 py-2 rounded-md border border-gunmetal bg-gray-700/50 hover:bg-gray-600/50 hover:text-white hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lapis-lazuli focus:border-lapis-lazuli"
           >
             <span>Region Specific</span>
             <svg
@@ -449,7 +449,7 @@ export function AdvancedPanel() {
                     <select
                       value={regions.regions.find(r => r.id === regions.selectedRegionId)?.challengeLevel || 'Vanilla'}
                       onChange={(e) => regions.updateRegion(regions.selectedRegionId!, { challengeLevel: e.target.value as any })}
-                      className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                      className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
                     >
                       <option value="Vanilla">Vanilla</option>
                       <option value="Bronze">Bronze</option>
@@ -462,7 +462,7 @@ export function AdvancedPanel() {
                     </p>
                   </div>
                 ) : (
-                  <div className="text-sm text-gray-400 p-3 bg-gray-800/50 rounded-md">
+                  <div className="text-sm text-gray-400 p-3 bg-eerie-back/50 rounded-md">
                     Select a region to set its challenge level
                   </div>
                 )}
@@ -494,7 +494,7 @@ export function AdvancedPanel() {
                             // Then update the selected region
                             regions.updateRegion(regionId, { hasSpawn: e.target.checked })
                           }}
-                          className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                          className="w-4 h-4 text-lapis-lazuli bg-gray-700 border-gunmetal rounded focus:ring-lapis-lazuli focus:ring-2"
                         />
                         <span className="text-sm text-gray-300">Has Spawn</span>
                       </label>
@@ -503,7 +503,7 @@ export function AdvancedPanel() {
                       </p>
                     </div>
                   ) : (
-                    <div className="text-sm text-gray-400 p-3 bg-gray-800/50 rounded-md">
+                    <div className="text-sm text-gray-400 p-3 bg-eerie-back/50 rounded-md">
                       Select a region to set its spawn status
                     </div>
                   )}
@@ -527,7 +527,7 @@ export function AdvancedPanel() {
                             mapCanvas.startSettingCenterPoint(regions.selectedRegionId!)
                           }
                         }}
-                        className="text-blue-400 hover:text-blue-300 text-sm px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+                        className="text-lapis-lazuli/80 hover:text-lapis-lazuli text-sm px-2 py-1 rounded hover:bg-gray-700 transition-colors"
                         title="Click on map to set region heart"
                       >
                         Click Map
@@ -542,7 +542,7 @@ export function AdvancedPanel() {
                     </div>
                     
                     {!showCustomCenterForm ? (
-                      <div className="bg-gray-700 p-3 rounded border border-gray-600">
+                      <div className="bg-gray-700 p-3 rounded border border-gunmetal">
                         <div className="flex justify-between items-center">
                           <div className="text-sm">
                             <span className="text-gray-400">Current: </span>
@@ -562,7 +562,7 @@ export function AdvancedPanel() {
                                 })())}
                             </span>
                             {regions.regions.find(r => r.id === regions.selectedRegionId)?.centerPoint && (
-                              <span className="text-blue-400 text-xs ml-2">(Custom)</span>
+                              <span className="text-lapis-lazuli/80 text-xs ml-2">(Custom)</span>
                             )}
                           </div>
                           <button
@@ -576,14 +576,14 @@ export function AdvancedPanel() {
                                 navigator.clipboard.writeText(tpCommand)
                               }
                             }}
-                            className="text-blue-400 hover:text-blue-300 text-xs px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+                            className="text-lapis-lazuli/80 hover:text-lapis-lazuli text-xs px-2 py-1 rounded hover:bg-gray-700 transition-colors"
                             title="Copy /tp command to clipboard"
                           >
                             Copy /tp
                           </button>
                         </div>
                         {mapCanvas.isSettingCenterPoint && mapCanvas.centerPointRegionId === regions.selectedRegionId && (
-                          <div className="mt-2 p-2 bg-purple-900 border border-purple-600 rounded text-xs text-purple-200">
+                          <div className="mt-2 p-2 bg-violet-blue/20 border border-violet-blue/50 rounded text-xs text-violet-blue/80">
                             Click anywhere on the map to set the region heart for this region
                           </div>
                         )}
@@ -598,7 +598,7 @@ export function AdvancedPanel() {
                               value={customCenterX}
                               onChange={(e) => setCustomCenterX(e.target.value)}
                               placeholder="X"
-                              className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-blue-400 focus:outline-none text-sm"
+                              className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-lapis-lazuli/80 focus:outline-none text-sm"
                             />
                           </div>
                           <div>
@@ -608,7 +608,7 @@ export function AdvancedPanel() {
                               value={customCenterZ}
                               onChange={(e) => setCustomCenterZ(e.target.value)}
                               placeholder="Z"
-                              className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-blue-400 focus:outline-none text-sm"
+                              className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-lapis-lazuli/80 focus:outline-none text-sm"
                             />
                           </div>
                         </div>
@@ -616,7 +616,7 @@ export function AdvancedPanel() {
                           <button
                             onClick={handleSetCustomCenter}
                             disabled={!customCenterX || !customCenterZ}
-                            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:text-gray-400 text-white text-sm px-2 py-1 rounded"
+                            className="flex-1 bg-viridian hover:bg-viridian/80 disabled:bg-gray-600 disabled:text-gray-400 text-white text-sm px-2 py-1 rounded"
                           >
                             Set Region Heart
                           </button>
@@ -637,7 +637,7 @@ export function AdvancedPanel() {
                     )}
                   </div>
                 ) : (
-                  <div className="text-sm text-gray-400 p-3 bg-gray-800/50 rounded-md">
+                  <div className="text-sm text-gray-400 p-3 bg-eerie-back/50 rounded-md">
                     Select a region to set its heart
                   </div>
                 )}

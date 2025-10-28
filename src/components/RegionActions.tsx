@@ -37,7 +37,7 @@ export function RegionActions({ regions, onRandomizeChallengeLevels }: RegionAct
     <div className="mb-4">
       <button
         onClick={onRandomizeChallengeLevels}
-        className="text-green-400 hover:text-green-300 text-sm px-3 py-2 rounded border border-green-400 hover:border-green-300 hover:bg-green-900/20 transition-colors"
+        className="text-viridian/80 hover:text-viridian text-sm px-3 py-2 rounded border border-viridian/80 hover:border-viridian hover:bg-viridian/20 transition-colors"
         title="Randomize challenge levels with balanced distribution (2 Platinum, 4 Gold, 6 Silver, 8 Bronze, rest Vanilla)"
         disabled={regions.length === 0}
       >
@@ -55,7 +55,7 @@ export function RegionActions({ regions, onRandomizeChallengeLevels }: RegionAct
         </span>
         
         {showChallengeCounts && (
-          <div className="mt-2 p-3 bg-gray-800 rounded border border-gray-600">
+          <div className="mt-2 p-3 bg-eerie-back rounded border border-gunmetal">
             <h5 className="text-sm font-medium text-gray-300 mb-2">Challenge Level Distribution</h5>
             {(() => {
               const counts = getChallengeLevelCounts()
@@ -67,7 +67,7 @@ export function RegionActions({ regions, onRandomizeChallengeLevels }: RegionAct
                       <span className="text-white font-medium">{count}</span>
                     </div>
                   ))}
-                  <div className="border-t border-gray-600 pt-1 mt-2">
+                  <div className="border-t border-gunmetal pt-1 mt-2">
                     <div className="flex justify-between items-center text-sm font-medium">
                       <span className="text-gray-300">Total:</span>
                       <span className="text-white">{regions.length}</span>

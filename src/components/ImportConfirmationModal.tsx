@@ -12,7 +12,7 @@ export function ImportConfirmationModal({ isOpen, onConfirm, onCancel }: ImportC
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-      <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 max-w-md w-full mx-4">
+      <div className="bg-eerie-back border border-gunmetal rounded-lg p-6 max-w-md w-full mx-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-white">Import New Map</h3>
           <button
@@ -43,7 +43,7 @@ export function ImportConfirmationModal({ isOpen, onConfirm, onCancel }: ImportC
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium"
+            className="flex-1 px-4 py-2 bg-viridian hover:bg-viridian/80 text-white rounded-md transition-colors font-medium"
           >
             Import Map
           </button>

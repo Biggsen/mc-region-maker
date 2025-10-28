@@ -35,7 +35,7 @@ class ErrorBoundary extends React.Component<
             <p className="text-red-100 mb-4">
               Something went wrong while loading the application.
             </p>
-            <div className="bg-gray-800 p-4 rounded border border-gray-600 mb-4">
+            <div className="bg-eerie-back p-4 rounded border border-gunmetal mb-4">
               <h3 className="text-sm font-semibold text-gray-300 mb-2">Error Details:</h3>
               <pre className="text-xs text-red-300 overflow-auto">
                 {this.state.error?.message}
@@ -44,7 +44,7 @@ class ErrorBoundary extends React.Component<
             <div className="flex space-x-4">
               <button
                 onClick={() => window.location.reload()}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                className="bg-lapis-lazuli hover:bg-lapis-lazuli/80 text-white px-4 py-2 rounded"
               >
                 Reload Page
               </button>

@@ -86,7 +86,7 @@ export function RegionDetailsView({
       <div className="space-y-4">
         <button
           onClick={onBack}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded border border-blue-500 transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-lapis-lazuli hover:bg-lapis-lazuli/80 text-white font-medium px-3 py-2 rounded border border-lapis-lazuli transition-colors flex items-center justify-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -101,11 +101,11 @@ export function RegionDetailsView({
             type="text"
             value={selectedRegion.name}
             onChange={(e) => onUpdateRegion(selectedRegion.id, { name: e.target.value })}
-            className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+            className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
           />
           <button
             onClick={() => onUpdateRegion(selectedRegion.id, { name: generateRegionName(worldType as 'overworld' | 'nether') })}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded border border-purple-500 focus:outline-none"
+            className="bg-violet-blue hover:bg-violet-blue/80 text-white px-3 py-2 rounded border border-violet-blue/80 focus:outline-none"
             title="Generate random medieval name"
           >
             🎲
@@ -115,7 +115,7 @@ export function RegionDetailsView({
           <p className="text-gray-400 text-xs">
             {selectedRegion.points.length} points
           </p>
-          <p className="text-blue-400 text-xs">
+          <p className="text-lapis-lazuli/80 text-xs">
             {formatArea(calculatePolygonArea(selectedRegion.points))}
           </p>
         </div>
@@ -133,7 +133,7 @@ export function RegionDetailsView({
             className={`flex-1 font-medium py-2 px-4 rounded flex items-center justify-center gap-2 ${
               editMode.isMovingRegion
                 ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                : 'bg-green-600 hover:bg-green-700 text-white'
+                : 'bg-viridian hover:bg-viridian/80 text-white'
             }`}
           >
             <VectorSquare className="w-4 h-4" />
@@ -143,16 +143,16 @@ export function RegionDetailsView({
       )}
 
       {isEditing && (
-        <div className="mb-4 p-3 bg-green-900 border border-green-600 rounded">
-          <p className="text-green-200 text-base">
+        <div className="mb-4 p-3 bg-viridian/20 border border-viridian/50 rounded">
+          <p className="text-zomp/80 text-base">
             <strong>Edit Mode</strong>
           </p>
-          <p className="text-green-300 text-sm mt-1">
+          <p className="text-zomp/60 text-sm mt-1">
             Drag green points to move them. Click cyan dots between points to add new points. Double-click green points to delete them.
           </p>
           <button
             onClick={onStopEditMode}
-            className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
+            className="mt-2 w-full bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded"
           >
             Done
           </button>
@@ -163,7 +163,7 @@ export function RegionDetailsView({
         <h4 className="text-sm font-medium text-gray-300 mb-2">Refine Shape</h4>
         <button
           onClick={() => onSimplifyRegionVertices(selectedRegion.id, 10)}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 mb-3"
+          className="w-full bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 mb-3"
         >
           <BrushCleaning className="w-4 h-4" />
           Simplify
@@ -171,14 +171,14 @@ export function RegionDetailsView({
         <div className="flex space-x-2 mb-3">
           <button
             onClick={() => onDoubleRegionVertices(selectedRegion.id)}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2"
+            className="flex-1 bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Double Vertices
           </button>
           <button
             onClick={() => onHalveRegionVertices(selectedRegion.id)}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2"
+            className="flex-1 bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2"
           >
             <Minus className="w-4 h-4" />
             Halve Vertices
@@ -270,7 +270,7 @@ export function RegionDetailsView({
               const center = calculateRegionCenter(selectedRegion)
               onStartMoveRegion(selectedRegion.id, center.x, center.z)
             }}
-            className="flex-1 font-medium py-2 px-4 rounded bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
+            className="flex-1 font-medium py-2 px-4 rounded bg-viridian hover:bg-viridian/80 text-white flex items-center justify-center gap-2"
           >
             <Move className="w-4 h-4" />
             Move Region
@@ -279,17 +279,17 @@ export function RegionDetailsView({
       )}
 
       {editMode.isMovingRegion && (
-        <div className="mb-4 p-3 bg-green-900 border border-green-600 rounded">
-          <p className="text-green-200 text-base">
+        <div className="mb-4 p-3 bg-viridian/20 border border-viridian/50 rounded">
+          <p className="text-zomp/80 text-base">
             <strong>Move Mode</strong>
           </p>
-          <p className="text-green-300 text-sm mt-1">
+          <p className="text-zomp/60 text-sm mt-1">
             Click and drag the region to move it. Release to drop it in the new location.
           </p>
           <div className="flex space-x-2 mt-3">
             <button
               onClick={onFinishMoveRegion}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
+              className="flex-1 bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded"
             >
               Done
             </button>
@@ -309,7 +309,7 @@ export function RegionDetailsView({
             onClick={() => {
               onStartSplitRegion(selectedRegion.id)
             }}
-            className="flex-1 font-medium py-2 px-4 rounded bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
+            className="flex-1 font-medium py-2 px-4 rounded bg-viridian hover:bg-viridian/80 text-white flex items-center justify-center gap-2"
           >
             <Scissors className="w-4 h-4" />
             Split Region
@@ -318,18 +318,18 @@ export function RegionDetailsView({
       )}
 
       {editMode.isSplittingRegion && (
-        <div className="mb-4 p-3 bg-green-900 border border-green-600 rounded">
-          <p className="text-green-200 text-base">
+        <div className="mb-4 p-3 bg-viridian/20 border border-viridian/50 rounded">
+          <p className="text-zomp/80 text-base">
             <strong>Split Mode</strong>
           </p>
-          <p className="text-green-300 text-sm mt-1">
+          <p className="text-zomp/60 text-sm mt-1">
             Click 2 points on the region edge to define where to split it. ({editMode.splitPoints.length}/2 points selected)
           </p>
           <div className="flex space-x-2 mt-3">
             {editMode.splitPoints.length === 2 && (
               <button
                 onClick={onFinishSplitRegion}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
+                className="flex-1 bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded"
               >
                 Split Region
               </button>
@@ -357,7 +357,7 @@ export function RegionDetailsView({
       />
 
       {/* Clear Data Button - Bottom of sidebar */}
-      <div className="mt-auto pt-4 border-t border-gray-600">
+      <div className="mt-auto pt-4 border-t border-gunmetal">
         <button
           onClick={onClearData}
           className="w-full text-red-400 hover:text-red-300 text-sm py-2 px-4 rounded border border-red-400 hover:border-red-300 hover:bg-red-900/20 transition-colors"

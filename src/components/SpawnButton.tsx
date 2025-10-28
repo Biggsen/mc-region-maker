@@ -117,7 +117,7 @@ export function SpawnButton() {
           className={`w-full py-2 px-4 rounded font-medium transition-colors ${
             spawnState.isPlacing
               ? 'bg-orange-600 hover:bg-orange-700 text-white'
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
+              : 'bg-lapis-lazuli hover:bg-lapis-lazuli/80 text-white'
           }`}
         >
           {spawnState.isPlacing
@@ -145,7 +145,7 @@ export function SpawnButton() {
                   onChange={(e) => setTempX(e.target.value)}
                   onBlur={handleXSave}
                   onKeyDown={handleXKeyPress}
-                  className="bg-gray-800 text-white px-2 py-1 rounded text-xs w-20 border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="bg-eerie-back text-white px-2 py-1 rounded text-xs w-20 border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
                   autoFocus
                 />
               ) : (
@@ -167,7 +167,7 @@ export function SpawnButton() {
                   onChange={(e) => setTempZ(e.target.value)}
                   onBlur={handleZSave}
                   onKeyDown={handleZKeyPress}
-                  className="bg-gray-800 text-white px-2 py-1 rounded text-xs w-20 border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="bg-eerie-back text-white px-2 py-1 rounded text-xs w-20 border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
                   autoFocus
                 />
               ) : (
@@ -192,7 +192,7 @@ export function SpawnButton() {
                   onChange={(e) => setTempRadius(e.target.value)}
                   onBlur={handleRadiusSave}
                   onKeyDown={handleRadiusKeyPress}
-                  className="bg-gray-800 text-white px-2 py-1 rounded text-xs w-20 border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  className="bg-eerie-back text-white px-2 py-1 rounded text-xs w-20 border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
                   autoFocus
                   min="1"
                 />

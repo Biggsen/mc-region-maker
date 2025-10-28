@@ -399,25 +399,25 @@ export function MapCanvas() {
       )}
 
       {editMode.isEditing && (
-        <div className="absolute top-4 left-4 z-10 bg-green-600/90 text-white px-3 py-1 text-sm font-medium">
+        <div className="absolute top-4 left-4 z-10 bg-viridian/90 text-white px-3 py-1 text-sm font-medium">
           Edit Mode
         </div>
       )}
       
       {editMode.isMovingRegion && (
-        <div className="absolute top-4 left-4 z-10 bg-green-600/90 text-white px-3 py-1 text-sm font-medium">
+        <div className="absolute top-4 left-4 z-10 bg-viridian/90 text-white px-3 py-1 text-sm font-medium">
           Move Mode
         </div>
       )}
       
       {editMode.isSplittingRegion && (
-        <div className="absolute top-4 left-4 z-10 bg-green-600/90 text-white px-3 py-1 text-sm font-medium">
+        <div className="absolute top-4 left-4 z-10 bg-viridian/90 text-white px-3 py-1 text-sm font-medium">
           Split Mode
         </div>
       )}
       
       {isSettingCenterPoint && (
-        <div className="absolute top-4 right-4 z-10 bg-purple-600 text-white px-3 py-1 rounded text-sm">
+        <div className="absolute top-4 right-4 z-10 bg-violet-blue text-white px-3 py-1 rounded text-sm">
           Set Region Heart Mode
         </div>
       )}
@@ -429,7 +429,7 @@ export function MapCanvas() {
       )}
       
       {mouseCoordinates && (
-        <div className="absolute bottom-4 left-4 z-10 bg-gray-800 text-white px-3 py-1 pr-2 rounded text-sm border border-gray-600 font-mono flex items-center space-x-2">
+        <div className="absolute bottom-4 left-4 z-10 bg-eerie-back text-white px-3 py-1 pr-2 rounded text-sm border border-gunmetal font-mono flex items-center space-x-2">
             <span className="w-[140px]">
               <span className="text-gray-400">X:</span> <span className="text-white inline-block w-[30px]">{Math.round(mouseCoordinates.x)}</span>{' '}
               <span className="text-gray-400 ml-3">Z:</span> <span className="text-white inline-block w-[30px]">{Math.round(mouseCoordinates.z)}</span>
@@ -448,7 +448,7 @@ export function MapCanvas() {
       )}
       
       <div className="absolute top-4 right-4 z-10 flex items-center space-x-2">
-        <div className="bg-gray-800 text-white px-3 py-1 rounded text-sm border border-gray-600">
+        <div className="bg-eerie-back text-white px-3 py-1 rounded text-sm border border-gunmetal">
           {Math.round(mapState.scale * 100)}%
         </div>
         <button
@@ -462,7 +462,7 @@ export function MapCanvas() {
               setOffset(centerX, centerY)
             }
           }}
-          className="bg-gray-700 hover:bg-gray-600 text-white p-1 rounded border border-gray-600 transition-colors flex items-center justify-center"
+          className="bg-gray-700 hover:bg-gray-600 text-white p-1 rounded border border-gunmetal transition-colors flex items-center justify-center"
           title="Reset zoom to 100% and center image"
         >
           <Scan size={14} />
@@ -471,7 +471,8 @@ export function MapCanvas() {
       
       <canvas
         ref={canvasRef}
-        className={`border border-gray-600 ${getCursorStyle()}`}
+        className={`border border-gunmetal ${getCursorStyle()}`}
+        style={{ backgroundColor: '#121716' }}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseMove={onMouseMove}

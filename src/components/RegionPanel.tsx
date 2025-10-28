@@ -125,7 +125,7 @@ export function RegionPanel() {
               <button
                 onClick={() => regions.finishDrawingRegion()}
                 disabled={drawingRegion.points.length < 3}
-                className={`w-full font-medium py-2 px-4 rounded ${drawingRegion.points.length < 3 ? 'bg-gray-600 text-gray-300' : 'bg-green-600 hover:bg-green-700 text-white'}`}
+                className={`w-full font-medium py-2 px-4 rounded ${drawingRegion.points.length < 3 ? 'bg-gray-600 text-gray-300' : 'bg-viridian hover:bg-viridian/80 text-white'}`}
               >
                 Finish
               </button>
@@ -161,7 +161,7 @@ export function RegionPanel() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search regions..."
-              className="w-full bg-gray-700 text-white pl-10 pr-3 py-2 rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+              className="w-full bg-gray-700 text-white pl-10 pr-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
             />
           </div>
 
@@ -172,7 +172,7 @@ export function RegionPanel() {
               return (
                 <div
                   key={region.id}
-                  className="p-2 rounded cursor-pointer border bg-gray-700 border-gray-600 hover:bg-gray-600"
+                  className="p-2 rounded cursor-pointer border bg-gray-700 border-gunmetal hover:bg-gray-600"
                   onClick={() => setSelectedRegionId(region.id)}
                 >
                   <div className="flex justify-between items-center">
@@ -205,7 +205,7 @@ export function RegionPanel() {
           </div>
 
           {/* Clear Data Button - Bottom of sidebar */}
-          <div className="fixed bottom-0 left-0 w-96 border-r border-gray-700 px-4 py-2 z-10">
+          <div className="fixed bottom-0 left-0 w-96 border-r border-gunmetal px-4 py-2 z-10">
             <button
               onClick={handleClearData}
               className="w-full text-red-400 hover:text-red-300 text-sm py-2 px-4 rounded border border-red-400 hover:border-red-300 hover:bg-red-900/20 transition-colors"
