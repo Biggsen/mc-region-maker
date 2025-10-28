@@ -17,6 +17,7 @@ type TabType = 'map' | 'regions' | 'export' | 'advanced'
 function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabChange: (tab: TabType) => void }) {
   const { regions, mapState, worldName, spawn, worldType } = useAppContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [showLoadModal, setShowLoadModal] = useState(false)
   
   // Check URL parameter for advanced features
   const urlParams = new URLSearchParams(window.location.search)
@@ -38,8 +39,33 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
     await exportCompleteMap(regions.regions, mapState.mapState, worldName.worldName, spawnData, worldType.worldType)
   }
 
-  const handleLoad = () => {
+  const hasExistingData = () => {
+    return (
+      regions.regions.length > 0 ||
+      mapState.mapState.image !== null ||
+      worldName.worldName !== 'world' ||
+      spawn.spawnState.coordinates !== null
+    )
+  }
+
+  const handleLoadClick = () => {
+    if (hasExistingData()) {
+      // Show confirmation modal first
+      setShowLoadModal(true)
+    } else {
+      // No data exists, proceed directly to file selection
+      fileInputRef.current?.click()
+    }
+  }
+  
+  const confirmLoad = () => {
+    setShowLoadModal(false)
+    // Now trigger file input after confirmation
     fileInputRef.current?.click()
+  }
+  
+  const cancelLoad = () => {
+    setShowLoadModal(false)
   }
 
   const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,7 +164,7 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
       
       <div className="flex space-x-2">
         <button 
-          onClick={handleLoad} 
+          onClick={handleLoadClick} 
           className="px-4 py-2 bg-viridian/5 hover:bg-viridian/10 active:bg-viridian/20 border-2 border-viridian text-gray-300 rounded-md transition-colors font-medium flex items-center space-x-2"
         >
           <FolderOpen size={16} />
@@ -159,6 +185,16 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
         accept=".json"
         onChange={handleFileImport}
         className="hidden"
+      />
+      
+      <ImportConfirmationModal
+        isOpen={showLoadModal}
+        onConfirm={confirmLoad}
+        onCancel={cancelLoad}
+        title="Load Project File"
+        message="Loading a project file will replace all current data."
+        warningMessage="⚠️ All existing regions, map, and settings will be lost."
+        confirmLabel="Load Project"
       />
     </div>
   )
