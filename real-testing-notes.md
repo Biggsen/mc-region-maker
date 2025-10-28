@@ -55,6 +55,7 @@ Test the region creation workflow to get a real feel for how the app works.
 - none of those export options are valid for public
 - greeting and farewell setting need to be added
 - make marker a bit more functional and persistent? maybe name it and be able to click it and remove?
+- being able to show hide panel would be great. push it away to the side.
 
 ### Positive Findings
 - 
