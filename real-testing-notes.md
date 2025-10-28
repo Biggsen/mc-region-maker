@@ -56,6 +56,7 @@ Test the region creation workflow to get a real feel for how the app works.
 - greeting and farewell setting need to be added
 - make marker a bit more functional and persistent? maybe name it and be able to click it and remove?
 - being able to show hide panel would be great. push it away to the side.
+- when clearing all data, replace browser confirmation to use a modal
 
 ### Positive Findings
 - 
