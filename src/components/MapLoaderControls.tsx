@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { saveImageDetails, loadImageDetails, ImageDetails } from '../utils/persistenceUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
+import { Button } from './Button'
 interface MapLoaderControlsProps {
   onShowImportConfirmation: (callback: () => void) => void
 }
@@ -16,6 +17,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
   const [isPolling, setIsPolling] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [seedError, setSeedError] = useState<string | null>(null)
   const [loadedMapDetails, setLoadedMapDetails] = useState<ImageDetails | null>(null)
   const { setImage, setOffset } = mapState
 
@@ -85,12 +87,13 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
 
   const handleGetMap = async () => {
     if (!seed.trim()) {
-      setError('Please enter a seed')
+      setSeedError('Please enter a seed')
       return
     }
 
     setIsLoading(true)
     setError(null)
+    setSeedError(null)
     
     try {
       // Step 1: Start generation job
@@ -236,6 +239,9 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
              disabled={isLoading}
              required
            />
+           {seedError && (
+             <p className="mt-1 text-sm text-red-400">{seedError}</p>
+           )}
          </div>
 
          <div className="mb-3">
@@ -257,25 +263,29 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
             <label className="block text-sm font-medium text-gray-300 mb-1">
               World Size: {worldSize}k ({worldSize * 125}x{worldSize * 125})
             </label>
-            <input
-              type="range"
-              min="2"
-              max="16"
-              step="1"
-              value={worldSize}
-              onChange={(e) => setWorldSize(parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-600"
-              disabled={isLoading}
-            />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>2k</span>
-              <span>4k</span>
-              <span>6k</span>
-              <span>8k</span>
-              <span>10k</span>
-              <span>12k</span>
-              <span>14k</span>
-              <span>16k</span>
+            <div className="relative">
+              <input
+                type="range"
+                min="2"
+                max="16"
+                step="1"
+                value={worldSize}
+                onChange={(e) => setWorldSize(parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                disabled={isLoading}
+              />
+              <div className="relative -mt-1" style={{ marginLeft: '0.375rem', marginRight: '0.375rem' }}>
+                <div className="relative text-xs text-gray-400" style={{ height: '1rem' }}>
+                  <span className="absolute left-0">2k</span>
+                  <span className="absolute" style={{ left: '14.29%', transform: 'translateX(-50%)' }}>4k</span>
+                  <span className="absolute" style={{ left: '28.57%', transform: 'translateX(-50%)' }}>6k</span>
+                  <span className="absolute" style={{ left: '42.86%', transform: 'translateX(-50%)' }}>8k</span>
+                  <span className="absolute" style={{ left: '57.14%', transform: 'translateX(-50%)' }}>10k</span>
+                  <span className="absolute" style={{ left: '71.43%', transform: 'translateX(-50%)' }}>12k</span>
+                  <span className="absolute" style={{ left: '85.71%', transform: 'translateX(-50%)' }}>14k</span>
+                  <span className="absolute right-0">16k</span>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -286,10 +296,11 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
           </div>
         )}
 
-        <button
+        <Button
+          variant="primary"
           onClick={handleGetMap}
-          disabled={!seed.trim() || isLoading}
-          className="w-full bg-lapis-lazuli hover:bg-lapis-lazuli/80 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          disabled={isLoading}
+          className="w-full"
         >
           {isLoading ? (
             <div className="flex items-center justify-center">
@@ -299,10 +310,11 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
           ) : (
             'Generate Map Image'
           )}
-        </button>
+        </Button>
 
         {generatedImage && (
           <div className="mt-3">
+            <h4 className="text-sm font-medium text-gray-300 mb-2">Map Image Preview</h4>
             <div className="bg-gray-700 rounded p-2 mb-2">
               <img 
                 src={generatedImage} 
@@ -310,12 +322,13 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
                 className="w-full h-auto border border-gunmetal rounded"
               />
             </div>
-            <button
+            <Button
+              variant="secondary"
               onClick={handleImportMap}
-              className="w-full bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="w-full"
             >
               Import Map
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -331,12 +344,13 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
             placeholder="https://example.com/image.png"
             className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none text-sm placeholder:text-gray-500"
           />
-          <button
+          <Button
+            variant="secondary"
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            className="w-full"
           >
             Load
-          </button>
+          </Button>
         </form>
       </div>
       
