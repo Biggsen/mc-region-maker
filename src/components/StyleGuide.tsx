@@ -8,6 +8,8 @@ const colors: ColorSwatch[] = [
   { name: 'Lapis Lazuli', hex: '#386595', className: 'bg-lapis-lazuli' }, // primary
   { name: 'Viridian', hex: '#287B5F', className: 'bg-viridian' }, // secondary
   { name: 'Violet Blue', hex: '#4A429E', className: 'bg-violet-blue' },
+  { name: 'Silver Lake Blue', hex: '#5C8DC1', className: 'bg-silver-lake-blue' },
+  { name: 'Vista Blue', hex: '#7AA2CD', className: 'bg-vista-blue' },
   { name: 'Night', hex: '#121716', className: 'bg-night' },
   { name: 'Zomp', hex: '#319876', className: 'bg-zomp' },
   { name: 'Gunmetal', hex: '#252C2B', className: 'bg-gunmetal' },
@@ -65,19 +67,52 @@ export function StyleGuide() {
             </div>
 
             <div className="bg-eerie-back border border-gunmetal rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-4 text-white">Action Buttons</h3>
+              <h3 className="text-xl font-semibold mb-4 text-white">Primary Button</h3>
               <div className="flex flex-wrap gap-4">
                 <button className="px-6 py-3 bg-lapis-lazuli hover:bg-lapis-lazuli/80 text-white rounded-md transition-colors font-medium">
-                  Lapis Lazuli Button (Primary)
+                  Primary
                 </button>
+              </div>
+            </div>
+
+            <div className="bg-eerie-back border border-gunmetal rounded-lg p-6">
+              <h3 className="text-xl font-semibold mb-4 text-white">Secondary Buttons</h3>
+              <div className="flex flex-wrap gap-4">
                 <button className="px-6 py-3 bg-viridian hover:bg-viridian/80 text-white rounded-md transition-colors font-medium">
-                  Viridian Button (Secondary)
+                  Secondary (Solid)
                 </button>
+                <button className="px-6 py-3 bg-viridian/5 hover:bg-viridian/10 active:bg-viridian/20 border-2 border-viridian text-gray-300 rounded-md transition-colors font-medium">
+                  Secondary (Outline)
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-eerie-back border border-gunmetal rounded-lg p-6">
+              <h3 className="text-xl font-semibold mb-4 text-white">Ghost Buttons</h3>
+              <div className="flex flex-wrap gap-4">
+                <button className="px-6 py-3 bg-gunmetal hover:bg-hover-surface active:bg-active-surface border-2 border-white/10 text-gray-300 rounded-md transition-colors font-medium">
+                  Ghost Button
+                </button>
+                <button className="px-6 py-3 bg-gunmetal hover:bg-hover-surface active:bg-active-surface border-2 border-[#1E2322] text-gray-300 rounded-md transition-colors font-medium">
+                  Ghost Button (Alt Border)
+                </button>
+                <button disabled className="px-6 py-3 bg-gunmetal border-2 border-white/10 text-gray-500 rounded-md font-medium cursor-not-allowed opacity-50">
+                  Ghost Button (Disabled)
+                </button>
+              </div>
+              <p className="text-sm text-gray-400 mt-3">
+                Neutral buttons that read as part of the chrome, not accent elements. Hover feels like a surface shift.
+              </p>
+            </div>
+
+            <div className="bg-eerie-back border border-gunmetal rounded-lg p-6">
+              <h3 className="text-xl font-semibold mb-4 text-white">Other Buttons</h3>
+              <div className="flex flex-wrap gap-4">
                 <button className="px-6 py-3 bg-violet-blue hover:bg-violet-blue/80 text-white rounded-md transition-colors font-medium">
-                  Violet Blue Button
+                  Violet Blue
                 </button>
                 <button className="px-6 py-3 bg-zomp hover:bg-zomp/80 text-white rounded-md transition-colors font-medium">
-                  Zomp Button
+                  Zomp
                 </button>
               </div>
             </div>
