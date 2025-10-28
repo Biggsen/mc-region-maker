@@ -45,7 +45,7 @@ export function CoordinateInputDialog({ isOpen, onClose, onSubmit }: CoordinateI
               value={x}
               onChange={(e) => setX(e.target.value)}
               placeholder="Enter X coordinate"
-              className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
+              className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
               autoFocus
               required
             />
@@ -58,7 +58,7 @@ export function CoordinateInputDialog({ isOpen, onClose, onSubmit }: CoordinateI
               value={z}
               onChange={(e) => setZ(e.target.value)}
               placeholder="Enter Z coordinate"
-              className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
+              className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
               required
             />
           </div>

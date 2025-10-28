@@ -161,7 +161,7 @@ export function RegionPanel() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search regions..."
-              className="w-full bg-gray-700 text-white pl-10 pr-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
+              className="w-full bg-input-bg text-input-text pl-10 pr-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
             />
           </div>
 

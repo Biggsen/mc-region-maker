@@ -63,7 +63,7 @@ export function RegionCreationForm({
                 value={newRegionName}
                 onChange={(e) => setNewRegionName(e.target.value)}
                 placeholder="Enter region name"
-                className="flex-1 bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-lapis-lazuli focus:outline-none"
+                className="flex-1 bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
                 onKeyPress={(e) => e.key === 'Enter' && handleStartDrawing()}
               />
               <button

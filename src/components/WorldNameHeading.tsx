@@ -48,7 +48,7 @@ export function WorldNameHeading() {
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className="w-full text-3xl font-bold text-white bg-transparent border-b-2 border-lapis-lazuli focus:outline-none focus:border-lapis-lazuli/80 px-2 py-1"
+          className="w-full text-3xl font-bold text-input-text bg-transparent border-b-2 border-lapis-lazuli focus:outline-none focus:border-lapis-lighter px-2 py-1"
         />
       ) : (
         <h1 

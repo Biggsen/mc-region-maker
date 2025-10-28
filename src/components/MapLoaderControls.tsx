@@ -227,10 +227,14 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
            <input
              type="text"
              value={seed}
-             onChange={(e) => setSeed(e.target.value)}
+             onChange={(e) => {
+               setSeed(e.target.value)
+               if (seedError) setSeedError(null)
+             }}
              placeholder="Enter seed number or text"
-             className="w-full px-3 py-2 bg-gray-700 border border-gunmetal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-white"
+             className={`w-full px-3 py-2 bg-input-bg border rounded-md focus:outline-none focus:border-lapis-lighter text-sm text-input-text placeholder:text-gray-500 ${seedError ? 'border-red-500' : 'border-input-border'}`}
              disabled={isLoading}
+             required
            />
          </div>
 
@@ -239,7 +243,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
            <select
              value={dimension}
              onChange={(e) => setDimension(e.target.value)}
-             className="w-full px-3 py-2 bg-gray-700 border border-gunmetal rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-white"
+             className="w-full px-3 py-2 bg-input-bg border border-input-border rounded-md focus:outline-none focus:border-lapis-lighter text-sm text-input-text placeholder:text-gray-500"
              disabled={isLoading}
            >
              <option value="overworld">Overworld</option>
@@ -324,7 +328,8 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
             type="url"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none text-sm"
+            placeholder="https://example.com/image.png"
+            className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none text-sm placeholder:text-gray-500"
           />
           <button
             type="submit"

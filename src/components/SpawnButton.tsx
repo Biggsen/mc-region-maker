@@ -145,7 +145,7 @@ export function SpawnButton() {
                   onChange={(e) => setTempX(e.target.value)}
                   onBlur={handleXSave}
                   onKeyDown={handleXKeyPress}
-                  className="bg-eerie-back text-white px-2 py-1 rounded text-xs w-20 border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
+                  className="bg-input-bg text-input-text px-2 py-1 rounded text-xs w-20 border border-input-border focus:border-lapis-lighter focus:outline-none"
                   autoFocus
                 />
               ) : (
@@ -167,7 +167,7 @@ export function SpawnButton() {
                   onChange={(e) => setTempZ(e.target.value)}
                   onBlur={handleZSave}
                   onKeyDown={handleZKeyPress}
-                  className="bg-eerie-back text-white px-2 py-1 rounded text-xs w-20 border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
+                  className="bg-input-bg text-input-text px-2 py-1 rounded text-xs w-20 border border-input-border focus:border-lapis-lighter focus:outline-none"
                   autoFocus
                 />
               ) : (
@@ -192,7 +192,7 @@ export function SpawnButton() {
                   onChange={(e) => setTempRadius(e.target.value)}
                   onBlur={handleRadiusSave}
                   onKeyDown={handleRadiusKeyPress}
-                  className="bg-eerie-back text-white px-2 py-1 rounded text-xs w-20 border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
+                  className="bg-input-bg text-input-text px-2 py-1 rounded text-xs w-20 border border-input-border focus:border-lapis-lighter focus:outline-none"
                   autoFocus
                   min="1"
                 />

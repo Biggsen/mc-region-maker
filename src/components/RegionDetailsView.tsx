@@ -101,7 +101,7 @@ export function RegionDetailsView({
             type="text"
             value={selectedRegion.name}
             onChange={(e) => onUpdateRegion(selectedRegion.id, { name: e.target.value })}
-            className="flex-1 bg-gray-700 text-white px-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
+            className="flex-1 bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
           />
           <button
             onClick={() => onUpdateRegion(selectedRegion.id, { name: generateRegionName(worldType as 'overworld' | 'nether') })}

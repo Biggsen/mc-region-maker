@@ -449,7 +449,7 @@ export function AdvancedPanel() {
                     <select
                       value={regions.regions.find(r => r.id === regions.selectedRegionId)?.challengeLevel || 'Vanilla'}
                       onChange={(e) => regions.updateRegion(regions.selectedRegionId!, { challengeLevel: e.target.value as any })}
-                      className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gunmetal focus:border-lapis-lazuli focus:outline-none"
+                      className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
                     >
                       <option value="Vanilla">Vanilla</option>
                       <option value="Bronze">Bronze</option>
@@ -598,7 +598,7 @@ export function AdvancedPanel() {
                               value={customCenterX}
                               onChange={(e) => setCustomCenterX(e.target.value)}
                               placeholder="X"
-                              className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-lapis-lazuli/80 focus:outline-none text-sm"
+                              className="w-full bg-input-bg text-input-text px-2 py-1 rounded border border-input-border focus:border-lapis-lighter focus:outline-none text-sm placeholder:text-gray-500"
                             />
                           </div>
                           <div>
@@ -608,7 +608,7 @@ export function AdvancedPanel() {
                               value={customCenterZ}
                               onChange={(e) => setCustomCenterZ(e.target.value)}
                               placeholder="Z"
-                              className="w-full bg-gray-600 text-white px-2 py-1 rounded border border-gray-500 focus:border-lapis-lazuli/80 focus:outline-none text-sm"
+                              className="w-full bg-input-bg text-input-text px-2 py-1 rounded border border-input-border focus:border-lapis-lighter focus:outline-none text-sm placeholder:text-gray-500"
                             />
                           </div>
                         </div>
