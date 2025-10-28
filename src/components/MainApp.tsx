@@ -112,17 +112,17 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
 
   return (
     <div className="flex items-center justify-between bg-eerie-back border-b border-gunmetal px-4 py-3">
-      <div className="flex space-x-1">
+      <div className="flex space-x-6">
         {tabs.map((tab) => {
           const IconComponent = tab.icon
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id as TabType)}
-              className={`px-6 py-2 rounded-md font-medium transition-colors flex items-center space-x-2 ${
+              className={`py-2 font-medium transition-colors flex items-center space-x-2 relative border-b-4 ${
                 activeTab === tab.id
-                  ? 'bg-lapis-lazuli text-white shadow'
-                  : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                  ? 'text-white border-white'
+                  : 'text-gray-300 hover:text-white border-transparent'
               }`}
             >
               <IconComponent size={16} />
