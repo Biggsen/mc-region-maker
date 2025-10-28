@@ -11,6 +11,7 @@ import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64
 import { saveActiveTab, loadActiveTab } from '../utils/persistenceUtils'
 import { Map, Edit3, Download, FolderOpen, Save, Settings } from 'lucide-react'
 import { ImportConfirmationModal } from './ImportConfirmationModal'
+import { Button } from './Button'
 
 type TabType = 'map' | 'regions' | 'export' | 'advanced'
 
@@ -163,20 +164,20 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
       </div>
       
       <div className="flex space-x-2">
-        <button 
-          onClick={handleLoadClick} 
-          className="px-4 py-2 bg-viridian/5 hover:bg-viridian/10 active:bg-viridian/20 border-2 border-viridian text-gray-300 rounded-md transition-colors font-medium flex items-center space-x-2"
+        <Button 
+          variant="secondary-outline"
+          onClick={handleLoadClick}
+          leftIcon={<FolderOpen size={16} />}
         >
-          <FolderOpen size={16} />
-          <span>Load</span>
-        </button>
-        <button 
-          onClick={handleSave} 
-          className="px-4 py-2 bg-gunmetal hover:bg-hover-surface active:bg-active-surface border-2 border-white/10 text-gray-300 rounded-md transition-colors font-medium flex items-center space-x-2"
+          Load
+        </Button>
+        <Button 
+          variant="ghost"
+          onClick={handleSave}
+          leftIcon={<Save size={16} />}
         >
-          <Save size={16} />
-          <span>Save</span>
-        </button>
+          Save
+        </Button>
       </div>
       
       <input
