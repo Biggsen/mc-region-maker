@@ -1,3 +1,6 @@
+import { Button } from './Button'
+import { Download, Save, ArrowRight, Settings } from 'lucide-react'
+
 interface ColorSwatch {
   name: string
   hex: string
@@ -69,36 +72,28 @@ export function StyleGuide() {
             <div className="bg-eerie-back border border-gunmetal rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-4 text-white">Primary Button</h3>
               <div className="flex flex-wrap gap-4">
-                <button className="px-6 py-3 bg-lapis-lazuli hover:bg-lapis-lazuli/80 text-white rounded-md transition-colors font-medium">
-                  Primary
-                </button>
+                <Button variant="primary">Primary</Button>
+                <Button variant="primary" leftIcon={<Download size={16} />}>With Left Icon</Button>
+                <Button variant="primary" rightIcon={<ArrowRight size={16} />}>With Right Icon</Button>
               </div>
             </div>
 
             <div className="bg-eerie-back border border-gunmetal rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-4 text-white">Secondary Buttons</h3>
               <div className="flex flex-wrap gap-4">
-                <button className="px-6 py-3 bg-viridian hover:bg-viridian/80 text-white rounded-md transition-colors font-medium">
-                  Secondary (Solid)
-                </button>
-                <button className="px-6 py-3 bg-viridian/5 hover:bg-viridian/10 active:bg-viridian/20 border-2 border-viridian text-gray-300 rounded-md transition-colors font-medium">
-                  Secondary (Outline)
-                </button>
+                <Button variant="secondary">Secondary</Button>
+                <Button variant="secondary" leftIcon={<Save size={16} />}>With Left Icon</Button>
+                <Button variant="secondary-outline">Secondary Outline</Button>
+                <Button variant="secondary-outline" rightIcon={<ArrowRight size={16} />}>With Right Icon</Button>
               </div>
             </div>
 
             <div className="bg-eerie-back border border-gunmetal rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-4 text-white">Ghost Buttons</h3>
               <div className="flex flex-wrap gap-4">
-                <button className="px-6 py-3 bg-gunmetal hover:bg-hover-surface active:bg-active-surface border-2 border-white/10 text-gray-300 rounded-md transition-colors font-medium">
-                  Ghost Button
-                </button>
-                <button className="px-6 py-3 bg-gunmetal hover:bg-hover-surface active:bg-active-surface border-2 border-[#1E2322] text-gray-300 rounded-md transition-colors font-medium">
-                  Ghost Button (Alt Border)
-                </button>
-                <button disabled className="px-6 py-3 bg-gunmetal border-2 border-white/10 text-gray-500 rounded-md font-medium cursor-not-allowed opacity-50">
-                  Ghost Button (Disabled)
-                </button>
+                <Button variant="ghost">Ghost</Button>
+                <Button variant="ghost" leftIcon={<Settings size={16} />}>With Left Icon</Button>
+                <Button variant="ghost" disabled>Ghost (Disabled)</Button>
               </div>
               <p className="text-sm text-gray-400 mt-3">
                 Neutral buttons that read as part of the chrome, not accent elements. Hover feels like a surface shift.
