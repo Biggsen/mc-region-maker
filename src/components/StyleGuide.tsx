@@ -75,6 +75,7 @@ export function StyleGuide() {
                 <Button variant="primary">Primary</Button>
                 <Button variant="primary" leftIcon={<Download size={16} />}>With Left Icon</Button>
                 <Button variant="primary" rightIcon={<ArrowRight size={16} />}>With Right Icon</Button>
+                <Button variant="primary" disabled>Primary (Disabled)</Button>
               </div>
             </div>
 
