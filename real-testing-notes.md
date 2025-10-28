@@ -59,7 +59,7 @@ Test the region creation workflow to get a real feel for how the app works.
 - when clearing all data, replace browser confirmation to use a modal
 
 ### Positive Findings
-- 
+- Being able to import a new map and have regions persist is actually a nice feature
 
 ---
 
