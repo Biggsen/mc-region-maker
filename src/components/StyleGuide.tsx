@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface ColorSwatch {
   name: string
   hex: string
@@ -7,13 +5,13 @@ interface ColorSwatch {
 }
 
 const colors: ColorSwatch[] = [
-  { name: 'Lapis Lazuli', hex: '#386595', className: 'bg-lapis-lazuli' },
+  { name: 'Lapis Lazuli', hex: '#386595', className: 'bg-lapis-lazuli' }, // primary
+  { name: 'Viridian', hex: '#287B5F', className: 'bg-viridian' }, // secondary
+  { name: 'Violet Blue', hex: '#4A429E', className: 'bg-violet-blue' },
   { name: 'Night', hex: '#121716', className: 'bg-night' },
   { name: 'Zomp', hex: '#319876', className: 'bg-zomp' },
   { name: 'Gunmetal', hex: '#252C2B', className: 'bg-gunmetal' },
   { name: 'Eerie Back', hex: '#171C1C', className: 'bg-eerie-back' },
-  { name: 'Viridian', hex: '#287B5F', className: 'bg-viridian' },
-  { name: 'Violet Blue', hex: '#4A429E', className: 'bg-violet-blue' },
 ]
 
 export function StyleGuide() {
@@ -69,11 +67,11 @@ export function StyleGuide() {
             <div className="bg-eerie-back border border-gunmetal rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-4 text-white">Action Buttons</h3>
               <div className="flex flex-wrap gap-4">
-                <button className="px-6 py-3 bg-viridian hover:bg-viridian/80 text-white rounded-md transition-colors font-medium">
-                  Viridian Button
-                </button>
                 <button className="px-6 py-3 bg-lapis-lazuli hover:bg-lapis-lazuli/80 text-white rounded-md transition-colors font-medium">
-                  Lapis Lazuli Button
+                  Lapis Lazuli Button (Primary)
+                </button>
+                <button className="px-6 py-3 bg-viridian hover:bg-viridian/80 text-white rounded-md transition-colors font-medium">
+                  Viridian Button (Secondary)
                 </button>
                 <button className="px-6 py-3 bg-violet-blue hover:bg-violet-blue/80 text-white rounded-md transition-colors font-medium">
                   Violet Blue Button
@@ -93,11 +91,14 @@ export function StyleGuide() {
                 </div>
                 <div className="p-4 border-2 border-lapis-lazuli rounded">
                   <p className="text-lapis-lazuli">Lapis Lazuli Accent</p>
-                  <p className="text-gray-400 text-sm mt-1">Primary accent color</p>
+                  <p className="text-gray-400 text-sm mt-1">Primary color</p>
                 </div>
                 <div className="p-4 border-2 border-viridian rounded">
                   <p className="text-viridian">Viridian Accent</p>
-                  <p className="text-gray-400 text-sm mt-1">Action color</p>
+                  <p className="text-gray-400 text-sm mt-1">Secondary color</p>
+                </div>
+                <div className="p-4 border-2 border-violet-blue rounded">
+                  <p className="text-violet-blue">Violet Blue Accent</p>
                 </div>
               </div>
             </div>
