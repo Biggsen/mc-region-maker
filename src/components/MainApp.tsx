@@ -112,20 +112,20 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
 
   return (
     <div className="flex items-center justify-between bg-eerie-back border-b border-gunmetal px-4 py-3">
-      <div className="flex space-x-6">
+      <div className="flex space-x-8">
         {tabs.map((tab) => {
           const IconComponent = tab.icon
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id as TabType)}
-              className={`py-2 font-medium transition-colors flex items-center space-x-2 relative border-b-4 ${
+              className={`text-lg py-2 font-medium transition-colors flex items-center space-x-2 relative border-b-4 ${
                 activeTab === tab.id
-                  ? 'text-white border-white'
+                  ? 'text-vista-blue border-vista-blue'
                   : 'text-gray-300 hover:text-white border-transparent'
               }`}
             >
-              <IconComponent size={16} />
+              <IconComponent size={20} />
               <span>{tab.label}</span>
             </button>
           )
@@ -139,14 +139,14 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
       <div className="flex space-x-2">
         <button 
           onClick={handleLoad} 
-          className="px-4 py-2 bg-viridian text-white rounded-md hover:bg-viridian/80 transition-colors font-medium flex items-center space-x-2"
+          className="px-4 py-2 bg-viridian/5 hover:bg-viridian/10 active:bg-viridian/20 border-2 border-viridian text-gray-300 rounded-md transition-colors font-medium flex items-center space-x-2"
         >
           <FolderOpen size={16} />
           <span>Load</span>
         </button>
         <button 
           onClick={handleSave} 
-          className="px-4 py-2 bg-lapis-lazuli text-white rounded-md hover:bg-lapis-lazuli/80 transition-colors font-medium flex items-center space-x-2"
+          className="px-4 py-2 bg-gunmetal hover:bg-hover-surface active:bg-active-surface border-2 border-white/10 text-gray-300 rounded-md transition-colors font-medium flex items-center space-x-2"
         >
           <Save size={16} />
           <span>Save</span>
