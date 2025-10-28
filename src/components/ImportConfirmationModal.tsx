@@ -1,4 +1,5 @@
 import { X } from 'lucide-react'
+import { Button } from './Button'
 
 interface ImportConfirmationModalProps {
   isOpen: boolean
@@ -46,18 +47,20 @@ export function ImportConfirmationModal({
         </div>
         
         <div className="flex space-x-3">
-          <button
+          <Button
+            variant="ghost"
             onClick={onCancel}
-            className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors font-medium"
+            className="flex-1"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
             onClick={onConfirm}
-            className="flex-1 px-4 py-2 bg-viridian hover:bg-viridian/80 text-white rounded-md transition-colors font-medium"
+            className="flex-1"
           >
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
