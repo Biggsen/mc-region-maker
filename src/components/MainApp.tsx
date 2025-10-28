@@ -12,6 +12,7 @@ import { saveActiveTab, loadActiveTab } from '../utils/persistenceUtils'
 import { Map, Edit3, Download, FolderOpen, Save, Settings } from 'lucide-react'
 import { ImportConfirmationModal } from './ImportConfirmationModal'
 import { Button } from './Button'
+import { useDataChanged } from '../hooks/useDataChanged'
 
 type TabType = 'map' | 'regions' | 'export' | 'advanced'
 
@@ -31,13 +32,23 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
     ...(showAdvancedTab ? [{ id: 'advanced', label: 'Advanced', icon: Settings }] : [])
   ] as const
 
+  const spawnData = spawn.spawnState.coordinates ? {
+    x: spawn.spawnState.coordinates.x,
+    z: spawn.spawnState.coordinates.z,
+    radius: spawn.spawnState.radius
+  } : null
+
+  const { hasChanged, markAsSaved } = useDataChanged(
+    regions.regions,
+    mapState.mapState,
+    worldName.worldName,
+    spawnData,
+    worldType.worldType
+  )
+
   const handleSave = async () => {
-    const spawnData = spawn.spawnState.coordinates ? {
-      x: spawn.spawnState.coordinates.x,
-      z: spawn.spawnState.coordinates.z,
-      radius: spawn.spawnState.radius
-    } : null
     await exportCompleteMap(regions.regions, mapState.mapState, worldName.worldName, spawnData, worldType.worldType)
+    markAsSaved()
   }
 
   const hasExistingData = () => {
@@ -131,6 +142,9 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
+
+      // Mark as saved since we just loaded from a saved file
+      markAsSaved()
     } catch (error) {
       alert('Failed to load project file. Please make sure it\'s a valid project file.')
       console.error('Import error:', error)
@@ -172,7 +186,7 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
           Load
         </Button>
         <Button 
-          variant="ghost"
+          variant={hasChanged ? "primary" : "ghost"}
           onClick={handleSave}
           leftIcon={<Save size={16} />}
         >
