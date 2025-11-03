@@ -159,7 +159,7 @@ npm run preview          # Preview production build
 
 - **Seed Generator**: `docs/SEED_GENERATOR_README.md` - Map generation service usage
 - **API Reference**: `reference/mc-map-generator API docs.md` - Service API documentation
-- **Tasks**: `TASKS.md` - Current task list and feature status
+- **Tasks**: `spec/TASKS.md` - Current task list and feature status
 - **MVP Plan**: `spec/MVP_DEV_PLAN.md` - Development roadmap and status
 
 ## Tech Stack
