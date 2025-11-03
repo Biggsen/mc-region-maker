@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { WorldCoordinate } from '../types'
+import { BaseModal } from './BaseModal'
+import { Button } from './Button'
 
 interface CoordinateInputDialogProps {
   isOpen: boolean
@@ -30,21 +32,23 @@ export function CoordinateInputDialog({ isOpen, onClose, onSubmit }: CoordinateI
     onClose()
   }
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-eerie-back border border-gunmetal rounded-lg p-6 w-80">
-        <h3 className="text-white text-lg font-semibold mb-4">Add Custom Marker</h3>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <BaseModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Add Custom Marker"
+      size="sm"
+      contentClassName="w-80"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-gray-300 text-sm mb-2">X Coordinate</label>
             <input
               type="number"
               value={x}
               onChange={(e) => setX(e.target.value)}
-              placeholder="Enter X coordinate"
+              placeholder="Enter X"
               className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
               autoFocus
               required
@@ -57,29 +61,31 @@ export function CoordinateInputDialog({ isOpen, onClose, onSubmit }: CoordinateI
               type="number"
               value={z}
               onChange={(e) => setZ(e.target.value)}
-              placeholder="Enter Z coordinate"
+              placeholder="Enter Z"
               className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
               required
             />
           </div>
-          
-          <div className="flex space-x-3 pt-4">
-            <button
-              type="submit"
-              className="flex-1 bg-lapis-lazuli hover:bg-lapis-lazuli/80 text-white px-4 py-2 rounded transition-colors"
-            >
-              Add Marker
-            </button>
-            <button
-              type="button"
-              onClick={handleClose}
-              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+        
+        <div className="flex space-x-3 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={handleClose}
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            className="flex-1"
+          >
+            Add Marker
+          </Button>
+        </div>
+      </form>
+    </BaseModal>
   )
 }
