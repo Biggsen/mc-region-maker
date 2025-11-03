@@ -88,6 +88,9 @@ export function MapCanvas() {
 
   // Determine cursor style based on current mode
   const getCursorStyle = () => {
+    if (editMode.isSplittingRegion) {
+      return 'cursor-scissors'
+    }
     if (editMode.isMovingRegion) {
       return isMovingRegion ? 'cursor-grabbing' : 'cursor-grab'
     }
@@ -399,20 +402,26 @@ export function MapCanvas() {
       )}
 
       {editMode.isEditing && (
-        <div className="absolute top-4 left-4 z-10 bg-viridian/90 text-white px-3 py-1 text-sm font-medium">
-          Edit Mode
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 bg-saffron border-2 border-saffron rounded-lg px-4 py-2 shadow-lg">
+          <p className="text-gray-900 font-semibold text-sm">
+            Edit Mode
+          </p>
         </div>
       )}
       
       {editMode.isMovingRegion && (
-        <div className="absolute top-4 left-4 z-10 bg-viridian/90 text-white px-3 py-1 text-sm font-medium">
-          Move Mode
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 bg-saffron border-2 border-saffron rounded-lg px-4 py-2 shadow-lg">
+          <p className="text-gray-900 font-semibold text-sm">
+            Move Mode
+          </p>
         </div>
       )}
       
       {editMode.isSplittingRegion && (
-        <div className="absolute top-4 left-4 z-10 bg-viridian/90 text-white px-3 py-1 text-sm font-medium">
-          Split Mode
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 bg-saffron border-2 border-saffron rounded-lg px-4 py-2 shadow-lg">
+          <p className="text-gray-900 font-semibold text-sm">
+            Split Mode
+          </p>
         </div>
       )}
       
@@ -515,6 +524,13 @@ export function MapCanvas() {
             orphanedVillageMarkers={orphanedVillageMarkers}
             showOrphanedVillages={showOrphanedVillages}
           />
+          {drawingRegion && (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 bg-saffron border-2 border-saffron rounded-lg px-4 py-2 shadow-lg">
+              <p className="text-gray-900 font-semibold text-sm">
+                Drawing Mode
+              </p>
+            </div>
+          )}
           <MapDisplayControls
             highlightMode={highlightMode}
             orphanedVillageMarkers={orphanedVillageMarkers}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { generateRegionName } from '../utils/nameGenerator'
+import { Button } from './Button'
 
 interface RegionCreationFormProps {
   worldType: 'overworld' | 'nether'
@@ -38,21 +39,19 @@ export function RegionCreationForm({
 
   return (
     <div className="space-y-2">
-      <button
-        onClick={() => {
-          if (isDrawing) {
-            onCancelDrawing()
-          } else {
-            setShowNewRegionForm(!showNewRegionForm)
-          }
-        }}
-        className="w-full bg-lapis-lazuli hover:bg-lapis-lazuli/80 text-white font-medium py-2 px-4 rounded"
-      >
-        {isDrawing ? 'Cancel' : (showNewRegionForm ? 'Cancel' : 'Create New Region')}
-      </button>
+      {!showNewRegionForm && !isDrawing ? (
+        <Button
+          variant="primary"
+          onClick={() => setShowNewRegionForm(true)}
+          className="w-full"
+        >
+          Create New Region
+        </Button>
+      ) : null}
       
       {showNewRegionForm && (
-        <div className="space-y-2 p-3 bg-gray-700 rounded border border-gunmetal">
+        <div className="space-y-2">
+          <h4 className="text-xl font-bold text-white">New region</h4>
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Region Name
@@ -66,21 +65,32 @@ export function RegionCreationForm({
                 className="flex-1 bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
                 onKeyPress={(e) => e.key === 'Enter' && handleStartDrawing()}
               />
-              <button
+              <Button
+                variant="ghost"
                 onClick={handleGenerateNewName}
-                className="bg-violet-blue hover:bg-violet-blue/80 text-white px-3 py-2 rounded border border-violet-blue/80 focus:outline-none"
+                className="px-3 py-2"
                 title="Generate random medieval name"
               >
                 🎲
-              </button>
+              </Button>
             </div>
           </div>
-          <button
-            onClick={handleStartDrawing}
-            className="w-full bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded"
-          >
-            Start drawing region
-          </button>
+          <div className="flex space-x-2">
+            <Button
+              variant="ghost"
+              onClick={() => setShowNewRegionForm(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleStartDrawing}
+              className="flex-1"
+            >
+              Draw region
+            </Button>
+          </div>
         </div>
       )}
     </div>

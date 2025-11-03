@@ -4,7 +4,8 @@ import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/poly
 import { clearSavedData } from '../utils/persistenceUtils'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
-import { Trash2, Search } from 'lucide-react'
+import { Button } from './Button'
+import { Trash2, Search, LineSquiggle } from 'lucide-react'
 
 export function RegionPanel() {
   const { regions, worldType } = useAppContext()
@@ -94,37 +95,52 @@ export function RegionPanel() {
       {!selectedRegion ? (
         // Region List View
         <>
-          <div className="flex-shrink-0 mb-2">
-            <RegionCreationForm
-              worldType={worldType.worldType}
-              onStartDrawing={(name, freehand) => {
-                regions.setFreehandEnabled(freehand)
-                startDrawingRegion(name)
-              }}
-              onCancelDrawing={() => regions.cancelDrawingRegion()}
-              isDrawing={!!drawingRegion}
-            />
-          </div>
+          {!drawingRegion && (
+            <div className="flex-shrink-0 mb-2">
+              <RegionCreationForm
+                worldType={worldType.worldType}
+                onStartDrawing={(name, freehand) => {
+                  regions.setFreehandEnabled(freehand)
+                  startDrawingRegion(name)
+                }}
+                onCancelDrawing={() => regions.cancelDrawingRegion()}
+                isDrawing={!!drawingRegion}
+              />
+            </div>
+          )}
 
           {drawingRegion && (
-            <div className="flex-shrink-0 mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="text-yellow-200 text-base">
+            <>
+              <h4 className="text-xl font-bold text-white mb-2">New region</h4>
+              <div className="flex-shrink-0 mb-4 p-3 bg-saffron border border-saffron rounded space-y-2">
+              <div className="flex items-center gap-2">
+                <LineSquiggle className="text-gray-900" size={18} />
+                <p className="text-gray-900 text-base">
                   Drawing: <strong>{drawingRegion.name}</strong>
                 </p>
-                <span className="text-sm text-gray-200">{drawingRegion.points.length} pts</span>
               </div>
-              <p className="text-yellow-300 text-sm">
+              <p className="text-gray-900 text-sm">
                 Click to place points or click and hold to draw
               </p>
-              <button
-                onClick={() => regions.finishDrawingRegion()}
-                disabled={drawingRegion.points.length < 3}
-                className={`w-full font-medium py-2 px-4 rounded ${drawingRegion.points.length < 3 ? 'bg-gray-600 text-gray-300' : 'bg-viridian hover:bg-viridian/80 text-white'}`}
-              >
-                Finish
-              </button>
-            </div>
+              <div className="flex space-x-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => regions.cancelDrawingRegion()}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => regions.finishDrawingRegion()}
+                  disabled={drawingRegion.points.length < 3}
+                  className="flex-1"
+                >
+                  Finish
+                </Button>
+              </div>
+              </div>
+            </>
           )}
 
           {/* Region Counter */}
@@ -235,7 +251,6 @@ export function RegionPanel() {
           onRemoveSubregionFromRegion={removeSubregionFromRegion}
           onUpdateSubregionName={updateSubregionName}
           onCopyYAML={handleCopyYAML}
-          onClearData={handleClearData}
           onSetWarping={setIsWarping}
           onSetWarpRadius={setWarpRadius}
           onSetWarpStrength={setWarpStrength}
