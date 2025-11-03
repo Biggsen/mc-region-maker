@@ -59,7 +59,7 @@ export function ExportDialog({ isOpen, onClose, onExport, hasVillages, hasSpawn,
                 checked={includeVillages}
                 onChange={(e) => setIncludeVillages(e.target.checked)}
                 disabled={!hasVillages}
-                className="w-4 h-4 text-lapis-lazuli bg-gray-700 border-gunmetal rounded focus:ring-lapis-lazuli focus:ring-2"
+                className="w-4 h-4 text-lapis-lazuli bg-gray-700 border-gunmetal rounded focus:ring-lapis-lazuli focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <label htmlFor="includeVillages" className="ml-2 text-white">
                 Include Villages
@@ -100,7 +100,7 @@ export function ExportDialog({ isOpen, onClose, onExport, hasVillages, hasSpawn,
                 checked={includeSpawnRegion}
                 onChange={(e) => setIncludeSpawnRegion(e.target.checked)}
                 disabled={!hasSpawn}
-                className="w-4 h-4 text-lapis-lazuli bg-gray-700 border-gunmetal rounded focus:ring-lapis-lazuli focus:ring-2"
+                className="w-4 h-4 text-lapis-lazuli bg-gray-700 border-gunmetal rounded focus:ring-lapis-lazuli focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <label htmlFor="includeSpawnRegion" className="ml-2 text-white">
                 Include Spawn Region

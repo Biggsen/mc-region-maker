@@ -3,31 +3,52 @@ import { useAppContext } from '../context/AppContext'
 import { saveImageDetails, loadImageDetails, ImageDetails } from '../utils/persistenceUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
 import { Button } from './Button'
+import { WorldNameHeading } from './WorldNameHeading'
+import { SeedInfoHeading } from './SeedInfoHeading'
+import { ArrowLeft } from 'lucide-react'
+
 interface MapLoaderControlsProps {
   onShowImportConfirmation: (callback: () => void) => void
 }
 
 export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControlsProps) {
-  const { mapState, regions } = useAppContext()
+  const { mapState, regions, seedInfo, worldName } = useAppContext()
   const [imageUrl, setImageUrl] = useState('')
-  const [seed, setSeed] = useState('')
-  const [dimension, setDimension] = useState('overworld')
   const [worldSize, setWorldSize] = useState(8)
   const [isLoading, setIsLoading] = useState(false)
   const [isPolling, setIsPolling] = useState(false)
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null)
+  const [isLoadingUrl, setIsLoadingUrl] = useState(false)
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [seedError, setSeedError] = useState<string | null>(null)
   const [loadedMapDetails, setLoadedMapDetails] = useState<ImageDetails | null>(null)
+  const [showLoadSection, setShowLoadSection] = useState(false)
+  
+  // Local state for import form inputs (not saved until import)
+  const [importWorldName, setImportWorldName] = useState(worldName.worldName)
+  const [importSeed, setImportSeed] = useState(seedInfo.seedInfo.seed || '')
+  const [importDimension, setImportDimension] = useState(seedInfo.seedInfo.dimension || 'overworld')
+  
   const { setImage, setOffset } = mapState
+  
+  const hasMapLoaded = !!mapState.mapState.image
 
-  // Load saved image details on mount
+  // Initialize local state from context when load section is opened
+  useEffect(() => {
+    if (showLoadSection) {
+      setImportWorldName(worldName.worldName)
+      setImportSeed(seedInfo.seedInfo.seed || '')
+      setImportDimension(seedInfo.seedInfo.dimension || 'overworld')
+    }
+  }, [showLoadSection, worldName.worldName, seedInfo.seedInfo.seed, seedInfo.seedInfo.dimension])
+
+  // Load saved image details on mount and when map image changes
   useEffect(() => {
     const savedDetails = loadImageDetails()
     if (savedDetails) {
       setLoadedMapDetails(savedDetails)
     }
-  }, [])
+  }, [mapState.mapState.image])
 
   // Save image details whenever they change
   useEffect(() => {
@@ -36,7 +57,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     }
   }, [loadedMapDetails])
 
-  const handleImageUrl = useCallback((url: string) => {
+  const loadImageToCanvas = useCallback((url: string) => {
     const img = new Image()
     
     // Use proxy for external URLs to avoid CORS issues
@@ -72,10 +93,20 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
         console.log('Auto-set origin to center for square image:', { originX, originY })
       }
       
-      // Update loaded map details with image size
+      // Calculate world size from image dimensions (assuming square images)
+      // Formula: image size / 125 = world size in k (e.g., 750x750 = 6k)
+      const calculatedWorldSize = img.width === img.height 
+        ? Math.round(img.width / 125)
+        : Math.round(Math.max(img.width, img.height) / 125)
+      
+      // Update loaded map details with image size and calculated world size
+      // Use local import state if available (when importing), otherwise use context
       setLoadedMapDetails(prev => ({
         ...prev,
-        imageSize: { width: img.width, height: img.height }
+        seed: importSeed.trim() || seedInfo.seedInfo.seed,
+        dimension: importDimension || seedInfo.seedInfo.dimension,
+        imageSize: { width: img.width, height: img.height },
+        worldSize: calculatedWorldSize
       }))
     }
     img.onerror = (error) => {
@@ -83,10 +114,13 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       alert('Failed to load image from URL. Please check the URL and try again.')
     }
     img.src = imageUrl
-  }, [setImage, setOffset])
+  }, [setImage, setOffset, mapState, seedInfo, importSeed, importDimension])
 
   const handleGetMap = async () => {
-    if (!seed.trim()) {
+    const seed = importSeed.trim()
+    const dimension = importDimension || 'overworld'
+    
+    if (!seed) {
       setSeedError('Please enter a seed')
       return
     }
@@ -156,8 +190,8 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
         return pollStatus()
       }
       
-      const imageUrl = await pollStatus()
-      setGeneratedImage(imageUrl)
+      const generatedImageUrl = await pollStatus()
+      setPreviewImageUrl(generatedImageUrl)
       
     } catch (error) {
       console.error('Error generating map:', error)
@@ -172,41 +206,75 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     }
   }
 
-  const handleImportMap = () => {
-    if (generatedImage) {
-      // Check if there's existing data that would be lost
-      const hasExistingData = regions.regions.length > 0 || 
-                             mapState.mapState.image || 
-                             mapState.mapState.originSelected
+  const handleLoadFromUrl = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!imageUrl.trim()) return
+    
+    setIsLoadingUrl(true)
+    setError(null)
+    
+    try {
+      // Just load to preview, not to canvas yet
+      // Use proxy for external URLs to avoid CORS issues
+      const proxiedUrl = imageUrl.trim().startsWith('http') && !imageUrl.trim().includes('localhost') 
+        ? `http://localhost:3002/api/proxy-image?url=${encodeURIComponent(imageUrl.trim())}`
+        : imageUrl.trim()
       
-      if (hasExistingData) {
-        onShowImportConfirmation(performImport)
-      } else {
-        // No existing data, proceed directly
-        performImport()
-      }
+      // Test if image loads
+      const testImg = new Image()
+      testImg.crossOrigin = 'anonymous'
+      
+      await new Promise((resolve, reject) => {
+        testImg.onload = () => {
+          setPreviewImageUrl(proxiedUrl)
+          resolve(null)
+        }
+        testImg.onerror = () => {
+          reject(new Error('Failed to load image from URL'))
+        }
+        testImg.src = proxiedUrl
+      })
+    } catch (error) {
+      console.error('Error loading image from URL:', error)
+      setError(error instanceof Error ? error.message : 'Failed to load image from URL. Please check the URL and try again.')
+    } finally {
+      setIsLoadingUrl(false)
+    }
+  }
+
+  const handleImportMap = () => {
+    if (!previewImageUrl) return
+    
+    // Save seed/dimension to localStorage via useSeedInfo (already saved, but ensure it's current)
+    // The seedInfo hook already auto-saves, so this is just ensuring consistency
+    
+    // Check if there's existing data that would be lost
+    const hasExistingData = regions.regions.length > 0 || 
+                           mapState.mapState.image || 
+                           mapState.mapState.originSelected
+    
+    if (hasExistingData) {
+      onShowImportConfirmation(() => performImport())
+    } else {
+      // No existing data, proceed directly
+      performImport()
     }
   }
 
   const performImport = () => {
-    if (generatedImage) {
-      // Set map details before importing
-      setLoadedMapDetails({
-        seed: seed,
-        dimension: dimension,
-        worldSize: worldSize,
-        imageSize: { width: 0, height: 0 } // Will be updated when image loads
-      })
-      handleImageUrl(generatedImage)
-      setGeneratedImage(null)
-    }
-  }
-
-  const handleUrlSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (imageUrl.trim()) {
-      handleImageUrl(imageUrl.trim())
-    }
+    if (!previewImageUrl) return
+    
+    // Save world details to localStorage only when importing
+    worldName.updateWorldName(importWorldName.trim() || 'world')
+    seedInfo.updateSeedInfo({ 
+      seed: importSeed.trim() || undefined,
+      dimension: importDimension || undefined 
+    })
+    
+    loadImageToCanvas(previewImageUrl)
+    setPreviewImageUrl(null)
+    setImageUrl('') // Clear URL input
+    setShowLoadSection(false) // Hide load section after import
   }
 
   const handleClearData = () => {
@@ -217,165 +285,278 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     }
   }
 
-  return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white">Load Map Image</h3>
-      
-      {/* Generate Map Section */}
+  // Render load section content (reusable component logic)
+  const renderLoadSection = () => (
+    <>
+      {/* World Details Section */}
       <div className="border-b border-gunmetal pb-4">
-        <h4 className="text-md font-medium text-gray-300 mb-3">Generate from Seed</h4>
+        <h4 className="text-md font-medium text-gray-300 mb-3">World Details</h4>
         
-         <div className="mb-3">
-           <label className="block text-sm font-medium text-gray-300 mb-1">Minecraft Seed:</label>
-           <input
-             type="text"
-             value={seed}
-             onChange={(e) => {
-               setSeed(e.target.value)
-               if (seedError) setSeedError(null)
-             }}
-             placeholder="Enter seed number or text"
-             className={`w-full px-3 py-2 bg-input-bg border rounded-md focus:outline-none focus:border-lapis-lighter text-sm text-input-text placeholder:text-gray-500 ${seedError ? 'border-red-500' : 'border-input-border'}`}
-             disabled={isLoading}
-             required
-           />
-           {seedError && (
-             <p className="mt-1 text-sm text-red-400">{seedError}</p>
-           )}
-         </div>
+        <div className="mb-3">
+          <label className="block text-sm font-medium text-gray-300 mb-1">World Name:</label>
+          <input
+            type="text"
+            value={importWorldName}
+            onChange={(e) => setImportWorldName(e.target.value)}
+            placeholder="Enter world name"
+            className="w-full px-3 py-2 bg-input-bg border border-input-border rounded-md focus:outline-none focus:border-lapis-lighter text-sm text-input-text placeholder:text-gray-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={isLoading}
+          />
+        </div>
+        
+        <div className="mb-3">
+          <label className="block text-sm font-medium text-gray-300 mb-1">Minecraft Seed:</label>
+          <input
+            type="text"
+            value={importSeed}
+            onChange={(e) => {
+              setImportSeed(e.target.value)
+              if (seedError) setSeedError(null)
+            }}
+            placeholder="Enter seed number or text"
+            className={`w-full px-3 py-2 bg-input-bg border rounded-md focus:outline-none focus:border-lapis-lighter text-sm text-input-text placeholder:text-gray-500 ${seedError ? 'border-red-500' : 'border-input-border'} disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50`}
+            disabled={isLoading}
+          />
+          {seedError && (
+            <p className="mt-1 text-sm text-red-400">{seedError}</p>
+          )}
+        </div>
 
-         <div className="mb-3">
-           <label className="block text-sm font-medium text-gray-300 mb-1">Dimension:</label>
-           <select
-             value={dimension}
-             onChange={(e) => setDimension(e.target.value)}
-             className="w-full px-3 py-2 bg-input-bg border border-input-border rounded-md focus:outline-none focus:border-lapis-lighter text-sm text-input-text placeholder:text-gray-500"
-             disabled={isLoading}
-           >
-             <option value="overworld">Overworld</option>
-             <option value="nether">Nether</option>
-             <option value="end">End</option>
-           </select>
-         </div>
+        <div className="mb-3">
+          <label className="block text-sm font-medium text-gray-300 mb-1">Dimension:</label>
+          <select
+            value={importDimension}
+            onChange={(e) => setImportDimension(e.target.value)}
+            className="w-full px-3 py-2 bg-input-bg border border-input-border rounded-md focus:outline-none focus:border-lapis-lighter text-sm text-input-text placeholder:text-gray-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={isLoading}
+          >
+            <option value="overworld">Overworld</option>
+            <option value="nether">Nether</option>
+            <option value="end">End</option>
+          </select>
+        </div>
+      </div>
 
-        {dimension === 'overworld' && (
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              World Size: {worldSize}k ({worldSize * 125}x{worldSize * 125})
-            </label>
-            <div className="relative">
-              <input
-                type="range"
-                min="2"
-                max="16"
-                step="1"
-                value={worldSize}
-                onChange={(e) => setWorldSize(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                disabled={isLoading}
-              />
-              <div className="relative -mt-1" style={{ marginLeft: '0.375rem', marginRight: '0.375rem' }}>
-                <div className="relative text-xs text-gray-400" style={{ height: '1rem' }}>
-                  <span className="absolute left-0">2k</span>
-                  <span className="absolute" style={{ left: '14.29%', transform: 'translateX(-50%)' }}>4k</span>
-                  <span className="absolute" style={{ left: '28.57%', transform: 'translateX(-50%)' }}>6k</span>
-                  <span className="absolute" style={{ left: '42.86%', transform: 'translateX(-50%)' }}>8k</span>
-                  <span className="absolute" style={{ left: '57.14%', transform: 'translateX(-50%)' }}>10k</span>
-                  <span className="absolute" style={{ left: '71.43%', transform: 'translateX(-50%)' }}>12k</span>
-                  <span className="absolute" style={{ left: '85.71%', transform: 'translateX(-50%)' }}>14k</span>
-                  <span className="absolute right-0">16k</span>
+      {/* Map Image Section */}
+      <div className="border-b border-gunmetal pb-4">
+        <h4 className="text-md font-medium text-gray-300 mb-3">Map Image</h4>
+        
+        {/* Generate from Seed */}
+        <div className="mb-4">
+          <h5 className="text-sm font-medium text-gray-400 mb-2">Generate from Seed</h5>
+          
+          {importDimension === 'overworld' && (
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                World Size: {worldSize}k ({worldSize * 125}x{worldSize * 125})
+              </label>
+              <div className="relative">
+                <input
+                  type="range"
+                  min="2"
+                  max="16"
+                  step="1"
+                  value={worldSize}
+                  onChange={(e) => setWorldSize(parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isLoading}
+                />
+                <div className="relative -mt-1" style={{ marginLeft: '0.375rem', marginRight: '0.375rem' }}>
+                  <div className="relative text-xs text-gray-400" style={{ height: '1rem' }}>
+                    <span className="absolute left-0">2k</span>
+                    <span className="absolute" style={{ left: '14.29%', transform: 'translateX(-50%)' }}>4k</span>
+                    <span className="absolute" style={{ left: '28.57%', transform: 'translateX(-50%)' }}>6k</span>
+                    <span className="absolute" style={{ left: '42.86%', transform: 'translateX(-50%)' }}>8k</span>
+                    <span className="absolute" style={{ left: '57.14%', transform: 'translateX(-50%)' }}>10k</span>
+                    <span className="absolute" style={{ left: '71.43%', transform: 'translateX(-50%)' }}>12k</span>
+                    <span className="absolute" style={{ left: '85.71%', transform: 'translateX(-50%)' }}>14k</span>
+                    <span className="absolute right-0">16k</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
-
-        {error && (
-          <div className="mb-3 p-2 bg-red-900 border border-red-700 rounded text-red-300 text-sm">
-            {error}
-          </div>
-        )}
-
-        <Button
-          variant="primary"
-          onClick={handleGetMap}
-          disabled={isLoading}
-          className="w-full"
-        >
-          {isLoading ? (
-            <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              {isPolling ? 'Generating Map Image...' : 'Starting Generation...'}
-            </div>
-          ) : (
-            'Generate Map Image'
           )}
-        </Button>
 
-        {generatedImage && (
-          <div className="mt-3">
-            <h4 className="text-sm font-medium text-gray-300 mb-2">Map Image Preview</h4>
-            <div className="bg-gray-700 rounded p-2 mb-2">
-              <img 
-                src={generatedImage} 
-                alt="Generated map"
-                className="w-full h-auto border border-gunmetal rounded"
-              />
+          {error && (
+            <div className="mb-3 p-2 bg-red-900 border border-red-700 rounded text-red-300 text-sm">
+              {error}
             </div>
-            <Button
-              variant="secondary"
-              onClick={handleImportMap}
-              className="w-full"
-            >
-              Import Map
-            </Button>
-          </div>
-        )}
-      </div>
-      
-      {/* Load from URL Section */}
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Or Load from URL:</label>
-        <form onSubmit={handleUrlSubmit} className="space-y-2">
-          <input
-            type="url"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://example.com/image.png"
-            className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none text-sm placeholder:text-gray-500"
-          />
+          )}
+
           <Button
             variant="secondary"
-            type="submit"
+            onClick={handleGetMap}
+            disabled={isLoading}
             className="w-full"
           >
-            Load
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                {isPolling ? 'Generating Map Image...' : 'Starting Generation...'}
+              </div>
+            ) : (
+              'Generate Map Image'
+            )}
           </Button>
-        </form>
+        </div>
+
+        {/* Divider */}
+        <div className="my-4 relative flex items-center">
+          <div className="flex-1 border-t border-gunmetal"></div>
+          <span className="px-3 text-sm text-gray-400">or</span>
+          <div className="flex-1 border-t border-gunmetal"></div>
+        </div>
+
+        {/* Load from URL */}
+        <div>
+          <h5 className="text-sm font-medium text-gray-400 mb-2">Load from URL</h5>
+          <form onSubmit={handleLoadFromUrl} className="space-y-2">
+            <input
+              type="url"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/image.png"
+              className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none text-sm placeholder:text-gray-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={isLoading || isLoadingUrl}
+            />
+            <Button
+              variant="secondary"
+              type="submit"
+              className="w-full"
+              disabled={isLoading || isLoadingUrl}
+            >
+              {isLoadingUrl ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Loading...
+                </div>
+              ) : (
+                'Load'
+              )}
+            </Button>
+          </form>
+        </div>
       </div>
-      
-      
-      {/* Map Details Panel */}
-      {mapState.mapState.image && loadedMapDetails && (
-        <div className="mt-4 p-3 bg-lapis-lazuli/20 border border-lapis-lazuli/50 rounded-md">
-          <h4 className="text-sm font-semibold text-lapis-lazuli mb-2">Map Details</h4>
-          <div className="space-y-1 text-xs text-lapis-lazuli/80">
-            {loadedMapDetails.seed && (
-              <div><span className="font-medium">Seed:</span> {loadedMapDetails.seed}</div>
-            )}
-            {loadedMapDetails.dimension && (
-              <div><span className="font-medium">Dimension:</span> {loadedMapDetails.dimension}</div>
-            )}
-            {loadedMapDetails.worldSize && (
-              <div><span className="font-medium">World Size:</span> {loadedMapDetails.worldSize}k x {loadedMapDetails.worldSize}k</div>
-            )}
-            {loadedMapDetails.imageSize && (
-              <div><span className="font-medium">Image Size:</span> {loadedMapDetails.imageSize.width} x {loadedMapDetails.imageSize.height}</div>
-            )}
+
+      {/* Unified Preview - only show when no map is loaded or when previewing */}
+      {previewImageUrl && !hasMapLoaded && (
+        <div className="border-b border-gunmetal pb-4">
+          <h4 className="text-sm font-medium text-gray-300 mb-2">Map Image Preview</h4>
+          <div className="bg-gray-700 rounded p-2 mb-2">
+            <img 
+              src={previewImageUrl} 
+              alt="Map preview"
+              className="w-full h-auto border border-gunmetal rounded"
+            />
           </div>
+          <Button
+            variant="primary"
+            onClick={handleImportMap}
+            className="w-full"
+          >
+            Import Map
+          </Button>
         </div>
       )}
-      
+    </>
+  )
+
+  return (
+    <div className="space-y-4">
+      {hasMapLoaded ? (
+        // When map is loaded, show either World Details or Import Map Image section
+        showLoadSection ? (
+          // Import Map Image Section
+          <>
+            {/* Cancel button */}
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setShowLoadSection(false)
+                setPreviewImageUrl(null)
+                setImageUrl('')
+                setError(null)
+                setSeedError(null)
+                // Reset local state to context values when canceling
+                setImportWorldName(worldName.worldName)
+                setImportSeed(seedInfo.seedInfo.seed || '')
+                setImportDimension(seedInfo.seedInfo.dimension || 'overworld')
+              }}
+              leftIcon={<ArrowLeft size={16} />}
+              className="w-full"
+            >
+              Cancel
+            </Button>
+            
+            <h3 className="text-lg font-semibold text-white">Import Map Image</h3>
+            
+            {renderLoadSection()}
+            
+            {/* Preview when changing map */}
+            {previewImageUrl && (
+              <div className="border-b border-gunmetal pb-4 mt-4">
+                <h4 className="text-sm font-medium text-gray-300 mb-2">Map Image Preview</h4>
+                <div className="bg-gray-700 rounded p-2 mb-2">
+                  <img 
+                    src={previewImageUrl} 
+                    alt="Map preview"
+                    className="w-full h-auto border border-gunmetal rounded"
+                  />
+                </div>
+                <Button
+                  variant="primary"
+                  onClick={handleImportMap}
+                  className="w-full"
+                >
+                  Import Map
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          // World Details Section
+          <>
+            <h3 className="text-lg font-semibold text-white">World Details</h3>
+            
+            {/* World Name, Seed, and Dimension */}
+            <div className="mb-4 space-y-2">
+              <WorldNameHeading />
+              <SeedInfoHeading />
+              
+              {/* World Size */}
+              {loadedMapDetails?.worldSize && (
+                <div className="text-sm text-gray-300 px-2 py-1 rounded flex items-center gap-2">
+                  <span className="font-medium w-28">World Size:</span>
+                  <span>{loadedMapDetails.worldSize}k x {loadedMapDetails.worldSize}k</span>
+                </div>
+              )}
+              
+              {/* Image Size */}
+              {loadedMapDetails?.imageSize && (
+                <div className="text-sm text-gray-300 px-2 py-1 rounded flex items-center gap-2">
+                  <span className="font-medium w-28">Image Size:</span>
+                  <span>{loadedMapDetails.imageSize.width} x {loadedMapDetails.imageSize.height}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Import new map image button */}
+            <Button
+              variant="secondary"
+              onClick={() => setShowLoadSection(true)}
+              className="w-full mb-4"
+            >
+              Import new map image
+            </Button>
+          </>
+        )
+      ) : (
+        // Load Map Image State (when no map is loaded)
+        <>
+          <h3 className="text-lg font-semibold text-white">Import Map Image</h3>
+          {renderLoadSection()}
+        </>
+      )}
     </div>
   )
 }

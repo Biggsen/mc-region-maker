@@ -5,7 +5,7 @@ import { saveImageDetails } from '../utils/persistenceUtils'
 
 export function ImageImportHandler() {
   const location = useLocation()
-  const { mapState, regions, worldName, spawn } = useAppContext()
+  const { mapState, regions, worldName, spawn, seedInfo } = useAppContext()
   const hasProcessedRef = useRef(false)
 
   useEffect(() => {
@@ -54,10 +54,25 @@ export function ImageImportHandler() {
           console.log('Auto-set origin to center for square image:', { centerX, centerY })
         }
         
-        // Clear image details for imported image (no seed/dimension info)
+        // Calculate world size from image dimensions (assuming square images)
+        const calculatedWorldSize = img.width === img.height 
+          ? Math.round(img.width / 125)
+          : Math.round(Math.max(img.width, img.height) / 125)
+        
+        // Save image details for imported image
         saveImageDetails({
-          imageSize: { width: img.width, height: img.height }
+          imageSize: { width: img.width, height: img.height },
+          worldSize: calculatedWorldSize
         })
+        
+        // Update seed/dimension from router state if provided
+        if (location.state?.seed !== undefined || location.state?.dimension !== undefined) {
+          seedInfo.updateSeedInfo({
+            seed: location.state.seed,
+            dimension: location.state.dimension
+          })
+        }
+        // If not provided, leave World Details as-is (don't clear)
         
         // Reset world name to 'World'
         worldName.updateWorldName('World')

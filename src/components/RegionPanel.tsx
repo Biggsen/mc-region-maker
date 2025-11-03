@@ -4,7 +4,6 @@ import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/poly
 import { clearSavedData } from '../utils/persistenceUtils'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
-import { WorldNameHeading } from './WorldNameHeading'
 import { Trash2, Search } from 'lucide-react'
 
 export function RegionPanel() {
@@ -95,10 +94,6 @@ export function RegionPanel() {
       {!selectedRegion ? (
         // Region List View
         <>
-          <div className="flex-shrink-0 mb-4">
-            <WorldNameHeading />
-          </div>
-          
           <div className="flex-shrink-0 mb-2">
             <RegionCreationForm
               worldType={worldType.worldType}

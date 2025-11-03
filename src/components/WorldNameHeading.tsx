@@ -39,27 +39,29 @@ export function WorldNameHeading() {
   }
 
   return (
-    <div className="mb-4">
-      {isEditing ? (
-        <input
-          ref={inputRef}
-          type="text"
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-          className="w-full text-3xl font-bold text-input-text bg-transparent border-b-2 border-lapis-lazuli focus:outline-none focus:border-lapis-lighter px-2 py-1"
-        />
-      ) : (
-        <h1 
-          onClick={handleClick}
-          className="text-3xl font-bold text-white cursor-pointer hover:text-lapis-lazuli/80 transition-colors px-2 py-1 rounded flex items-center gap-2"
-        >
-          {worldName.worldName}
-          <Pencil className="w-5 h-5 text-gray-400 hover:text-lapis-lazuli/80 transition-colors" />
-        </h1>
-      )}
-      
+    <div>
+      <div className="text-sm text-gray-300 px-2 py-1 rounded flex items-center gap-2">
+        <span className="font-medium w-28">World Name:</span>
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            className="flex-1 text-sm text-input-text bg-transparent border-b-2 border-lapis-lazuli focus:outline-none focus:border-lapis-lighter px-2 py-1"
+          />
+        ) : (
+          <>
+            <span>{worldName.worldName}</span>
+            <Pencil 
+              className="w-3 h-3 text-gray-400 hover:text-lapis-lazuli/80 transition-colors cursor-pointer" 
+              onClick={handleClick}
+            />
+          </>
+        )}
+      </div>
     </div>
   )
 }

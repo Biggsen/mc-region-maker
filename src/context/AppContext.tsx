@@ -6,6 +6,7 @@ import { useSpawn } from '../hooks/useSpawn'
 import { useMapCanvas } from '../hooks/useMapCanvas'
 import { useWorldType } from '../hooks/useWorldType'
 import { useCustomMarkers } from '../hooks/useCustomMarkers'
+import { useSeedInfo } from '../hooks/useSeedInfo'
 
 interface AppContextType {
   regions: ReturnType<typeof useRegions>
@@ -15,6 +16,7 @@ interface AppContextType {
   mapCanvas: ReturnType<typeof useMapCanvas>
   worldType: ReturnType<typeof useWorldType>
   customMarkers: ReturnType<typeof useCustomMarkers>
+  seedInfo: ReturnType<typeof useSeedInfo>
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -27,9 +29,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const spawn = useSpawn()
   const mapCanvas = useMapCanvas()
   const customMarkers = useCustomMarkers()
+  const seedInfo = useSeedInfo()
 
   return (
-    <AppContext.Provider value={{ regions, mapState, worldName, spawn, mapCanvas, worldType, customMarkers }}>
+    <AppContext.Provider value={{ regions, mapState, worldName, spawn, mapCanvas, worldType, customMarkers, seedInfo }}>
       {children}
     </AppContext.Provider>
   )

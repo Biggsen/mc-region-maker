@@ -8,7 +8,7 @@ import { LoadingOverlay } from './LoadingOverlay'
 import { ImageImportHandler } from './ImageImportHandler'
 import { MapLoaderControls } from './MapLoaderControls'
 import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
-import { saveActiveTab, loadActiveTab } from '../utils/persistenceUtils'
+import { saveActiveTab, loadActiveTab, loadImageDetails, saveImageDetails } from '../utils/persistenceUtils'
 import { Map, Edit3, Download, FolderOpen, Save, Settings } from 'lucide-react'
 import { ImportConfirmationModal } from './ImportConfirmationModal'
 import { Button } from './Button'
@@ -17,7 +17,7 @@ import { useDataChanged } from '../hooks/useDataChanged'
 type TabType = 'map' | 'regions' | 'export' | 'advanced'
 
 function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabChange: (tab: TabType) => void }) {
-  const { regions, mapState, worldName, spawn, worldType } = useAppContext()
+  const { regions, mapState, worldName, spawn, worldType, seedInfo } = useAppContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showLoadModal, setShowLoadModal] = useState(false)
   
@@ -47,7 +47,20 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
   )
 
   const handleSave = async () => {
-    await exportCompleteMap(regions.regions, mapState.mapState, worldName.worldName, spawnData, worldType.worldType)
+    // Load image details for export
+    const imageDetails = loadImageDetails()
+    
+    await exportCompleteMap(
+      regions.regions, 
+      mapState.mapState, 
+      worldName.worldName, 
+      spawnData, 
+      worldType.worldType,
+      seedInfo.seedInfo.seed,
+      seedInfo.seedInfo.dimension,
+      imageDetails?.worldSize,
+      imageDetails?.imageSize
+    )
     markAsSaved()
   }
 
@@ -136,6 +149,24 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
         if (importData.spawnCoordinates.radius) {
           spawn.setSpawnRadius(importData.spawnCoordinates.radius)
         }
+      }
+
+      // Restore seed/dimension if they exist in import data
+      if (importData.seed !== undefined || importData.dimension !== undefined) {
+        seedInfo.updateSeedInfo({
+          seed: importData.seed,
+          dimension: importData.dimension
+        })
+      }
+
+      // Restore world size and image size if they exist in import data
+      if (importData.worldSize !== undefined || importData.imageSize !== undefined) {
+        const currentDetails = loadImageDetails() || {}
+        saveImageDetails({
+          ...currentDetails,
+          worldSize: importData.worldSize,
+          imageSize: importData.imageSize
+        })
       }
 
       // Clear the file input
@@ -235,9 +266,6 @@ function MainAppContent() {
   const confirmImport = () => {
     if (importCallback) {
       importCallback()
-      // Auto-switch to Regions tab after successful import
-      setActiveTab('regions')
-      saveActiveTab('regions')
     }
     setShowImportModal(false)
     setImportCallback(null)

@@ -5,6 +5,10 @@ import { generateRegionYAML } from './polygonUtils'
 export interface MapExportData {
   version: string
   worldName: string
+  seed?: string
+  dimension?: string
+  worldSize?: number
+  imageSize?: { width: number; height: number }
   regions: Region[]
   mapState: Omit<MapState, 'image'> & { imageSrc?: string }
   spawnCoordinates?: { x: number; z: number; radius?: number } | null
@@ -18,7 +22,7 @@ const CURRENT_VERSION = '1.0.0'
 
 
 // Export complete map with embedded image data
-export async function exportCompleteMap(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null, worldType?: 'overworld' | 'nether'): Promise<void> {
+export async function exportCompleteMap(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null, worldType?: 'overworld' | 'nether', seed?: string, dimension?: string, worldSize?: number, imageSize?: { width: number; height: number }): Promise<void> {
   if (!mapState.image) {
     alert('No map image loaded. Please load an image first.')
     return
@@ -59,6 +63,10 @@ export async function exportCompleteMap(regions: Region[], mapState: MapState, w
     const exportData: MapExportData = {
       version: CURRENT_VERSION,
       worldName,
+      seed,
+      dimension,
+      worldSize,
+      imageSize,
       regions,
       mapState: {
         scale: mapState.scale,

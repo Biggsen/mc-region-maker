@@ -12,10 +12,11 @@ Currently, when users generate or load map images, the seed information is not r
 
 ## Goals
 1. **Display**: Show seed and dimension prominently on Regions tab, editable inline
-2. **Capture**: Require seed/dimension input for all map loading methods
+2. **Capture**: Unified World Details section at top of Map tab (seed/dimension shared by all methods)
 3. **Persistence**: Save seed/dimension to localStorage with dedicated key
 4. **Export/Import**: Include seed/dimension in project save/load files
 5. **Consistency**: Ensure seed is captured regardless of how map is loaded
+6. **UX**: Consistent preview → import flow for both Generate and Load from URL
 
 ## Requirements
 
@@ -32,27 +33,82 @@ Currently, when users generate or load map images, the seed information is not r
 - Persist across browser sessions
 - Clear when clearing all data
 
-### 3. Map Loading Scenarios
+### 3. Map Tab UI Structure
 
-#### 3.1 Generate Map from Seed
-- **Current**: Seed/dimension already captured in UI
-- **Required**: Set seed/dimension immediately when "Import Map" is clicked
-- **Fix**: Resolve race condition where image load overwrites seed data
+#### New Layout:
+```
+┌─────────────────────────────────────┐
+│ World Details                        │
+│ ┌─────────────────────────────────┐  │
+│ │ Seed: [input]                  │  │
+│ │ Dimension: [dropdown]           │  │
+│ └─────────────────────────────────┘  │
+│ (Shared by both Generate and Load)   │
+├─────────────────────────────────────┤
+│ Map Image                            │
+│                                      │
+│ 1. Generate from Seed                │
+│    World Size: [slider]              │
+│    [Generate Map Image]              │
+│    ↓ (shows preview)                │
+│    [Preview with Import Map button]  │
+│                                      │
+│ 2. Load from URL                     │
+│    URL: [input]                      │
+│    [Load]                            │
+│    ↓ (shows preview)                 │
+│    [Preview with Import Map button]  │
+└─────────────────────────────────────┘
+```
 
-#### 3.2 Load from URL
-- **Current**: No seed/dimension capture
-- **Required**: Add seed and dimension input fields (similar to Generate section)
-- **Required**: Set seed/dimension when image loads
+#### 3.1 World Details Section (Top of Map Tab)
+- **Location**: Top of MapLoaderControls component
+- **Fields**: 
+  - Seed input (text/number)
+  - Dimension dropdown (overworld/nether/end)
+- **Behavior**:
+  - Shared state from `useSeedInfo` hook
+  - Auto-saves to localStorage on change
+  - Loaded from localStorage on mount
+  - Used by both Generate and Load from URL methods
 
-#### 3.3 Import via Router State (ImageImportHandler)
+#### 3.2 Generate Map from Seed Flow
+- **Uses**: Seed/dimension from World Details + world size slider
+- **Flow**:
+  1. User sets World Details (seed, dimension)
+  2. User sets world size slider (for overworld only)
+  3. Click "Generate Map Image" → async generation with polling
+  4. Preview appears with generated image
+  5. Click "Import Map" → saves seed/dimension to localStorage + loads image into canvas
+
+#### 3.3 Load from URL Flow
+- **Uses**: Seed/dimension from World Details
+- **Flow**:
+  1. User sets World Details (seed, dimension)
+  2. User enters image URL
+  3. Click "Load" → fetches image and shows preview (does NOT load into canvas yet)
+  4. Preview appears with loaded image
+  5. Click "Import Map" → saves seed/dimension to localStorage + loads image into canvas
+
+#### 3.4 Unified Import Functionality
+- **Both methods use same "Import Map" button**
+- **Function**: `handleImportMap(previewImageUrl)`
+- **Behavior**:
+  - Saves seed/dimension from World Details to localStorage (via useSeedInfo)
+  - Loads preview image into main canvas
+  - Clears preview state
+  - Handles confirmation if existing data exists
+
+#### 3.5 Import via Router State (ImageImportHandler)
 - **Current**: Clears seed data
 - **Required**: Optionally accept seed/dimension from location.state
-- **Required**: If not provided, clear seed/dimension
+- **Required**: If provided, populate World Details section
+- **Required**: If not provided, leave World Details as-is (don't clear)
 
-#### 3.4 Load Complete Map Export
+#### 3.6 Load Complete Map Export
 - **Current**: Seed/dimension not included in export file
 - **Required**: Include seed/dimension in export JSON
-- **Required**: Restore seed/dimension when loading export file
+- **Required**: Restore seed/dimension to World Details section when loading export file
 
 ### 4. Export/Import Format
 
@@ -105,13 +161,38 @@ Currently, when users generate or load map images, the seed information is not r
 - Render below `WorldNameHeading`
 
 #### `src/components/MapLoaderControls.tsx`
-**Changes:**
-1. Add state for URL seed inputs: `urlSeed`, `urlDimension`
-2. Update `handleImageUrl()` to accept optional `seedData` parameter
-3. Call `seedInfo.updateSeedInfo()` when image loads with seed data
-4. Fix race condition in `performImport()` by passing seed to `handleImageUrl()`
-5. Add seed/dimension input fields to "Load from URL" section
-6. Update `handleUrlSubmit()` to pass seed/dimension
+**Major Restructure:**
+1. **Add World Details section at top**:
+   - Use `seedInfo` from context (useSeedInfo hook)
+   - Seed input field connected to `seedInfo.seedInfo.seed`
+   - Dimension dropdown connected to `seedInfo.seedInfo.dimension`
+   - Auto-saves via `seedInfo.updateSeedInfo()` on change
+
+2. **Unified preview state**:
+   - Create `previewImageUrl` state (for both generate and URL)
+   - Both flows populate this state
+   - Both show same preview component
+
+3. **Update Generate flow**:
+   - Uses seed/dimension from World Details section
+   - Generates map → sets `previewImageUrl`
+   - Shows preview with "Import Map" button
+
+4. **Update Load from URL flow**:
+   - Uses seed/dimension from World Details section
+   - Loads image → sets `previewImageUrl` (does NOT load into canvas)
+   - Shows preview with "Import Map" button
+
+5. **Unified Import Map function**:
+   - Single `handleImportMap(previewImageUrl)` function
+   - Saves seed/dimension from World Details to localStorage
+   - Loads preview image into main canvas
+   - Clears preview state
+   - Handles confirmation for existing data
+
+6. **Remove direct image loading**:
+   - `handleUrlSubmit()` no longer directly calls `handleImageUrl()`
+   - `handleImageUrl()` renamed/refactored to `loadImageToPreview()`
 
 #### `src/components/MainApp.tsx`
 **Changes:**
@@ -136,27 +217,34 @@ Currently, when users generate or load map images, the seed information is not r
 2. Optionally accept seed/dimension from `location.state?.seed` and `state?.dimension`
 
 ### Race Condition Fix
-The current issue where `performImport()` sets seed but `handleImageUrl()` overwrites it:
+The current issue where seed/dimension could be lost during import:
 
-**Solution**: Pass seed data as parameter to `handleImageUrl()` and update `seedInfo` directly in the image load callback, rather than relying on state updates that may not have applied yet.
+**Solution**: 
+- Seed/dimension stored in World Details section (from useSeedInfo hook) before any import
+- Import Map button saves seed/dimension to localStorage FIRST, then loads image
+- No race condition because seed/dimension are already set in World Details before import occurs
 
 ## User Flows
 
 ### Flow 1: Generate Map from Seed
-1. User enters seed, selects dimension, clicks "Generate Map Image"
-2. Map generates and preview displays
-3. User clicks "Import Map"
-4. Seed and dimension are immediately set in localStorage
-5. Image loads and seed/dimension remain set
-6. User sees seed/dimension displayed on Regions tab
+1. User sets World Details (seed, dimension) at top of Map tab
+2. User sets world size slider (for overworld only)
+3. User clicks "Generate Map Image"
+4. Map generates (30-60 seconds) and preview displays
+5. User clicks "Import Map" button
+6. Seed and dimension are saved to localStorage (from World Details)
+7. Preview image loads into main canvas
+8. User sees seed/dimension displayed on Regions tab (from localStorage)
 
 ### Flow 2: Load from URL
-1. User enters image URL
-2. User enters seed (optional but recommended)
-3. User selects dimension (optional but recommended)
-4. User clicks "Load"
-5. Seed and dimension are set, image loads
-6. Seed/dimension displayed on Regions tab
+1. User sets World Details (seed, dimension) at top of Map tab
+2. User enters image URL
+3. User clicks "Load"
+4. Image fetches and preview displays (image NOT loaded into canvas yet)
+5. User clicks "Import Map" button
+6. Seed and dimension are saved to localStorage (from World Details)
+7. Preview image loads into main canvas
+8. User sees seed/dimension displayed on Regions tab (from localStorage)
 
 ### Flow 3: Edit Seed on Regions Tab
 1. User clicks on "Seed: Not set" (or existing seed)
@@ -164,18 +252,19 @@ The current issue where `performImport()` sets seed but `handleImageUrl()` overw
 3. User types new seed, presses Enter (or clicks away)
 4. Seed saved to localStorage immediately
 5. Display updates
+6. World Details section on Map tab also updates (shared state)
 
 ### Flow 4: Save Project
-1. User has regions and seed/dimension set
+1. User has regions and seed/dimension set (in World Details)
 2. User clicks "Save" button
-3. Export file includes seed and dimension
+3. Export file includes seed and dimension (from seedInfo hook)
 4. File downloads with embedded seed info
 
 ### Flow 5: Load Project
 1. User clicks "Load" and selects exported JSON file
 2. Import data includes seed/dimension
-3. Seed/dimension restored from file
-4. Seed/dimension displayed on Regions tab
+3. Seed/dimension restored to World Details section on Map tab
+4. Seed/dimension also displayed on Regions tab (both from same source)
 
 ## Edge Cases
 
@@ -189,8 +278,10 @@ The current issue where `performImport()` sets seed but `handleImageUrl()` overw
 - Both fields optional but at least one recommended
 
 ### Multiple Import Methods
-- If seed set via Generate, then user loads URL without seed, preserve existing seed
-- Clear seed only when explicitly loading new map without seed info
+- World Details section maintains seed/dimension state across all operations
+- If user generates map with seed X, then loads URL - World Details still shows seed X
+- User can update World Details at any time
+- Import Map button always uses current World Details values
 
 ### Browser Storage Limits
 - Handle localStorage quota errors gracefully
