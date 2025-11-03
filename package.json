@@ -24,9 +24,7 @@
     "dev:clean": "npx kill-port 3000 && vite",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "node scripts/api-server.js",
     "proxy": "node scripts/image-proxy-server.js",
-    "dev:full": "concurrently \"npm run dev\" \"npm run server\"",
     "dev:with-proxy": "concurrently \"npm run dev\" \"npm run proxy\""
   },
   "devDependencies": {

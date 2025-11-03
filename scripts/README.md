@@ -33,17 +33,20 @@ node scripts/image-proxy-server.js
 4. Serves it from localhost:3002 (same origin as frontend)
 5. No CORS issues - images can be embedded in exports
 
-## Legacy API Server
+## Map Generation Service
 
-**File:** `api-server.js`  
-**Status:** ⚠️ **DEPRECATED** - Replaced by Railway service  
-**Purpose:** Previously used for local map generation
+**Status:** ✅ **Using External Microservice**
 
-This server is no longer used. The application now uses the external Railway service for map generation.
+The application now uses the external MC Map Generator service running on `localhost:3001` (development) or Railway (production). This service provides:
+- Async job-based map generation
+- Support for all dimensions (overworld, nether, end)
+- Configurable world sizes (2k-16k)
+- High-quality 1000x1000 PNG output
+
+**Legacy Code:** Old API server and screenshot scripts have been removed and replaced by the microservice.
 
 ## Development Scripts
 
 - `npm run dev` - Start frontend only
 - `npm run proxy` - Start image proxy server only  
 - `npm run dev:with-proxy` - Start both frontend and proxy server
-- `npm run server` - Start legacy API server (deprecated)
