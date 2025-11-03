@@ -414,7 +414,7 @@ None required - using existing fetch API
 ## Documentation Updates
 
 ### User Documentation
-- Update SEED_GENERATOR_README.md with new API
+- Update docs/SEED_GENERATOR_README.md with new API
 - Document polling behavior and wait times
 - Add troubleshooting section
 
