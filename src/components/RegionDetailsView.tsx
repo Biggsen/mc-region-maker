@@ -5,7 +5,8 @@ import { Region, EditMode } from '../types'
 import { YAMLDisplay } from './YAMLDisplay'
 import { VillageManager } from './VillageManager'
 import { Button } from './Button'
-import { ArrowLeft, VectorSquare, Plus, Minus, BrushCleaning, Hand, Paintbrush, Move, Scissors, CircleDotDashed } from 'lucide-react'
+import { DeleteRegionModal } from './DeleteRegionModal'
+import { ArrowLeft, VectorSquare, Plus, Minus, BrushCleaning, Hand, Paintbrush, Move, Scissors, CircleDotDashed, Trash2 } from 'lucide-react'
 
 interface RegionDetailsViewProps {
   selectedRegion: Region
@@ -34,6 +35,7 @@ interface RegionDetailsViewProps {
   onSetWarping: (warping: boolean) => void
   onSetWarpRadius: (radius: number) => void
   onSetWarpStrength: (strength: number) => void
+  onDeleteRegion: (regionId: string) => void
 }
 
 export function RegionDetailsView({
@@ -62,11 +64,17 @@ export function RegionDetailsView({
   onCopyYAML,
   onSetWarping,
   onSetWarpRadius,
-  onSetWarpStrength
+  onSetWarpStrength,
+  onDeleteRegion
 }: RegionDetailsViewProps) {
   const [resizePercentage, setResizePercentage] = useState('100')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const isEditing = editMode.isEditing && editMode.editingRegionId === selectedRegion.id
   const modeIsActive = isEditing || editMode.isMovingRegion || editMode.isSplittingRegion
+  
+  // Check URL parameter for advanced features
+  const urlParams = new URLSearchParams(window.location.search)
+  const showAdvanced = urlParams.get('advanced') === 'true'
 
   // Update resize percentage when selected region changes
   useEffect(() => {
@@ -364,16 +372,40 @@ export function RegionDetailsView({
         </div>
       </div>
 
-      <YAMLDisplay
-        yamlContent={selectedRegion.id} // This will need to be passed from parent
-        onCopyYAML={onCopyYAML}
-      />
+      {showAdvanced && (
+        <YAMLDisplay
+          yamlContent={selectedRegion.id} // This will need to be passed from parent
+          onCopyYAML={onCopyYAML}
+        />
+      )}
 
       <VillageManager
         subregions={selectedRegion.subregions || []}
         regionId={selectedRegion.id}
         onRemoveSubregion={onRemoveSubregionFromRegion}
         onUpdateSubregionName={onUpdateSubregionName}
+      />
+
+      <div className="mt-6 pt-4 border-t border-gunmetal">
+        <Button
+          variant="secondary-outline"
+          onClick={() => setShowDeleteModal(true)}
+          leftIcon={<Trash2 size={16} />}
+          className="w-full"
+        >
+          Delete Region
+        </Button>
+      </div>
+
+      <DeleteRegionModal
+        isOpen={showDeleteModal}
+        regionName={selectedRegion.name}
+        onConfirm={() => {
+          onDeleteRegion(selectedRegion.id)
+          setShowDeleteModal(false)
+          onBack()
+        }}
+        onCancel={() => setShowDeleteModal(false)}
       />
     </div>
   )
