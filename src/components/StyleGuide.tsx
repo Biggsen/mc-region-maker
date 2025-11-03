@@ -17,6 +17,10 @@ const colors: ColorSwatch[] = [
   { name: 'Zomp', hex: '#319876', className: 'bg-zomp' },
   { name: 'Gunmetal', hex: '#252C2B', className: 'bg-gunmetal' },
   { name: 'Eerie Back', hex: '#171C1C', className: 'bg-eerie-back' },
+  { name: 'Saffron', hex: '#E5C14A', className: 'bg-saffron' },
+  { name: 'Bluewood', hex: '#213241', className: 'bg-bluewood' },
+  { name: 'Persimmon', hex: '#E06629', className: 'bg-persimmon' },
+  { name: 'Orange Crayola', hex: '#E67F4C', className: 'bg-orange-crayola' },
 ]
 
 export function StyleGuide() {

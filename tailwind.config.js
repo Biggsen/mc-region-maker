@@ -22,6 +22,10 @@ export default {
         'input-bg': '#1E2322', // input background
         'input-border': '#3A4140', // input border default (brighter)
         'input-text': '#F9FAFB', // input text color
+        'saffron': '#E5C14A',
+        'bluewood': '#213241',
+        'persimmon': '#E06629',
+        'orange-crayola': '#E67F4C',
       },
     },
   },
