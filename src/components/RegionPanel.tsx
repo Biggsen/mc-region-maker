@@ -46,8 +46,8 @@ export function RegionPanel() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false)
   const [regionToDelete, setRegionToDelete] = useState<{ id: string; name: string } | null>(null)
-  const [sortBy, setSortBy] = useState<'name' | 'size'>('name')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [sortBy, setSortBy] = useState<'name' | 'size' | 'newest'>('newest')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
 
 
@@ -108,6 +108,11 @@ export function RegionPanel() {
       const areaA = calculatePolygonArea(a.points)
       const areaB = calculatePolygonArea(b.points)
       comparison = areaA - areaB
+    } else if (sortBy === 'newest') {
+      // Find index in original regionsList to determine creation order
+      const indexA = regionsList.findIndex(r => r.id === a.id)
+      const indexB = regionsList.findIndex(r => r.id === b.id)
+      comparison = indexA - indexB // Positive means a was created after b
     }
     
     return sortOrder === 'asc' ? comparison : -comparison
@@ -221,6 +226,26 @@ export function RegionPanel() {
           <div className="flex-shrink-0 mb-4 flex items-center gap-2">
             <span className="text-gray-400 text-sm">Sort by:</span>
             <div className="flex gap-1">
+              <button
+                onClick={() => {
+                  if (sortBy === 'newest') {
+                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                  } else {
+                    setSortBy('newest')
+                    setSortOrder('desc')
+                  }
+                }}
+                className={`px-3 py-1.5 rounded text-sm border transition-colors flex items-center gap-1 ${
+                  sortBy === 'newest'
+                    ? 'bg-outer-space border-outer-space text-white'
+                    : 'bg-input-bg border-input-border text-gray-300 hover:bg-gunmetal hover:border-outer-space'
+                }`}
+              >
+                Newest
+                {sortBy === 'newest' && (
+                  sortOrder === 'desc' ? <ArrowDown size={14} /> : <ArrowUp size={14} />
+                )}
+              </button>
               <button
                 onClick={() => {
                   if (sortBy === 'name') {
