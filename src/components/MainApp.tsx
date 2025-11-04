@@ -83,9 +83,10 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
     }
   }
   
-  const confirmLoad = () => {
+  const confirmLoad = (deleteRegions: boolean) => {
     setShowLoadModal(false)
     // Now trigger file input after confirmation
+    // Note: deleteRegions is ignored for project file loading as it replaces everything
     fileInputRef.current?.click()
   }
   
@@ -238,8 +239,8 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
         onConfirm={confirmLoad}
         onCancel={cancelLoad}
         title="Load Project File"
-        message="Loading a project file will replace all current data."
-        warningMessage="⚠️ All existing regions, map, and settings will be lost."
+        message="Loading a project file will replace all current data, including regions, map, and settings."
+        showRegionOption={false}
         confirmLabel="Load Project"
       />
     </div>
@@ -251,21 +252,21 @@ function MainAppContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabType>(loadActiveTab())
   const [showImportModal, setShowImportModal] = useState(false)
-  const [importCallback, setImportCallback] = useState<(() => void) | null>(null)
+  const [importCallback, setImportCallback] = useState<((deleteRegions: boolean) => void) | null>(null)
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
     saveActiveTab(tab)
   }
 
-  const showImportConfirmation = (callback: () => void) => {
+  const showImportConfirmation = (callback: (deleteRegions: boolean) => void) => {
     setImportCallback(() => callback)
     setShowImportModal(true)
   }
 
-  const confirmImport = () => {
+  const confirmImport = (deleteRegions: boolean) => {
     if (importCallback) {
-      importCallback()
+      importCallback(deleteRegions)
     }
     setShowImportModal(false)
     setImportCallback(null)

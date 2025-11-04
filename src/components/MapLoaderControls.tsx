@@ -8,7 +8,7 @@ import { SeedInfoHeading } from './SeedInfoHeading'
 import { ArrowLeft } from 'lucide-react'
 
 interface MapLoaderControlsProps {
-  onShowImportConfirmation: (callback: () => void) => void
+  onShowImportConfirmation: (callback: (deleteRegions: boolean) => void) => void
 }
 
 export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControlsProps) {
@@ -128,6 +128,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     setIsLoading(true)
     setError(null)
     setSeedError(null)
+    setPreviewImageUrl(null)
     
     try {
       // Step 1: Start generation job
@@ -254,15 +255,21 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
                            mapState.mapState.originSelected
     
     if (hasExistingData) {
-      onShowImportConfirmation(() => performImport())
+      onShowImportConfirmation((deleteRegions: boolean) => performImport(deleteRegions))
     } else {
       // No existing data, proceed directly
-      performImport()
+      performImport(false)
     }
   }
 
-  const performImport = () => {
+  const performImport = (deleteRegions: boolean) => {
     if (!previewImageUrl) return
+    
+    // Clear regions if user chose to delete them
+    if (deleteRegions) {
+      regions.replaceRegions([])
+      regions.setSelectedRegionId(null)
+    }
     
     // Save world details to localStorage only when importing
     worldName.updateWorldName(importWorldName.trim() || 'world')
