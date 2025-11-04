@@ -41,7 +41,7 @@ export function RegionPanel() {
     cancelSplitRegion
   } = regions
 
-  const { startSettingCenterPoint } = useAppContext().mapCanvas
+  const { startSettingCenterPoint, stopSettingCenterPoint } = useAppContext().mapCanvas
   const { isWarping, setIsWarping, warpRadius, setWarpRadius, warpStrength, setWarpStrength } = useAppContext().mapCanvas
   const { mapState, setScale, setOffset } = mapStateHook
 
@@ -457,6 +457,8 @@ export function RegionPanel() {
           onBack={() => {
             setHoveredRegionId(null)
             setSelectedRegionId(null)
+            setIsWarping(false)
+            stopSettingCenterPoint()
           }}
           onUpdateRegion={updateRegion}
           onStartEditMode={startEditMode}
