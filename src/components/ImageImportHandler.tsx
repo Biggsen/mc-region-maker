@@ -18,8 +18,13 @@ export function ImageImportHandler() {
       const img = new Image()
       
       // Use proxy for external URLs to avoid CORS issues
+      const isProduction = import.meta.env.PROD
+      const proxyUrl = isProduction 
+        ? '/api/proxy-image' 
+        : 'http://localhost:3002/api/proxy-image'
+      
       const proxiedImageUrl = imageUrl.startsWith('http') && !imageUrl.includes('localhost') 
-        ? `http://localhost:3002/api/proxy-image?url=${encodeURIComponent(imageUrl)}`
+        ? `${proxyUrl}?url=${encodeURIComponent(imageUrl)}`
         : imageUrl
       
       console.log('Loading imported image:', { original: imageUrl, proxied: proxiedImageUrl })

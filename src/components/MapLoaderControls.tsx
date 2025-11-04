@@ -127,8 +127,13 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     const img = new Image()
     
     // Use proxy for external URLs to avoid CORS issues
+    const isProduction = import.meta.env.PROD
+    const proxyUrl = isProduction 
+      ? '/api/proxy-image' 
+      : 'http://localhost:3002/api/proxy-image'
+    
     const imageUrl = url.startsWith('http') && !url.includes('localhost') 
-      ? `http://localhost:3002/api/proxy-image?url=${encodeURIComponent(url)}`
+      ? `${proxyUrl}?url=${encodeURIComponent(url)}`
       : url
     
     console.log('Loading image:', { original: url, proxied: imageUrl })
@@ -218,9 +223,11 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     setPreviewImageUrl(null)
     setPreviewImageDimensions(null)
     
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+    
     try {
       // Step 1: Start generation job
-      const generateResponse = await fetch('http://localhost:3001/api/generate', {
+      const generateResponse = await fetch(`${API_URL}/api/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -250,7 +257,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       let attempts = 0
       
       const pollStatus = async (): Promise<string> => {
-        const statusResponse = await fetch(`http://localhost:3001/api/status/${jobId}`)
+        const statusResponse = await fetch(`${API_URL}/api/status/${jobId}`)
         
         if (!statusResponse.ok) {
           throw new Error('Failed to check job status')
@@ -279,8 +286,37 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
         return pollStatus()
       }
       
-      const generatedImageUrl = await pollStatus()
-      setPreviewImageUrl(generatedImageUrl)
+      let generatedImageUrl = await pollStatus()
+      
+      // Normalize image URL - handle relative URLs or localhost URLs
+      if (generatedImageUrl.startsWith('/')) {
+        // Relative URL - prepend API_URL
+        generatedImageUrl = `${API_URL}${generatedImageUrl}`
+      } else if (generatedImageUrl.includes('localhost:3000') || generatedImageUrl.includes('localhost:3001')) {
+        // Replace localhost with API_URL - extract path from URL
+        try {
+          const urlPath = new URL(generatedImageUrl).pathname
+          generatedImageUrl = `${API_URL}${urlPath}`
+        } catch {
+          // If URL parsing fails, try simple string replacement
+          const match = generatedImageUrl.match(/\/generated-maps\/.+$/)
+          if (match) {
+            generatedImageUrl = `${API_URL}${match[0]}`
+          }
+        }
+      }
+      
+      // Use proxy for external URLs to avoid CORS issues
+      const isProduction = import.meta.env.PROD
+      const proxyUrl = isProduction 
+        ? '/api/proxy-image' 
+        : 'http://localhost:3002/api/proxy-image'
+      
+      const proxiedImageUrl = generatedImageUrl.startsWith('http') && !generatedImageUrl.includes('localhost') 
+        ? `${proxyUrl}?url=${encodeURIComponent(generatedImageUrl)}`
+        : generatedImageUrl
+      
+      setPreviewImageUrl(proxiedImageUrl)
       // Calculate dimensions from world size (formula: worldSize * 125 = image size)
       const imageSize = worldSize * 125
       setPreviewImageDimensions({ width: imageSize, height: imageSize })
@@ -308,8 +344,13 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     try {
       // Just load to preview, not to canvas yet
       // Use proxy for external URLs to avoid CORS issues
+      const isProduction = import.meta.env.PROD
+      const proxyUrl = isProduction 
+        ? '/api/proxy-image' 
+        : 'http://localhost:3002/api/proxy-image'
+      
       const proxiedUrl = imageUrl.trim().startsWith('http') && !imageUrl.trim().includes('localhost') 
-        ? `http://localhost:3002/api/proxy-image?url=${encodeURIComponent(imageUrl.trim())}`
+        ? `${proxyUrl}?url=${encodeURIComponent(imageUrl.trim())}`
         : imageUrl.trim()
       
       // Test if image loads
