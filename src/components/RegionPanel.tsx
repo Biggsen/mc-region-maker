@@ -2,15 +2,16 @@ import { useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/polygonUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
+import { worldToPixel } from '../utils/coordinateUtils'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
 import { Button } from './Button'
 import { DeleteAllRegionsModal } from './DeleteAllRegionsModal'
 import { DeleteRegionModal } from './DeleteRegionModal'
-import { Trash2, Search, LineSquiggle, ArrowUp, ArrowDown } from 'lucide-react'
+import { Trash2, Search, LineSquiggle, ArrowUp, ArrowDown, ZoomIn } from 'lucide-react'
 
 export function RegionPanel() {
-  const { regions, worldType } = useAppContext()
+  const { regions, worldType, mapState: mapStateHook } = useAppContext()
   const {
     regions: regionsList,
     selectedRegionId,
@@ -42,6 +43,7 @@ export function RegionPanel() {
 
   const { startSettingCenterPoint } = useAppContext().mapCanvas
   const { isWarping, setIsWarping, warpRadius, setWarpRadius, warpStrength, setWarpStrength } = useAppContext().mapCanvas
+  const { mapState, setScale, setOffset } = mapStateHook
 
   const [searchQuery, setSearchQuery] = useState('')
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false)
@@ -67,6 +69,90 @@ export function RegionPanel() {
     if (confirm('Are you sure you want to clear all saved data? This will remove the loaded image and all regions.')) {
       clearSavedData()
       window.location.reload()
+    }
+  }
+
+  const handleZoomToRegion = (region: { id: string; name: string; points: { x: number; z: number }[] }) => {
+    console.log('Zoom to region clicked', { regionName: region.name, hasImage: !!mapState.image, pointsCount: region.points.length })
+    
+    if (!mapState.image) {
+      console.warn('Cannot zoom: No image loaded')
+      alert('Cannot zoom to region: No map image is loaded. Please load a map image first from the Map tab.')
+      return
+    }
+    
+    if (region.points.length < 2) {
+      console.warn('Cannot zoom: Region has less than 2 points')
+      return
+    }
+
+    try {
+      // Convert all region points from world coordinates to pixel coordinates
+      const pixelPoints = region.points.map(point => 
+        worldToPixel(point.x, point.z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+      )
+
+      // Calculate bounding box in pixel coordinates
+      const minX = Math.min(...pixelPoints.map(p => p.x))
+      const maxX = Math.max(...pixelPoints.map(p => p.x))
+      const minY = Math.min(...pixelPoints.map(p => p.y))
+      const maxY = Math.max(...pixelPoints.map(p => p.y))
+
+      const width = maxX - minX
+      const height = maxY - minY
+      
+      if (width <= 0 || height <= 0) {
+        console.warn('Cannot zoom: Invalid region dimensions', { width, height })
+        return
+      }
+      
+      const centerX = (minX + maxX) / 2
+      const centerY = (minY + maxY) / 2
+
+      // Calculate available canvas space (accounting for sidebar)
+      // Canvas width is window.innerWidth - 384 (sidebar), height is window.innerHeight
+      const canvasWidth = window.innerWidth - 384 // Sidebar width
+      const canvasHeight = window.innerHeight // Full window height
+
+      // Add padding (20% on each side)
+      const padding = 0.2
+      const availableWidth = canvasWidth * (1 - padding * 2)
+      const availableHeight = canvasHeight * (1 - padding * 2)
+
+      // Calculate scale to fit the region
+      const scaleX = availableWidth / width
+      const scaleY = availableHeight / height
+      const newScale = Math.max(0.1, Math.min(scaleX, scaleY, 5)) // Cap at 5x zoom, min 0.1x
+
+      if (!isFinite(newScale) || newScale <= 0) {
+        console.warn('Cannot zoom: Invalid scale calculated', { scaleX, scaleY, newScale })
+        return
+      }
+
+      // Calculate offset to center the region on canvas
+      // We want the center of the region (in pixel space) to be at the center of the canvas
+      // offset = canvasCenter - (pixelCenter * scale)
+      const canvasCenterX = canvasWidth / 2
+      const canvasCenterY = canvasHeight / 2
+      const newOffsetX = canvasCenterX - centerX * newScale
+      const newOffsetY = canvasCenterY - centerY * newScale
+
+      console.log('Zooming to region', {
+        regionName: region.name,
+        pixelBounds: { minX, maxX, minY, maxY },
+        width,
+        height,
+        centerX,
+        centerY,
+        newScale,
+        newOffsetX,
+        newOffsetY
+      })
+
+      setScale(newScale)
+      setOffset(newOffsetX, newOffsetY)
+    } catch (error) {
+      console.error('Error zooming to region:', error)
     }
   }
 
@@ -311,15 +397,31 @@ export function RegionPanel() {
                         Size: {formatArea(area)}
                       </div>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setRegionToDelete({ id: region.id, name: region.name })
-                      }}
-                      className="text-gray-300 text-sm p-1 rounded transition-colors hover:bg-viridian"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          console.log('Zoom button clicked for region:', region.name)
+                          handleZoomToRegion(region)
+                        }}
+                        className="text-gray-300 text-sm p-1 rounded transition-colors hover:bg-viridian hover:text-white"
+                        title="Zoom to region"
+                      >
+                        <ZoomIn className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setRegionToDelete({ id: region.id, name: region.name })
+                        }}
+                        className="text-gray-300 text-sm p-1 rounded transition-colors hover:bg-viridian"
+                        title="Delete region"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
