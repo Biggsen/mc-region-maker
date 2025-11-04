@@ -1,8 +1,12 @@
 import React, { useRef, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML, importMapData } from '../utils/exportUtils'
+import { clearSavedData } from '../utils/persistenceUtils'
 import { RegionActions } from './RegionActions'
 import { SpawnButton } from './SpawnButton'
+import { Button } from './Button'
+import { Trash2 } from 'lucide-react'
+import { ClearDataModal } from './ClearDataModal'
 
 export function AdvancedPanel() {
   const { regions, worldType, mapCanvas } = useAppContext()
@@ -21,6 +25,7 @@ export function AdvancedPanel() {
   const [customCenterX, setCustomCenterX] = useState('')
   const [customCenterZ, setCustomCenterZ] = useState('')
   const [showCustomCenterForm, setShowCustomCenterForm] = useState(false)
+  const [showClearDataModal, setShowClearDataModal] = useState(false)
 
   const handleGenerateAchievements = () => {
     generateAchievementsYAML(regions.regions, worldType.worldType)
@@ -155,6 +160,15 @@ export function AdvancedPanel() {
   }
 
   const availableRegions = regions.regions.filter(r => r.points.length >= 3)
+
+  const handleClearData = () => {
+    setShowClearDataModal(true)
+  }
+
+  const handleConfirmClearData = () => {
+    clearSavedData()
+    window.location.reload()
+  }
 
   return (
     <div className="space-y-4">
@@ -651,7 +665,26 @@ export function AdvancedPanel() {
             No regions available. Create at least one region first.
           </div>
         )}
+
+        {/* Clear Data Button - Bottom of panel */}
+        <div className="mt-6 pt-4 border-t border-gunmetal">
+          <Button
+            variant="secondary-outline"
+            onClick={handleClearData}
+            className="w-full"
+            leftIcon={<Trash2 className="w-4 h-4" />}
+            title="Clear all saved data"
+          >
+            Clear All Data
+          </Button>
+        </div>
       </div>
+
+      <ClearDataModal
+        isOpen={showClearDataModal}
+        onConfirm={handleConfirmClearData}
+        onCancel={() => setShowClearDataModal(false)}
+      />
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/polygonUtils'
-import { clearSavedData } from '../utils/persistenceUtils'
 import { worldToPixel } from '../utils/coordinateUtils'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
@@ -65,12 +64,6 @@ export function RegionPanel() {
     }
   }
 
-  const handleClearData = () => {
-    if (confirm('Are you sure you want to clear all saved data? This will remove the loaded image and all regions.')) {
-      clearSavedData()
-      window.location.reload()
-    }
-  }
 
   const handleZoomToRegion = (region: { id: string; name: string; points: { x: number; z: number }[] }) => {
     console.log('Zoom to region clicked', { regionName: region.name, hasImage: !!mapState.image, pointsCount: region.points.length })
@@ -436,16 +429,6 @@ export function RegionPanel() {
             )}
           </div>
 
-          {/* Clear Data Button - Bottom of sidebar */}
-          <div className="fixed bottom-0 left-0 w-96 border-r border-gunmetal px-4 py-2 z-10">
-            <button
-              onClick={handleClearData}
-              className="w-full text-red-400 hover:text-red-300 text-sm py-2 px-4 rounded border border-red-400 hover:border-red-300 hover:bg-red-900/20 transition-colors"
-              title="Clear all saved data"
-            >
-              Clear All Data
-            </button>
-          </div>
         </>
       ) : (
         <RegionDetailsView
