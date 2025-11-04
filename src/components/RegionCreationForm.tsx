@@ -1,22 +1,26 @@
 import { useState, useEffect } from 'react'
 import { generateRegionName } from '../utils/nameGenerator'
 import { Button } from './Button'
+import { Region } from '../types'
 
 interface RegionCreationFormProps {
   worldType: 'overworld' | 'nether'
   onStartDrawing: (name: string, freehand: boolean) => void
   onCancelDrawing: () => void
   isDrawing: boolean
+  existingRegions: Region[]
 }
 
 export function RegionCreationForm({ 
   worldType, 
   onStartDrawing,
   onCancelDrawing,
-  isDrawing
+  isDrawing,
+  existingRegions
 }: RegionCreationFormProps) {
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
+  const [nameError, setNameError] = useState<string | null>(null)
 
   // Generate a random name when the form is shown
   useEffect(() => {
@@ -25,16 +29,38 @@ export function RegionCreationForm({
     }
   }, [showNewRegionForm, newRegionName, worldType])
 
+  // Clear error when name changes
+  useEffect(() => {
+    if (nameError) {
+      setNameError(null)
+    }
+  }, [newRegionName])
+
   const handleGenerateNewName = () => {
     setNewRegionName(generateRegionName(worldType))
+    setNameError(null)
   }
 
   const handleStartDrawing = () => {
-    if (newRegionName.trim()) {
-      onStartDrawing(newRegionName.trim(), true)
-      setNewRegionName('')
-      setShowNewRegionForm(false)
+    const trimmedName = newRegionName.trim()
+    if (!trimmedName) {
+      return
     }
+    
+    // Check for duplicate names (case-insensitive)
+    const isDuplicate = existingRegions.some(r => 
+      r.name.trim().toLowerCase() === trimmedName.toLowerCase()
+    )
+    
+    if (isDuplicate) {
+      setNameError('A region with this name already exists')
+      return
+    }
+    
+    onStartDrawing(trimmedName, true)
+    setNewRegionName('')
+    setShowNewRegionForm(false)
+    setNameError(null)
   }
 
   return (
@@ -62,7 +88,9 @@ export function RegionCreationForm({
                 value={newRegionName}
                 onChange={(e) => setNewRegionName(e.target.value)}
                 placeholder="Enter region name"
-                className="flex-1 bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
+                className={`flex-1 bg-input-bg text-input-text px-3 py-2 rounded border focus:outline-none placeholder:text-gray-500 ${
+                  nameError ? 'border-red-500 focus:border-red-500' : 'border-input-border focus:border-lapis-lighter'
+                }`}
                 onKeyPress={(e) => e.key === 'Enter' && handleStartDrawing()}
               />
               <Button
@@ -74,6 +102,9 @@ export function RegionCreationForm({
                 🎲
               </Button>
             </div>
+            {nameError && (
+              <p className="text-sm text-red-400 mt-1">{nameError}</p>
+            )}
           </div>
           <div className="flex space-x-2">
             <Button

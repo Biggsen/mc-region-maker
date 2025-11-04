@@ -16,7 +16,8 @@ interface RegionDetailsViewProps {
   warpRadius: number
   warpStrength: number
   onBack: () => void
-  onUpdateRegion: (regionId: string, updates: any) => void
+  onUpdateRegion: (regionId: string, updates: any) => boolean | void
+  existingRegions: Region[]
   onStartEditMode: (regionId: string) => void
   onStopEditMode: () => void
   onStartMoveRegion: (regionId: string, x: number, z: number) => void
@@ -65,12 +66,21 @@ export function RegionDetailsView({
   onSetWarping,
   onSetWarpRadius,
   onSetWarpStrength,
-  onDeleteRegion
+  onDeleteRegion,
+  existingRegions
 }: RegionDetailsViewProps) {
   const [resizePercentage, setResizePercentage] = useState('100')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [nameError, setNameError] = useState<string | null>(null)
+  const [tempName, setTempName] = useState(selectedRegion.name)
   const isEditing = editMode.isEditing && editMode.editingRegionId === selectedRegion.id
   const modeIsActive = isEditing || editMode.isMovingRegion || editMode.isSplittingRegion
+  
+  // Update tempName when selectedRegion changes
+  useEffect(() => {
+    setTempName(selectedRegion.name)
+    setNameError(null)
+  }, [selectedRegion.id])
   
   // Check URL parameter for advanced features
   const urlParams = new URLSearchParams(window.location.search)
@@ -106,19 +116,87 @@ export function RegionDetailsView({
         <div className="flex space-x-2">
           <input
             type="text"
-            value={selectedRegion.name}
-            onChange={(e) => onUpdateRegion(selectedRegion.id, { name: e.target.value })}
-            className="flex-1 bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
+            value={tempName}
+            onChange={(e) => {
+              const newName = e.target.value
+              setTempName(newName)
+              setNameError(null)
+            }}
+            onBlur={() => {
+              const trimmedName = tempName.trim()
+              if (trimmedName === selectedRegion.name) {
+                // Name hasn't changed, reset to original
+                setTempName(selectedRegion.name)
+                setNameError(null)
+                return
+              }
+              
+              if (!trimmedName) {
+                setTempName(selectedRegion.name)
+                setNameError(null)
+                return
+              }
+              
+              // Check for duplicate names (case-insensitive)
+              const isDuplicate = existingRegions.some(r => 
+                r.id !== selectedRegion.id && r.name.trim().toLowerCase() === trimmedName.toLowerCase()
+              )
+              
+              if (isDuplicate) {
+                setNameError('A region with this name already exists')
+                setTempName(selectedRegion.name)
+                return
+              }
+              
+              // Update the region name
+              const success = onUpdateRegion(selectedRegion.id, { name: trimmedName })
+              if (success === false) {
+                setNameError('A region with this name already exists')
+                setTempName(selectedRegion.name)
+              } else {
+                setTempName(trimmedName)
+              }
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                e.currentTarget.blur()
+              }
+            }}
+            className={`flex-1 bg-input-bg text-input-text px-3 py-2 rounded border focus:outline-none placeholder:text-gray-500 ${
+              nameError ? 'border-red-500 focus:border-red-500' : 'border-input-border focus:border-lapis-lighter'
+            }`}
           />
           <Button
             variant="ghost"
-            onClick={() => onUpdateRegion(selectedRegion.id, { name: generateRegionName(worldType as 'overworld' | 'nether') })}
+            onClick={() => {
+              const generatedName = generateRegionName(worldType as 'overworld' | 'nether')
+              // Check for duplicates before applying
+              const isDuplicate = existingRegions.some(r => 
+                r.id !== selectedRegion.id && r.name.trim().toLowerCase() === generatedName.toLowerCase()
+              )
+              
+              if (isDuplicate) {
+                setNameError('Generated name already exists, please try again')
+                return
+              }
+              
+              const success = onUpdateRegion(selectedRegion.id, { name: generatedName })
+              if (success === false) {
+                setNameError('A region with this name already exists')
+              } else {
+                setTempName(generatedName)
+                setNameError(null)
+              }
+            }}
             className="px-3 py-2"
             title="Generate random medieval name"
           >
             🎲
           </Button>
         </div>
+        {nameError && (
+          <p className="text-sm text-red-400 mt-1">{nameError}</p>
+        )}
         <div className="flex justify-between items-center mt-1">
           <p className="text-gray-400 text-xs">
             {selectedRegion.points.length} points

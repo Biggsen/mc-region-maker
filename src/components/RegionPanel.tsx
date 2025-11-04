@@ -212,6 +212,7 @@ export function RegionPanel() {
           {!drawingRegion && (
             <div className="flex-shrink-0 mb-2">
               <RegionCreationForm
+                existingRegions={regionsList}
                 worldType={worldType.worldType}
                 onStartDrawing={(name, freehand) => {
                   regions.setFreehandEnabled(freehand)
@@ -461,6 +462,7 @@ export function RegionPanel() {
             stopSettingCenterPoint()
           }}
           onUpdateRegion={updateRegion}
+          existingRegions={regionsList}
           onStartEditMode={startEditMode}
           onStopEditMode={stopEditMode}
           onStartMoveRegion={startMoveRegion}

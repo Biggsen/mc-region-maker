@@ -67,8 +67,17 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
   }, [selectedRegionId, isInitialized])
 
   const addRegion = useCallback((region: Omit<Region, 'id'>) => {
+    // Check for duplicate names (case-insensitive)
+    const trimmedName = region.name.trim()
+    const isDuplicate = regions.some(r => r.name.trim().toLowerCase() === trimmedName.toLowerCase())
+    
+    if (isDuplicate) {
+      return false // Return false if duplicate name exists
+    }
+    
     const newRegion: Region = {
       ...region,
+      name: trimmedName,
       id: generateId(),
       originalPoints: region.points, // Store original points for resizing
       scaleFactor: region.scaleFactor || 1.0 // Default to 100% scale
@@ -76,13 +85,29 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     setRegions(prev => [...prev, newRegion])
     setSelectedRegionId(newRegion.id)
     setDrawingRegion(null)
-  }, [])
+    return true // Return true on success
+  }, [regions])
 
   const updateRegion = useCallback((id: string, updates: Partial<Region>) => {
+    // Check for duplicate names if name is being updated (case-insensitive)
+    if (updates.name !== undefined) {
+      const trimmedName = updates.name.trim()
+      const isDuplicate = regions.some(r => 
+        r.id !== id && r.name.trim().toLowerCase() === trimmedName.toLowerCase()
+      )
+      
+      if (isDuplicate) {
+        return false // Return false if duplicate name exists
+      }
+      
+      updates.name = trimmedName
+    }
+    
     setRegions(prev => prev.map(region => 
       region.id === id ? { ...region, ...updates } : region
     ))
-  }, [])
+    return true // Return true on success
+  }, [regions])
 
   const deleteRegion = useCallback((id: string) => {
     setRegions(prev => prev.filter(region => region.id !== id))
@@ -147,12 +172,21 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
         ? simplifyPolygonVertices(drawingRegion.points, 3)
         : drawingRegion.points
 
-      addRegion({
+      const success = addRegion({
         ...drawingRegion,
         points
       })
+      
+      if (!success) {
+        // Duplicate name detected - this shouldn't happen if validation in RegionCreationForm works,
+        // but we'll keep the drawing region so user can fix the name
+        console.warn('Cannot add region: duplicate name detected')
+        return false
+      }
+      return true
     }
-  }, [drawingRegion, addRegion])
+    return false
+  }, [drawingRegion, freehandEnabled, addRegion])
 
   const cancelDrawingRegion = useCallback(() => {
     setDrawingRegion(null)
