@@ -354,7 +354,7 @@ function MainAppContent() {
           </div>
           
           <div className="flex-1 h-full">
-            <MapCanvas />
+            <MapCanvas onNavigateToRegions={() => handleTabChange('regions')} />
           </div>
         </div>
         

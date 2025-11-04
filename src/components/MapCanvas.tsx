@@ -8,7 +8,11 @@ import { CoordinateInputDialog } from './CoordinateInputDialog'
 import { MapDisplayControls } from './MapDisplayControls'
 import { Scan } from 'lucide-react'
 
-export function MapCanvas() {
+interface MapCanvasProps {
+  onNavigateToRegions?: () => void
+}
+
+export function MapCanvas({ onNavigateToRegions }: MapCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { mapState: mapStateHook, regions, spawn, mapCanvas, customMarkers } = useAppContext()
   const { mapState, setScale, setOffset, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel, setImageOpacity } = mapStateHook
@@ -278,6 +282,36 @@ export function MapCanvas() {
     }
   }, [stopDragging, isMovingRegion])
 
+  const handleDoubleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current
+    if (!canvas || !mapState.image || !mapState.originSelected) return
+
+    // Don't handle double-click if in edit mode, moving region, or other special modes
+    if (editMode.isEditing || editMode.isMovingRegion || editMode.isSplittingRegion || drawingRegion || isSpacePressed) {
+      return
+    }
+
+    const rect = canvas.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    // Convert to world coordinates
+    const imagePos = canvasToImage(x, y, mapState.scale, mapState.offsetX, mapState.offsetY)
+    const worldPos = pixelToWorld(imagePos.x, imagePos.y, mapState.image.width, mapState.image.height, mapState.originOffset)
+
+    // Check each region to see if the double-click is inside
+    for (let i = regions.regions.length - 1; i >= 0; i--) {
+      const region = regions.regions[i]
+      if (isPointInPolygon(worldPos, region.points)) {
+        regions.setSelectedRegionId(region.id)
+        if (onNavigateToRegions) {
+          onNavigateToRegions()
+        }
+        return
+      }
+    }
+  }, [mapState.image, mapState.originSelected, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, editMode.isEditing, editMode.isMovingRegion, editMode.isSplittingRegion, drawingRegion, isSpacePressed, regions, onNavigateToRegions])
+
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -491,6 +525,7 @@ export function MapCanvas() {
         onMouseEnter={() => setIsMouseOverCanvas(true)}
         onMouseLeave={() => setIsMouseOverCanvas(false)}
         onWheel={onWheel}
+        onDoubleClick={handleDoubleClick}
       />
       
       {mapState.image && (
