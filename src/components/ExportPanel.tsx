@@ -121,7 +121,13 @@ export function ExportPanel() {
                   name="greetingSize"
                   value="small"
                   checked={greetingSize === 'small'}
-                  onChange={(e) => setGreetingSize(e.target.value as 'large' | 'small')}
+                  onChange={(e) => {
+                    const newSize = e.target.value as 'large' | 'small'
+                    setGreetingSize(newSize)
+                    if (newSize === 'small') {
+                      setIncludeChallengeLevelSubheading(false)
+                    }
+                  }}
                   className="w-4 h-4 text-lapis-lazuli bg-gray-700 border-gunmetal focus:ring-lapis-lazuli focus:ring-2"
                 />
                 <label htmlFor="greetingSmall" className="flex items-center space-x-2 text-white cursor-pointer">
@@ -206,11 +212,17 @@ export function ExportPanel() {
                   id="includeChallengeLevelSubheading"
                   checked={includeChallengeLevelSubheading}
                   onChange={(e) => setIncludeChallengeLevelSubheading(e.target.checked)}
-                  disabled={!useGreetingsAndFarewells}
+                  disabled={!useGreetingsAndFarewells || greetingSize === 'small'}
                   className="w-4 h-4 text-blue-600 bg-gray-700 border-gunmetal rounded focus:ring-blue-500 focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <label htmlFor="includeChallengeLevelSubheading" className="ml-2 text-white">
                   Include challenge level subheading in greetings
+                  {!useGreetingsAndFarewells && (
+                    <span className="text-gray-400 ml-1">(enable greetings first)</span>
+                  )}
+                  {useGreetingsAndFarewells && greetingSize === 'small' && (
+                    <span className="text-gray-400 ml-1">(small greetings use subheading space)</span>
+                  )}
                 </label>
               </div>
               
