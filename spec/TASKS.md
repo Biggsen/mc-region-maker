@@ -10,6 +10,17 @@
 
 ### UI/UX Improvements
 - [x] **Region search/filter in sidebar** - Implemented in RegionPanel with search input
+- [x] **Basic zoom controls** - Mouse wheel zoom, space+drag pan
+- [x] **Zoom to region** - Implemented (zooms to selected region bounds with padding)
+- [x] **Freehand drawing** - Click and hold to draw regions (freehand mode)
+- [x] **Bulk delete** - "Delete all regions" functionality implemented
+
+### Advanced Drawing Tools
+- [x] **Vertex manipulation** - Double/halve/simplify vertices implemented
+- [x] **Move region** - Move entire region by clicking new position
+- [x] **Split region** - Split polygon into two parts
+- [x] **Warp region** - Warp brush tool for deforming regions
+- [x] **Resize region** - Scale region with slider (10-200%)
 
 ### Map Loading
 - [x] **Map generation from seed** - Fully implemented via microservice
@@ -29,7 +40,7 @@
   - [ ] File validation (PNG, JPG format)
   - [ ] Display upload progress/loading state (for file uploads)
   - [ ] Handle upload errors gracefully (for file uploads)
-  - **Note**: URL loading and seed generation cover all essential use cases. File upload is a future enhancement.
+  - **Note**: URL loading and seed generation cover all essential use cases. File upload depends on user accounts feature (see `spec/user-accounts-spec.md`).
 
 ### 📈 Medium Priority
 
@@ -42,13 +53,13 @@
 
 - [ ] **Improved UI/UX**
   - [x] Basic zoom controls ✅ (mouse wheel zoom, space+drag pan)
-  - [ ] Zoom to fit (automatically fit map to canvas)
-  - [ ] Zoom to region (zoom to selected region bounds)
+  - [x] Zoom to region ✅ (zoom to selected region bounds)
+  - [ ] Zoom to fit (automatically fit map to canvas on load)
   - [ ] Mini-map for navigation
   - [ ] Keyboard shortcuts
-  - [x] Region search/filter in sidebar ✅ (already completed)
+  - [x] Region search/filter in sidebar ✅
   - [ ] Bulk region operations (duplicate, merge)
-  - [x] Bulk delete ✅ (individual delete exists, could add multi-select)
+  - [x] Bulk delete ✅ (delete all regions implemented)
 
 ### 🎨 Nice to Have
 
@@ -88,6 +99,7 @@
 - Some features may require additional dependencies or architectural changes
 - Consider mobile/tablet support for future versions
 - **MVP Focus**: Onboarding system and testing/deployment are critical for MVP completion
+- **Future Features**: User accounts, image upload, and project sharing are planned post-MVP (see `spec/user-accounts-spec.md`)
 
 ## 🎯 MVP Remaining Tasks
 
