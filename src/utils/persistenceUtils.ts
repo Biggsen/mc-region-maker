@@ -7,6 +7,17 @@ export interface ImageDetails {
   imageSize?: { width: number; height: number }
 }
 
+export interface ExportSettings {
+  includeVillages: boolean
+  randomMobSpawn: boolean
+  includeHeartRegions: boolean
+  includeSpawnRegion: boolean
+  useModernWorldHeight: boolean
+  useGreetingsAndFarewells: boolean
+  greetingSize: 'large' | 'small'
+  includeChallengeLevelSubheading: boolean
+}
+
 const STORAGE_KEYS = {
   MAP_STATE: 'mc-region-maker-map-state',
   REGIONS: 'mc-region-maker-regions',
@@ -15,7 +26,8 @@ const STORAGE_KEYS = {
   ACTIVE_TAB: 'mc-region-maker-active-tab',
   WORLD_NAME: 'mc-region-maker-world-name',
   WORLD_TYPE: 'mc-region-maker-world-type',
-  WORLD_SEED: 'mc-region-maker-world-seed'
+  WORLD_SEED: 'mc-region-maker-world-seed',
+  EXPORT_SETTINGS: 'mc-region-maker-export-settings'
 }
 
 // Get image source URL for storage
@@ -184,6 +196,26 @@ export function loadActiveTab(): 'map' | 'regions' | 'export' | 'advanced' {
   } catch (error) {
     console.error('Failed to load active tab:', error)
     return 'map'
+  }
+}
+
+// Save export settings to localStorage
+export function saveExportSettings(settings: ExportSettings): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.EXPORT_SETTINGS, JSON.stringify(settings))
+  } catch (error) {
+    console.error('Failed to save export settings:', error)
+  }
+}
+
+// Load export settings from localStorage
+export function loadExportSettings(): ExportSettings | null {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.EXPORT_SETTINGS)
+    return saved ? JSON.parse(saved) : null
+  } catch (error) {
+    console.error('Failed to load export settings:', error)
+    return null
   }
 }
 

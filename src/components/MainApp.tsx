@@ -8,7 +8,7 @@ import { LoadingOverlay } from './LoadingOverlay'
 import { ImageImportHandler } from './ImageImportHandler'
 import { MapLoaderControls } from './MapLoaderControls'
 import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
-import { saveActiveTab, loadActiveTab, loadImageDetails, saveImageDetails, ImageDetails } from '../utils/persistenceUtils'
+import { saveActiveTab, loadActiveTab, loadImageDetails, saveImageDetails, saveExportSettings, ImageDetails } from '../utils/persistenceUtils'
 import { Map, Edit3, Download, FolderOpen, Save, Settings } from 'lucide-react'
 import { ImportConfirmationModal } from './ImportConfirmationModal'
 import { Button } from './Button'
@@ -206,6 +206,11 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
       }
       
       saveImageDetails(updatedDetails)
+
+      // Restore export settings if they exist in import data
+      if (importData.exportSettings) {
+        saveExportSettings(importData.exportSettings)
+      }
 
       // Clear the file input
       if (fileInputRef.current) {

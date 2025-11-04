@@ -1,5 +1,6 @@
 import { Region, MapState } from '../types'
 import { generateRegionYAML } from './polygonUtils'
+import { ExportSettings, loadExportSettings } from './persistenceUtils'
 
 
 export interface MapExportData {
@@ -16,6 +17,7 @@ export interface MapExportData {
   exportDate: string
   imageData?: string // Base64 encoded image data
   imageFilename?: string
+  exportSettings?: ExportSettings
 }
 
 const CURRENT_VERSION = '1.0.0'
@@ -60,6 +62,9 @@ export async function exportCompleteMap(regions: Region[], mapState: MapState, w
       }
     }
     
+    // Load current export settings to include in project export
+    const exportSettings = loadExportSettings()
+    
     const exportData: MapExportData = {
       version: CURRENT_VERSION,
       worldName,
@@ -82,7 +87,8 @@ export async function exportCompleteMap(regions: Region[], mapState: MapState, w
       worldType,
       exportDate: new Date().toISOString(),
       imageData: imageData || undefined,
-      imageFilename: imageData ? `map-image-${new Date().toISOString().split('T')[0]}.png` : undefined
+      imageFilename: imageData ? `map-image-${new Date().toISOString().split('T')[0]}.png` : undefined,
+      exportSettings: exportSettings || undefined
     }
 
     const dataStr = JSON.stringify(exportData, null, 2)

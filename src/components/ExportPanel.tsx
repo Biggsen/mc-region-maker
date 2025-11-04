@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { exportRegionsYAML } from '../utils/exportUtils'
+import { loadExportSettings, saveExportSettings } from '../utils/persistenceUtils'
 import { BaseModal } from './BaseModal'
 import { Button } from './Button'
 
@@ -15,6 +16,49 @@ export function ExportPanel() {
   const [greetingSize, setGreetingSize] = useState<'large' | 'small'>('large')
   const [includeChallengeLevelSubheading, setIncludeChallengeLevelSubheading] = useState(false)
   const [viewingImage, setViewingImage] = useState<{ type: 'greeting' | 'farewell', size: 'large' | 'small' } | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  // Load saved export settings on mount
+  useEffect(() => {
+    const savedSettings = loadExportSettings()
+    if (savedSettings) {
+      setIncludeVillages(savedSettings.includeVillages)
+      setRandomMobSpawn(savedSettings.randomMobSpawn)
+      setIncludeHeartRegions(savedSettings.includeHeartRegions)
+      setIncludeSpawnRegion(savedSettings.includeSpawnRegion)
+      setUseModernWorldHeight(savedSettings.useModernWorldHeight)
+      setUseGreetingsAndFarewells(savedSettings.useGreetingsAndFarewells)
+      setGreetingSize(savedSettings.greetingSize)
+      setIncludeChallengeLevelSubheading(savedSettings.includeChallengeLevelSubheading)
+    }
+    setIsInitialized(true)
+  }, [])
+
+  // Save export settings whenever they change (but not during initial load)
+  useEffect(() => {
+    if (isInitialized) {
+      saveExportSettings({
+        includeVillages,
+        randomMobSpawn,
+        includeHeartRegions,
+        includeSpawnRegion,
+        useModernWorldHeight,
+        useGreetingsAndFarewells,
+        greetingSize,
+        includeChallengeLevelSubheading
+      })
+    }
+  }, [
+    isInitialized,
+    includeVillages,
+    randomMobSpawn,
+    includeHeartRegions,
+    includeSpawnRegion,
+    useModernWorldHeight,
+    useGreetingsAndFarewells,
+    greetingSize,
+    includeChallengeLevelSubheading
+  ])
 
   const handleExportYAML = () => {
     const spawnData = spawn.spawnState.coordinates ? {
