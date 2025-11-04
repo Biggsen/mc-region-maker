@@ -108,7 +108,7 @@ export function RegionDetailsView({
         >
           Back
         </Button>
-        <h1 className="text-3xl font-bold text-white">{selectedRegion.name}</h1>
+        <h1 className="text-4xl font-bold text-white catamaran-medium">{selectedRegion.name}</h1>
       </div>
 
       <div>
