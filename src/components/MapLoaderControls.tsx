@@ -5,6 +5,7 @@ import { clearSavedData } from '../utils/persistenceUtils'
 import { Button } from './Button'
 import { WorldNameHeading } from './WorldNameHeading'
 import { SeedInfoHeading } from './SeedInfoHeading'
+import { WorldSizeHeading } from './WorldSizeHeading'
 import { ArrowLeft } from 'lucide-react'
 
 interface MapLoaderControlsProps {
@@ -88,6 +89,39 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       saveImageDetails(loadedMapDetails)
     }
   }, [loadedMapDetails])
+
+  // Listen for storage changes to update loadedMapDetails when child components update localStorage
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'mc-region-maker-image-details') {
+        const savedDetails = loadImageDetails()
+        if (savedDetails) {
+          setLoadedMapDetails(savedDetails)
+        } else {
+          setLoadedMapDetails(null)
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Also listen for custom events for same-tab updates
+    const handleImageDetailsUpdate = () => {
+      const savedDetails = loadImageDetails()
+      if (savedDetails) {
+        setLoadedMapDetails(savedDetails)
+      } else {
+        setLoadedMapDetails(null)
+      }
+    }
+    
+    window.addEventListener('imageDetailsUpdated', handleImageDetailsUpdate)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('imageDetailsUpdated', handleImageDetailsUpdate)
+    }
+  }, [])
 
   const loadImageToCanvas = useCallback((url: string) => {
     const img = new Image()
@@ -609,24 +643,16 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
           <>
             <h3 className="text-lg font-semibold text-white">World Details</h3>
             
-            {/* World Name, Seed, and Dimension */}
+            {/* World Name, Seed, Dimension, and World Size */}
             <div className="mb-4 space-y-2">
               <WorldNameHeading />
               <SeedInfoHeading />
-              
-              {/* World Size */}
+              <WorldSizeHeading />
+              {/* Image Size - inferred from world size (worldSize * 125) */}
               {loadedMapDetails?.worldSize && (
                 <div className="text-sm text-gray-300 px-2 py-1 rounded flex items-center gap-2">
-                  <span className="font-medium w-28">World Size:</span>
-                  <span>{loadedMapDetails.worldSize}k x {loadedMapDetails.worldSize}k</span>
-                </div>
-              )}
-              
-              {/* Image Size */}
-              {loadedMapDetails?.imageSize && (
-                <div className="text-sm text-gray-300 px-2 py-1 rounded flex items-center gap-2">
                   <span className="font-medium w-28">Image Size:</span>
-                  <span>{loadedMapDetails.imageSize.width} x {loadedMapDetails.imageSize.height}</span>
+                  <span>{loadedMapDetails.worldSize * 125} x {loadedMapDetails.worldSize * 125}</span>
                 </div>
               )}
             </div>

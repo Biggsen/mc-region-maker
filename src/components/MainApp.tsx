@@ -8,7 +8,7 @@ import { LoadingOverlay } from './LoadingOverlay'
 import { ImageImportHandler } from './ImageImportHandler'
 import { MapLoaderControls } from './MapLoaderControls'
 import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
-import { saveActiveTab, loadActiveTab, loadImageDetails, saveImageDetails } from '../utils/persistenceUtils'
+import { saveActiveTab, loadActiveTab, loadImageDetails, saveImageDetails, ImageDetails } from '../utils/persistenceUtils'
 import { Map, Edit3, Download, FolderOpen, Save, Settings } from 'lucide-react'
 import { ImportConfirmationModal } from './ImportConfirmationModal'
 import { Button } from './Button'
@@ -163,10 +163,8 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
       regions.replaceRegions(importData.regions)
       regions.setSelectedRegionId(null)
 
-      // Update world name if it exists in import data
-      if (importData.worldName) {
-        worldName.updateWorldName(importData.worldName)
-      }
+      // Always update world name - use import data or default to 'world'
+      worldName.updateWorldName(importData.worldName || 'world')
 
       // Update world type if it exists in import data
       if (importData.worldType) {
@@ -182,23 +180,32 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
         }
       }
 
-      // Restore seed/dimension if they exist in import data
-      if (importData.seed !== undefined || importData.dimension !== undefined) {
-        seedInfo.updateSeedInfo({
-          seed: importData.seed,
-          dimension: importData.dimension
-        })
-      }
+      // Always update seed/dimension - clear if missing from import data
+      // Pass undefined explicitly to clear values (JSON.stringify will omit them when saving)
+      seedInfo.updateSeedInfo({
+        seed: importData.seed,
+        dimension: importData.dimension
+      })
 
-      // Restore world size and image size if they exist in import data
-      if (importData.worldSize !== undefined || importData.imageSize !== undefined) {
-        const currentDetails = loadImageDetails() || {}
-        saveImageDetails({
-          ...currentDetails,
-          worldSize: importData.worldSize,
-          imageSize: importData.imageSize
-        })
+      // Always update world size and image size - clear if missing from import data
+      const currentDetails = loadImageDetails() || {}
+      const updatedDetails: ImageDetails = { ...currentDetails }
+      
+      // Set or remove worldSize based on import data
+      if (importData.worldSize !== undefined) {
+        updatedDetails.worldSize = importData.worldSize
+      } else {
+        delete updatedDetails.worldSize
       }
+      
+      // Set or remove imageSize based on import data
+      if (importData.imageSize !== undefined) {
+        updatedDetails.imageSize = importData.imageSize
+      } else {
+        delete updatedDetails.imageSize
+      }
+      
+      saveImageDetails(updatedDetails)
 
       // Clear the file input
       if (fileInputRef.current) {
