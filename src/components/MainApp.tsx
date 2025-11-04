@@ -248,7 +248,14 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
       </div>
       
       <div className="flex items-center">
-        <span className="text-3xl font-bold text-white">Region Forge</span>
+        <img src="/map-on-anvil-3.png" alt="" className="h-14 mr-3" style={{ filter: 'drop-shadow(0 0 10px rgba(255, 140, 50, 0.15)) drop-shadow(0 0 20px rgba(255, 140, 50, 0.1))' }} />
+        <span className="text-4xl font-bold catamaran-extrabold" style={{ 
+          background: 'linear-gradient(to bottom, #8BA3A6, #6A7D80)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          filter: 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px rgba(255, 140, 50, 0.3)) drop-shadow(0 0 24px rgba(255, 140, 50, 0.2))'
+        }}>Region Forge</span>
       </div>
       
       <div className="flex space-x-2">
