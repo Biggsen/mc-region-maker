@@ -30,6 +30,25 @@ export function ImageImportHandler() {
       img.onload = () => {
         console.log('Image loaded successfully:', imageUrl)
         
+        // Validate image dimensions before proceeding
+        const MIN_SIZE = 250
+        const MAX_SIZE = 2000
+        
+        if (img.width !== img.height) {
+          alert(`Image must be square (width and height must be equal). Current dimensions: ${img.width}x${img.height}`)
+          return
+        }
+        
+        if (img.width < MIN_SIZE || img.height < MIN_SIZE) {
+          alert(`Image is too small. Minimum size is ${MIN_SIZE}x${MIN_SIZE}. Current dimensions: ${img.width}x${img.height}`)
+          return
+        }
+        
+        if (img.width > MAX_SIZE || img.height > MAX_SIZE) {
+          alert(`Image is too large. Maximum size is ${MAX_SIZE}x${MAX_SIZE}. Current dimensions: ${img.width}x${img.height}`)
+          return
+        }
+        
         // Clear all existing data for fresh start
         console.log('Clearing existing data for fresh map import...')
         

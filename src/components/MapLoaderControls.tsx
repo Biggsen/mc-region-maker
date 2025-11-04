@@ -21,6 +21,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
   const [previewImageDimensions, setPreviewImageDimensions] = useState<{ width: number; height: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [urlError, setUrlError] = useState<string | null>(null)
   const [seedError, setSeedError] = useState<string | null>(null)
   const [loadedMapDetails, setLoadedMapDetails] = useState<ImageDetails | null>(null)
   const [showLoadSection, setShowLoadSection] = useState(false)
@@ -38,6 +39,26 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
   // Helper function to calculate world size from image dimensions
   const calculateWorldSize = (width: number, height: number): number => {
     return Math.round(Math.max(width, height) / 125)
+  }
+
+  // Helper function to validate image dimensions
+  const validateImageDimensions = (width: number, height: number): string | null => {
+    const MIN_SIZE = 250
+    const MAX_SIZE = 2000
+
+    if (width !== height) {
+      return `Image must be square (width and height must be equal). Current dimensions: ${width}x${height}`
+    }
+
+    if (width < MIN_SIZE || height < MIN_SIZE) {
+      return `Image is too small. Minimum size is ${MIN_SIZE}x${MIN_SIZE}. Current dimensions: ${width}x${height}`
+    }
+
+    if (width > MAX_SIZE || height > MAX_SIZE) {
+      return `Image is too large. Maximum size is ${MAX_SIZE}x${MAX_SIZE}. Current dimensions: ${width}x${height}`
+    }
+
+    return null
   }
 
   // Initialize local state from context when load section is opened
@@ -87,6 +108,13 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
         originalUrl: url,
         loadedFrom: imageUrl
       })
+      
+      // Validate image dimensions before proceeding
+      const validationError = validateImageDimensions(img.width, img.height)
+      if (validationError) {
+        alert(validationError)
+        return
+      }
       
       // Mark that we're updating details to prevent race condition with load useEffect
       isUpdatingDetailsRef.current = true
@@ -151,6 +179,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
 
     setIsLoading(true)
     setError(null)
+    setUrlError(null)
     setSeedError(null)
     setPreviewImageUrl(null)
     setPreviewImageDimensions(null)
@@ -240,7 +269,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     if (!imageUrl.trim()) return
     
     setIsLoadingUrl(true)
-    setError(null)
+    setUrlError(null)
     
     try {
       // Just load to preview, not to canvas yet
@@ -255,6 +284,11 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       
       await new Promise((resolve, reject) => {
         testImg.onload = () => {
+          const validationError = validateImageDimensions(testImg.width, testImg.height)
+          if (validationError) {
+            reject(new Error(validationError))
+            return
+          }
           setPreviewImageUrl(proxiedUrl)
           setPreviewImageDimensions({ width: testImg.width, height: testImg.height })
           resolve(null)
@@ -266,7 +300,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       })
     } catch (error) {
       console.error('Error loading image from URL:', error)
-      setError(error instanceof Error ? error.message : 'Failed to load image from URL. Please check the URL and try again.')
+      setUrlError(error instanceof Error ? error.message : 'Failed to load image from URL. Please check the URL and try again.')
     } finally {
       setIsLoadingUrl(false)
     }
@@ -451,11 +485,19 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
             <input
               type="url"
               value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
+              onChange={(e) => {
+                setImageUrl(e.target.value)
+                if (urlError) setUrlError(null)
+              }}
               placeholder="https://example.com/image.png"
               className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none text-sm placeholder:text-gray-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={isLoading || isLoadingUrl}
             />
+            {urlError && (
+              <div className="p-2 bg-red-900 border border-red-700 rounded text-red-300 text-sm">
+                {urlError}
+              </div>
+            )}
             <Button
               variant="secondary"
               type="submit"
@@ -519,6 +561,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
                 setPreviewImageDimensions(null)
                 setImageUrl('')
                 setError(null)
+                setUrlError(null)
                 setSeedError(null)
                 // Reset local state to context values when canceling
                 setImportWorldName(worldName.worldName)

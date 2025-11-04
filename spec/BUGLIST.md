@@ -16,7 +16,7 @@
 
 **Expected Behavior:**
 - Validate that images are square before loading
-- Enforce reasonable size limits (e.g., min 250x250, max 8192x8192)
+- Enforce reasonable size limits (e.g., min 250x250, max 2000x2000)
 - Show clear error messages when validation fails
 - Validate in both URL loading and image import flows
 
