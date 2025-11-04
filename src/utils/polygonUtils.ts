@@ -59,13 +59,33 @@ export function generateRegionYAML(region: Region, includeVillages: boolean = tr
       const challengeColor = (includeChallengeLevelSubheading && greetingSize === 'large')
         ? getChallengeLevelColor(region.challengeLevel)
         : '§f'
+      
+      // Build greeting and farewell lines based on greeting size
+      let greetingLine1: string
+      let greetingLine2: string
+      let farewellLine1: string
+      let farewellLine2: string
+      
+      if (greetingSize === 'large') {
+        // Large: greeting text on first line, challenge color on second
+        greetingLine1 = `§f${greetingText} ${region.name}`
+        greetingLine2 = challengeColor
+        farewellLine1 = `§fLeaving ${region.name}`
+        farewellLine2 = `§f`
+      } else {
+        // Small: §f on first line, greeting text on second line
+        greetingLine1 = `§f`
+        greetingLine2 = `§f${greetingText} ${region.name}`
+        farewellLine1 = `§f`
+        farewellLine2 = `§fLeaving ${region.name}`
+      }
     
-    if (randomMobSpawn) {
-      const randomMobs = generateRandomMobList()
-      flags = `    greeting-title: |-\n      §f${greetingText} ${region.name}\n      ${challengeColor}\n    farewell-title: |-\n      §fLeaving ${region.name}\n      §f\n    passthrough: allow\n    deny-spawn: [${randomMobs.join(',')}]`
-    } else {
-      flags = `    greeting-title: |-\n      §f${greetingText} ${region.name}\n      ${challengeColor}\n    farewell-title: |-\n      §fLeaving ${region.name}\n      §f\n    passthrough: allow`
-    }
+      if (randomMobSpawn) {
+        const randomMobs = generateRandomMobList()
+        flags = `    greeting-title: |-\n      ${greetingLine1}\n      ${greetingLine2}\n    farewell-title: |-\n      ${farewellLine1}\n      ${farewellLine2}\n    passthrough: allow\n    deny-spawn: [${randomMobs.join(',')}]`
+      } else {
+        flags = `    greeting-title: |-\n      ${greetingLine1}\n      ${greetingLine2}\n    farewell-title: |-\n      ${farewellLine1}\n      ${farewellLine2}\n    passthrough: allow`
+      }
   } else {
     // Other regions (spawn, hearts, villages) keep the old format
     flags = `{greeting-title: ${greetingText} ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow}`
