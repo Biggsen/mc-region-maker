@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { exportRegionsYAML } from '../utils/exportUtils'
 import { BaseModal } from './BaseModal'
+import { Button } from './Button'
 
 export function ExportPanel() {
   const { regions, spawn, worldType } = useAppContext()
@@ -22,7 +23,7 @@ export function ExportPanel() {
     } : null
     // Force spawn region to false for nether since it doesn't exist
     const finalIncludeSpawnRegion = worldType.worldType === 'nether' ? false : includeSpawnRegion
-    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, finalIncludeSpawnRegion, spawnData, worldType.worldType, useModernWorldHeight)
+    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, finalIncludeSpawnRegion, spawnData, worldType.worldType, useModernWorldHeight, useGreetingsAndFarewells, greetingSize)
   }
 
   const computedHasVillages = regions.regions.some(region => region.subregions && region.subregions.length > 0)
@@ -219,13 +220,14 @@ export function ExportPanel() {
         )}
 
         <div className="space-y-2 pt-4">
-          <button
+          <Button
             onClick={handleExportYAML}
             disabled={regions.regions.length === 0}
-            className="w-full bg-violet-blue hover:bg-violet-blue/80 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            variant="primary"
+            className="w-full"
           >
-            Export YAML
-          </button>
+            Generate regions.yml
+          </Button>
         </div>
       </div>
 

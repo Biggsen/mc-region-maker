@@ -39,7 +39,7 @@ function generateRandomMobList(): string[] {
   return shuffled.slice(0, count)
 }
 
-export function generateRegionYAML(region: Region, includeVillages: boolean = true, randomMobSpawn: boolean = false, includeHeartRegions: boolean = true, worldType?: 'overworld' | 'nether', useModernWorldHeight: boolean = true): string {
+export function generateRegionYAML(region: Region, includeVillages: boolean = true, randomMobSpawn: boolean = false, includeHeartRegions: boolean = true, worldType?: 'overworld' | 'nether', useModernWorldHeight: boolean = true, useGreetingsAndFarewells: boolean = false, greetingSize: 'large' | 'small' = 'large'): string {
   const points = region.points.map(point => `      - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`).join('\n')
   
   // Check if this is a main region (not spawn, hearts, or villages)
@@ -52,22 +52,32 @@ export function generateRegionYAML(region: Region, includeVillages: boolean = tr
   
   // Generate flags based on region type
   let flags: string
-  if (isMainRegion && region.challengeLevel) {
-    // Main regions with challenge levels get the new multi-line format
-    const challengeColor = getChallengeLevelColor(region.challengeLevel)
-    
-    if (randomMobSpawn) {
-      const randomMobs = generateRandomMobList()
-      flags = `    greeting-title: |-\n      §f${greetingText} ${region.name}\n      ${challengeColor}\n    farewell-title: |-\n      §fLeaving ${region.name}\n      §f\n    passthrough: allow\n    deny-spawn: [${randomMobs.join(',')}]`
+  if (useGreetingsAndFarewells) {
+    if (isMainRegion && region.challengeLevel) {
+      // Main regions with challenge levels get the new multi-line format
+      const challengeColor = getChallengeLevelColor(region.challengeLevel)
+      
+      if (randomMobSpawn) {
+        const randomMobs = generateRandomMobList()
+        flags = `    greeting-title: |-\n      §f${greetingText} ${region.name}\n      ${challengeColor}\n    farewell-title: |-\n      §fLeaving ${region.name}\n      §f\n    passthrough: allow\n    deny-spawn: [${randomMobs.join(',')}]`
+      } else {
+        flags = `    greeting-title: |-\n      §f${greetingText} ${region.name}\n      ${challengeColor}\n    farewell-title: |-\n      §fLeaving ${region.name}\n      §f\n    passthrough: allow`
+      }
     } else {
-      flags = `    greeting-title: |-\n      §f${greetingText} ${region.name}\n      ${challengeColor}\n    farewell-title: |-\n      §fLeaving ${region.name}\n      §f\n    passthrough: allow`
+      // Other regions (spawn, hearts, villages) keep the old format
+      flags = `{greeting-title: ${greetingText} ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow}`
+      if (randomMobSpawn) {
+        const randomMobs = generateRandomMobList()
+        flags = `{greeting-title: ${greetingText} ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow, deny-spawn: [${randomMobs.join(',')}]}`
+      }
     }
   } else {
-    // Other regions (spawn, hearts, villages) keep the old format
-    flags = `{greeting-title: ${greetingText} ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow}`
+    // No greetings/farewells - only passthrough flag
     if (randomMobSpawn) {
       const randomMobs = generateRandomMobList()
-      flags = `{greeting-title: ${greetingText} ${region.name}, farewell-title: Leaving ${region.name}., passthrough: allow, deny-spawn: [${randomMobs.join(',')}]}`
+      flags = `{passthrough: allow, deny-spawn: [${randomMobs.join(',')}]}`
+    } else {
+      flags = `{passthrough: allow}`
     }
   }
 
@@ -86,7 +96,7 @@ export function generateRegionYAML(region: Region, includeVillages: boolean = tr
     max-y: ${maxY}
     priority: 0
     flags:
-${isMainRegion && region.challengeLevel ? '  ' + flags.replace(/\n/g, '\n  ') : '      ' + flags}
+${useGreetingsAndFarewells && isMainRegion && region.challengeLevel ? '  ' + flags.replace(/\n/g, '\n  ') : '      ' + flags}
     points:
 ${points}`
 
@@ -96,13 +106,17 @@ ${points}`
     const heartRegionName = `heart_of_${region.name.toLowerCase().replace(/\s+/g, '_')}`
     const heartSize = 7 // 7x7 size as requested
     
+    const heartFlags = useGreetingsAndFarewells 
+      ? `{greeting-title: Heart of ${region.name}, build: deny, interact: allow, creeper-explosion: deny, other-explosion: deny, tnt: deny}`
+      : `{build: deny, interact: allow, creeper-explosion: deny, other-explosion: deny, tnt: deny}`
+    
     yaml += `\n\n  ${heartRegionName}:
     type: cuboid
     min: {x: ${Math.round(regionCenter.x - Math.floor(heartSize / 2))}, y: ${minY}, z: ${Math.round(regionCenter.z - Math.floor(heartSize / 2))}}
     max: {x: ${Math.round(regionCenter.x + Math.floor(heartSize / 2))}, y: ${maxY}, z: ${Math.round(regionCenter.z + Math.floor(heartSize / 2))}}
     members: {}
     owners: {}
-    flags: {greeting-title: Heart of ${region.name}, build: deny, interact: allow, creeper-explosion: deny, other-explosion: deny, tnt: deny}
+    flags: ${heartFlags}
     priority: 10`
   }
 
@@ -110,7 +124,7 @@ ${points}`
   if (includeVillages && region.subregions && region.subregions.length > 0) {
     yaml += '\n\n'
     yaml += region.subregions.map(subregion => 
-      generateSubregionYAML(subregion, region.name, worldType, useModernWorldHeight)
+      generateSubregionYAML(subregion, region.name, worldType, useModernWorldHeight, useGreetingsAndFarewells)
     ).join('\n\n')
   }
   
