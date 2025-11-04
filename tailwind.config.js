@@ -26,6 +26,7 @@ export default {
         'bluewood': '#213241',
         'persimmon': '#E06629',
         'orange-crayola': '#E67F4C',
+        'brunswick-green': '#194D3C',
       },
     },
   },
