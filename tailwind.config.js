@@ -27,6 +27,7 @@ export default {
         'persimmon': '#E06629',
         'orange-crayola': '#E67F4C',
         'brunswick-green': '#194D3C',
+        'outer-space': '#414E4C',
       },
     },
   },

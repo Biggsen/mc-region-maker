@@ -15,6 +15,7 @@ interface RegionOverlayProps {
   mapState: MapState
   drawingRegion: Region | null
   selectedRegionId: string | null
+  hoveredRegionId: string | null
   editMode: EditMode
   highlightMode: HighlightMode
   regions?: Region[]
@@ -36,6 +37,7 @@ export function RegionOverlay({
   mapState, 
   drawingRegion, 
   selectedRegionId,
+  hoveredRegionId,
   editMode,
   highlightMode,
   regions = [],
@@ -80,12 +82,13 @@ export function RegionOverlay({
     // Draw all regions (with labels on top)
     regions.forEach(region => {
       const isSelected = region.id === selectedRegionId
+      const isHovered = region.id === hoveredRegionId
       const isEditing = editMode.isEditing && editMode.editingRegionId === region.id
       const isMoving = editMode.isMovingRegion && editMode.movingRegionId === region.id
       const isSplitting = editMode.isSplittingRegion && editMode.splittingRegionId === region.id
       const isHighlighted = highlightMode.highlightAll
       const showChallengeLevels = highlightMode.showChallengeLevels
-      drawRegion(ctx, region, mapState, isSelected, false, isEditing, isHighlighted, showChallengeLevels, isMoving)
+      drawRegion(ctx, region, mapState, isSelected, false, isEditing, isHighlighted, showChallengeLevels, isMoving, isHovered)
       
       // Draw center point for each region
       if (highlightMode.showCenterPoints) {
@@ -118,7 +121,7 @@ export function RegionOverlay({
       drawWarpBrush(ctx, mouseCoordinates, mapState, warpRadius)
     }
 
-  }, [canvas, mapState, drawingRegion, selectedRegionId, editMode, highlightMode, regions, spawnCoordinates, isWarping, warpRadius, mouseCoordinates, isMouseOverCanvas])
+  }, [canvas, mapState, drawingRegion, selectedRegionId, hoveredRegionId, editMode, highlightMode, regions, spawnCoordinates, isWarping, warpRadius, mouseCoordinates, isMouseOverCanvas])
 
   const drawRegion = (
     ctx: CanvasRenderingContext2D, 
@@ -129,7 +132,8 @@ export function RegionOverlay({
     isEditing: boolean = false,
     isHighlighted: boolean = false,
     showChallengeLevels: boolean = false,
-    isMoving: boolean = false
+    isMoving: boolean = false,
+    isHovered: boolean = false
   ) => {
     if (region.points.length < 2) return
 
@@ -149,6 +153,8 @@ export function RegionOverlay({
       fillColor = 'rgba(255, 255, 0, 0.2)'
     } else if (isHighlighted) {
       fillColor = 'rgba(255, 255, 0, 0.4)'
+    } else if (isHovered) {
+      fillColor = 'rgba(0, 255, 255, 0.35)' // Cyan highlight for hovered regions
     } else if (showChallengeLevels) {
       const challengeLevel = region.challengeLevel || 'Vanilla'
       fillColor = CHALLENGE_LEVEL_COLORS[challengeLevel].fill
@@ -175,6 +181,8 @@ export function RegionOverlay({
       strokeColor = 'rgba(255, 255, 0, 0.8)'
     } else if (isHighlighted) {
       strokeColor = 'rgba(255, 255, 0, 1)'
+    } else if (isHovered) {
+      strokeColor = 'rgba(0, 255, 255, 0.9)' // Cyan outline for hovered regions
     } else if (showChallengeLevels) {
       const challengeLevel = region.challengeLevel || 'Vanilla'
       strokeColor = CHALLENGE_LEVEL_COLORS[challengeLevel].stroke
@@ -182,7 +190,7 @@ export function RegionOverlay({
       strokeColor = 'rgba(0, 100, 255, 0.8)'
     }
     ctx.strokeStyle = strokeColor
-    ctx.lineWidth = isMoving ? 4 : isSelected ? 3 : isHighlighted ? 4 : 2
+    ctx.lineWidth = isMoving ? 4 : isSelected ? 3 : isHighlighted ? 4 : isHovered ? 3 : 2
     
     ctx.beginPath()
     ctx.moveTo(canvasPoints[0].x, canvasPoints[0].y)

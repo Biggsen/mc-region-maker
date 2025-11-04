@@ -249,12 +249,14 @@ export function MapCanvas() {
         for (let i = regions.regions.length - 1; i >= 0; i--) {
           const region = regions.regions[i]
           if (isPointInPolygon(worldPos, region.points)) {
+            regions.setHoveredRegionId(null)
             regions.setSelectedRegionId(region.id)
             return // Stop checking once we find a region
           }
         }
         
         // If no region was clicked, deselect
+        regions.setHoveredRegionId(null)
         regions.setSelectedRegionId(null)
       }
       // Note: Panning is only allowed when space key is pressed (handled in the first condition)
@@ -502,6 +504,7 @@ export function MapCanvas() {
             mapState={mapState}
             drawingRegion={drawingRegion}
             selectedRegionId={selectedRegionId}
+            hoveredRegionId={regions.hoveredRegionId}
             editMode={editMode}
             highlightMode={highlightMode}
             regions={regions.regions}

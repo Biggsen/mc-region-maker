@@ -7,16 +7,18 @@ import { RegionDetailsView } from './RegionDetailsView'
 import { Button } from './Button'
 import { DeleteAllRegionsModal } from './DeleteAllRegionsModal'
 import { DeleteRegionModal } from './DeleteRegionModal'
-import { Trash2, Search, LineSquiggle } from 'lucide-react'
+import { Trash2, Search, LineSquiggle, ArrowUp, ArrowDown } from 'lucide-react'
 
 export function RegionPanel() {
   const { regions, worldType } = useAppContext()
   const {
     regions: regionsList,
     selectedRegionId,
+    hoveredRegionId,
     drawingRegion,
     editMode,
     setSelectedRegionId,
+    setHoveredRegionId,
     startDrawingRegion,
     deleteRegion,
     updateRegion,
@@ -44,6 +46,8 @@ export function RegionPanel() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false)
   const [regionToDelete, setRegionToDelete] = useState<{ id: string; name: string } | null>(null)
+  const [sortBy, setSortBy] = useState<'name' | 'size'>('name')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
 
 
@@ -93,6 +97,21 @@ export function RegionPanel() {
   const filteredRegions = regionsList.filter(region =>
     region.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  // Sort filtered regions
+  const sortedRegions = [...filteredRegions].sort((a, b) => {
+    let comparison = 0
+    
+    if (sortBy === 'name') {
+      comparison = a.name.localeCompare(b.name)
+    } else if (sortBy === 'size') {
+      const areaA = calculatePolygonArea(a.points)
+      const areaB = calculatePolygonArea(b.points)
+      comparison = areaA - areaB
+    }
+    
+    return sortOrder === 'asc' ? comparison : -comparison
+  })
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -198,15 +217,67 @@ export function RegionPanel() {
             />
           </div>
 
+          {/* Sort Controls */}
+          <div className="flex-shrink-0 mb-4 flex items-center gap-2">
+            <span className="text-gray-400 text-sm">Sort by:</span>
+            <div className="flex gap-1">
+              <button
+                onClick={() => {
+                  if (sortBy === 'name') {
+                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                  } else {
+                    setSortBy('name')
+                    setSortOrder('asc')
+                  }
+                }}
+                className={`px-3 py-1.5 rounded text-sm border transition-colors flex items-center gap-1 ${
+                  sortBy === 'name'
+                    ? 'bg-outer-space border-outer-space text-white'
+                    : 'bg-input-bg border-input-border text-gray-300 hover:bg-gunmetal hover:border-outer-space'
+                }`}
+              >
+                Name
+                {sortBy === 'name' && (
+                  sortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  if (sortBy === 'size') {
+                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                  } else {
+                    setSortBy('size')
+                    setSortOrder('asc')
+                  }
+                }}
+                className={`px-3 py-1.5 rounded text-sm border transition-colors flex items-center gap-1 ${
+                  sortBy === 'size'
+                    ? 'bg-outer-space border-outer-space text-white'
+                    : 'bg-input-bg border-input-border text-gray-300 hover:bg-gunmetal hover:border-outer-space'
+                }`}
+              >
+                Size
+                {sortBy === 'size' && (
+                  sortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                )}
+              </button>
+            </div>
+          </div>
+
           {/* Scrollable Region List - Takes remaining space */}
           <div className="flex-1 overflow-y-auto space-y-2" style={{ maxHeight: 'calc(100vh - 400px)' }}>
-            {[...filteredRegions].reverse().map(region => {
+            {sortedRegions.map(region => {
               const area = calculatePolygonArea(region.points)
               return (
                 <div
                   key={region.id}
                   className="p-2 rounded cursor-pointer border-2 bg-gunmetal border-gunmetal hover:bg-brunswick-green hover:border-viridian"
-                  onClick={() => setSelectedRegionId(region.id)}
+                  onClick={() => {
+                    setHoveredRegionId(null)
+                    setSelectedRegionId(region.id)
+                  }}
+                  onMouseEnter={() => setHoveredRegionId(region.id)}
+                  onMouseLeave={() => setHoveredRegionId(null)}
                 >
                   <div className="flex justify-between items-center">
                     <div>
@@ -229,7 +300,7 @@ export function RegionPanel() {
               )
             })}
             
-            {filteredRegions.length === 0 && (
+            {sortedRegions.length === 0 && (
               <div className="text-center py-8 text-gray-400">
                 <p className="text-lg mb-2">No regions</p>
                 <p className="text-sm">Create your first region to get started</p>
@@ -256,7 +327,10 @@ export function RegionPanel() {
           isWarping={isWarping}
           warpRadius={warpRadius}
           warpStrength={warpStrength}
-          onBack={() => setSelectedRegionId(null)}
+          onBack={() => {
+            setHoveredRegionId(null)
+            setSelectedRegionId(null)
+          }}
           onUpdateRegion={updateRegion}
           onStartEditMode={startEditMode}
           onStopEditMode={stopEditMode}

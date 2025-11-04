@@ -8,6 +8,7 @@ import { generateVillageNameByWorldType } from '../utils/nameGenerator'
 export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
   const [regions, setRegions] = useState<Region[]>([])
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null)
+  const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null)
   const [drawingRegion, setDrawingRegion] = useState<Region | null>(null)
   const [freehandEnabled, setFreehandEnabled] = useState<boolean>(false)
   const [isInitialized, setIsInitialized] = useState(false)
@@ -727,6 +728,7 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
   return {
     regions,
     selectedRegionId,
+    hoveredRegionId,
     drawingRegion,
     freehandEnabled,
     editMode,
@@ -735,6 +737,7 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     updateRegion,
     deleteRegion,
     setSelectedRegionId,
+    setHoveredRegionId,
     replaceRegions,
     startDrawingRegion,
     addPointToDrawing,
