@@ -5,6 +5,8 @@ import { clearSavedData } from '../utils/persistenceUtils'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
 import { Button } from './Button'
+import { DeleteAllRegionsModal } from './DeleteAllRegionsModal'
+import { DeleteRegionModal } from './DeleteRegionModal'
 import { Trash2, Search, LineSquiggle } from 'lucide-react'
 
 export function RegionPanel() {
@@ -40,6 +42,8 @@ export function RegionPanel() {
   const { isWarping, setIsWarping, warpRadius, setWarpRadius, warpStrength, setWarpStrength } = useAppContext().mapCanvas
 
   const [searchQuery, setSearchQuery] = useState('')
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false)
+  const [regionToDelete, setRegionToDelete] = useState<{ id: string; name: string } | null>(null)
 
 
 
@@ -148,12 +152,7 @@ export function RegionPanel() {
             <h2 className="text-xl font-bold text-white">Regions ({regionsList.length})</h2>
             {regionsList.length > 0 && (
               <button
-                onClick={() => {
-                  if (confirm(`Are you sure you want to delete all ${regionsList.length} regions? This action cannot be undone.`)) {
-                    regions.replaceRegions([])
-                    regions.setSelectedRegionId(null)
-                  }
-                }}
+                onClick={() => setShowDeleteAllModal(true)}
                 className="text-red-400 hover:text-red-300 text-sm underline hover:no-underline transition-colors flex items-center gap-1"
               >
                 <Trash2 className="w-4 h-4" />
@@ -161,6 +160,29 @@ export function RegionPanel() {
               </button>
             )}
           </div>
+
+          <DeleteAllRegionsModal
+            isOpen={showDeleteAllModal}
+            regionCount={regionsList.length}
+            onConfirm={() => {
+              regions.replaceRegions([])
+              regions.setSelectedRegionId(null)
+              setShowDeleteAllModal(false)
+            }}
+            onCancel={() => setShowDeleteAllModal(false)}
+          />
+
+          {regionToDelete && (
+            <DeleteRegionModal
+              isOpen={!!regionToDelete}
+              regionName={regionToDelete.name}
+              onConfirm={() => {
+                deleteRegion(regionToDelete.id)
+                setRegionToDelete(null)
+              }}
+              onCancel={() => setRegionToDelete(null)}
+            />
+          )}
 
           {/* Search Input */}
           <div className="flex-shrink-0 mb-4 relative">
@@ -183,7 +205,7 @@ export function RegionPanel() {
               return (
                 <div
                   key={region.id}
-                  className="p-2 rounded cursor-pointer border bg-gray-700 border-gunmetal hover:bg-gray-600"
+                  className="p-2 rounded cursor-pointer border-2 bg-gunmetal border-gunmetal hover:bg-brunswick-green hover:border-viridian"
                   onClick={() => setSelectedRegionId(region.id)}
                 >
                   <div className="flex justify-between items-center">
@@ -196,9 +218,9 @@ export function RegionPanel() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        deleteRegion(region.id)
+                        setRegionToDelete({ id: region.id, name: region.name })
                       }}
-                      className="text-gray-300 hover:text-red-300 text-sm p-1 hover:bg-red-900/20 rounded transition-colors"
+                      className="text-gray-300 text-sm p-1 rounded transition-colors hover:bg-viridian"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
