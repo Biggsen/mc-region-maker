@@ -452,17 +452,17 @@ export function RegionDetailsView({
 
       {showAdvanced && (
         <>
-          <YAMLDisplay
-            yamlContent={selectedRegion.id} // This will need to be passed from parent
-            onCopyYAML={onCopyYAML}
-          />
+        <YAMLDisplay
+          yamlContent={selectedRegion.id} // This will need to be passed from parent
+          onCopyYAML={onCopyYAML}
+        />
 
-          <VillageManager
-            subregions={selectedRegion.subregions || []}
-            regionId={selectedRegion.id}
-            onRemoveSubregion={onRemoveSubregionFromRegion}
-            onUpdateSubregionName={onUpdateSubregionName}
-          />
+      <VillageManager
+        subregions={selectedRegion.subregions || []}
+        regionId={selectedRegion.id}
+        onRemoveSubregion={onRemoveSubregionFromRegion}
+        onUpdateSubregionName={onUpdateSubregionName}
+      />
         </>
       )}
 

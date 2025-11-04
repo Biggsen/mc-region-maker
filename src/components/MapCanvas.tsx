@@ -573,18 +573,18 @@ export function MapCanvas({ onNavigateToRegions }: MapCanvasProps) {
             </div>
           )}
           <div className="absolute bottom-4 left-[220px] z-10 flex items-end gap-3">
-            <MapDisplayControls
-              highlightMode={highlightMode}
-              orphanedVillageMarkers={orphanedVillageMarkers}
-              showOrphanedVillages={showOrphanedVillages}
-              toggleHighlightAll={regions.toggleHighlightAll}
-              toggleShowRegions={regions.toggleShowRegions}
-              toggleShowVillages={regions.toggleShowVillages}
-              toggleShowOrphanedVillages={customMarkers.toggleShowOrphanedVillages}
-              toggleShowCenterPoints={regions.toggleShowCenterPoints}
-              toggleShowChallengeLevels={regions.toggleShowChallengeLevels}
-              toggleShowGrid={regions.toggleShowGrid}
-            />
+          <MapDisplayControls
+            highlightMode={highlightMode}
+            orphanedVillageMarkers={orphanedVillageMarkers}
+            showOrphanedVillages={showOrphanedVillages}
+            toggleHighlightAll={regions.toggleHighlightAll}
+            toggleShowRegions={regions.toggleShowRegions}
+            toggleShowVillages={regions.toggleShowVillages}
+            toggleShowOrphanedVillages={customMarkers.toggleShowOrphanedVillages}
+            toggleShowCenterPoints={regions.toggleShowCenterPoints}
+            toggleShowChallengeLevels={regions.toggleShowChallengeLevels}
+            toggleShowGrid={regions.toggleShowGrid}
+          />
             
             <div className="bg-gray-900/90 backdrop-blur-sm border border-gunmetal rounded-lg px-3 py-2 shadow-lg">
               <div className="flex items-center gap-2 min-w-[140px]">
