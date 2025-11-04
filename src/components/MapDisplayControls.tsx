@@ -4,6 +4,7 @@ import { ChevronRight, ChevronUp, Eye, EyeOff } from 'lucide-react'
 interface MapDisplayControlsProps {
   highlightMode: {
     highlightAll: boolean
+    showRegions: boolean
     showVillages: boolean
     showCenterPoints: boolean
     showChallengeLevels: boolean
@@ -12,6 +13,7 @@ interface MapDisplayControlsProps {
   orphanedVillageMarkers: any[]
   showOrphanedVillages: boolean
   toggleHighlightAll: () => void
+  toggleShowRegions: () => void
   toggleShowVillages: () => void
   toggleShowOrphanedVillages: () => void
   toggleShowCenterPoints: () => void
@@ -24,6 +26,7 @@ export function MapDisplayControls({
   orphanedVillageMarkers,
   showOrphanedVillages,
   toggleHighlightAll,
+  toggleShowRegions,
   toggleShowVillages,
   toggleShowOrphanedVillages,
   toggleShowCenterPoints,
@@ -31,6 +34,10 @@ export function MapDisplayControls({
   toggleShowGrid
 }: MapDisplayControlsProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  
+  // Check URL parameter for advanced features
+  const urlParams = new URLSearchParams(window.location.search)
+  const showAdvanced = urlParams.get('advanced') === 'true'
 
   const ToggleButton = ({ 
     isActive, 
@@ -70,12 +77,22 @@ export function MapDisplayControls({
           </ToggleButton>
           
           <ToggleButton
-            isActive={highlightMode.showVillages}
-            onClick={toggleShowVillages}
-            title="Show/hide villages on map"
+            isActive={highlightMode.showRegions}
+            onClick={toggleShowRegions}
+            title="Show/hide regions on map"
           >
-            Villages
+            Regions
           </ToggleButton>
+          
+          {showAdvanced && (
+            <ToggleButton
+              isActive={highlightMode.showVillages}
+              onClick={toggleShowVillages}
+              title="Show/hide villages on map"
+            >
+              Villages
+            </ToggleButton>
+          )}
           
           {orphanedVillageMarkers.length > 0 && (
             <ToggleButton
@@ -87,21 +104,25 @@ export function MapDisplayControls({
             </ToggleButton>
           )}
           
-          <ToggleButton
-            isActive={highlightMode.showCenterPoints}
-            onClick={toggleShowCenterPoints}
-            title="Show/hide region hearts on map"
-          >
-            Hearts
-          </ToggleButton>
+          {showAdvanced && (
+            <ToggleButton
+              isActive={highlightMode.showCenterPoints}
+              onClick={toggleShowCenterPoints}
+              title="Show/hide region hearts on map"
+            >
+              Hearts
+            </ToggleButton>
+          )}
           
-          <ToggleButton
-            isActive={highlightMode.showChallengeLevels}
-            onClick={toggleShowChallengeLevels}
-            title="Show/hide challenge levels on map"
-          >
-            Levels
-          </ToggleButton>
+          {showAdvanced && (
+            <ToggleButton
+              isActive={highlightMode.showChallengeLevels}
+              onClick={toggleShowChallengeLevels}
+              title="Show/hide challenge levels on map"
+            >
+              Levels
+            </ToggleButton>
+          )}
           
           <ToggleButton
             isActive={highlightMode.showGrid}

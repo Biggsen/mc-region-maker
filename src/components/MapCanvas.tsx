@@ -499,27 +499,29 @@ export function MapCanvas() {
             mapState={mapState}
             isVisible={highlightMode.showGrid}
           />
-          <RegionOverlay
-            canvas={canvasRef.current}
-            mapState={mapState}
-            drawingRegion={drawingRegion}
-            selectedRegionId={selectedRegionId}
-            hoveredRegionId={regions.hoveredRegionId}
-            editMode={editMode}
-            highlightMode={highlightMode}
-            regions={regions.regions}
-            spawnCoordinates={spawnState.coordinates}
-            isSpacePressed={isSpacePressed}
-            onPointMouseDown={handlePointMouseDown}
-            onPointMouseMove={handlePointMouseMove}
-            onPointMouseUp={handlePointMouseUp}
-            onInsertPointClick={handleInsertPointClick}
-            onPointDoubleClick={handlePointDoubleClick}
-            isWarping={isWarping}
-            warpRadius={warpRadius}
-            mouseCoordinates={mouseCoordinates}
-            isMouseOverCanvas={isMouseOverCanvas}
-          />
+          {highlightMode.showRegions && (
+            <RegionOverlay
+              canvas={canvasRef.current}
+              mapState={mapState}
+              drawingRegion={drawingRegion}
+              selectedRegionId={selectedRegionId}
+              hoveredRegionId={regions.hoveredRegionId}
+              editMode={editMode}
+              highlightMode={highlightMode}
+              regions={regions.regions}
+              spawnCoordinates={spawnState.coordinates}
+              isSpacePressed={isSpacePressed}
+              onPointMouseDown={handlePointMouseDown}
+              onPointMouseMove={handlePointMouseMove}
+              onPointMouseUp={handlePointMouseUp}
+              onInsertPointClick={handleInsertPointClick}
+              onPointDoubleClick={handlePointDoubleClick}
+              isWarping={isWarping}
+              warpRadius={warpRadius}
+              mouseCoordinates={mouseCoordinates}
+              isMouseOverCanvas={isMouseOverCanvas}
+            />
+          )}
           <CustomMarkerOverlay
             canvas={canvasRef.current}
             mapState={mapState}
@@ -539,6 +541,7 @@ export function MapCanvas() {
             orphanedVillageMarkers={orphanedVillageMarkers}
             showOrphanedVillages={showOrphanedVillages}
             toggleHighlightAll={regions.toggleHighlightAll}
+            toggleShowRegions={regions.toggleShowRegions}
             toggleShowVillages={regions.toggleShowVillages}
             toggleShowOrphanedVillages={customMarkers.toggleShowOrphanedVillages}
             toggleShowCenterPoints={regions.toggleShowCenterPoints}

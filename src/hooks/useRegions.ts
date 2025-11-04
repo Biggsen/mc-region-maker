@@ -26,6 +26,7 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
   })
   const [highlightMode, setHighlightMode] = useState<HighlightMode>({
     highlightAll: false,
+    showRegions: true,
     showVillages: true,
     showCenterPoints: true,
     showChallengeLevels: false,
@@ -435,6 +436,10 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     setHighlightMode(prev => ({ ...prev, highlightAll: !prev.highlightAll }))
   }, [])
 
+  const toggleShowRegions = useCallback(() => {
+    setHighlightMode(prev => ({ ...prev, showRegions: !prev.showRegions }))
+  }, [])
+
   const toggleShowVillages = useCallback(() => {
     setHighlightMode(prev => ({ ...prev, showVillages: !prev.showVillages }))
   }, [])
@@ -793,6 +798,7 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
     finishMoveRegion,
     cancelMoveRegion,
     toggleHighlightAll,
+    toggleShowRegions,
     toggleShowVillages,
     toggleShowCenterPoints,
     toggleShowChallengeLevels,

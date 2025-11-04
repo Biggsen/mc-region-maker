@@ -65,6 +65,7 @@ export type EditMode = {
 
 export type HighlightMode = {
   highlightAll: boolean
+  showRegions: boolean
   showVillages: boolean
   showCenterPoints: boolean
   showChallengeLevels: boolean
