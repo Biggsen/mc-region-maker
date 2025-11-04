@@ -113,7 +113,8 @@ export function exportRegionsYAML(
   worldType?: 'overworld' | 'nether',
   useModernWorldHeight: boolean = true,
   useGreetingsAndFarewells: boolean = false,
-  greetingSize: 'large' | 'small' = 'large'
+  greetingSize: 'large' | 'small' = 'large',
+  includeChallengeLevelSubheading: boolean = false
 ): void {
   if (regions.length === 0 && (!includeSpawnRegion || worldType === 'nether')) {
     alert('No regions to export')
@@ -132,7 +133,7 @@ export function exportRegionsYAML(
   }
   
   regions.forEach((region, index) => {
-    yamlContent += generateRegionYAML(region, includeVillages, randomMobSpawn, includeHeartRegions, worldType, useModernWorldHeight, useGreetingsAndFarewells, greetingSize)
+    yamlContent += generateRegionYAML(region, includeVillages, randomMobSpawn, includeHeartRegions, worldType, useModernWorldHeight, useGreetingsAndFarewells, greetingSize, includeChallengeLevelSubheading)
     // Add a blank line between regions (except after the last one)
     if (index < regions.length - 1) {
       yamlContent += '\n'

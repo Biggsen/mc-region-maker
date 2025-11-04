@@ -39,7 +39,7 @@ function generateRandomMobList(): string[] {
   return shuffled.slice(0, count)
 }
 
-export function generateRegionYAML(region: Region, includeVillages: boolean = true, randomMobSpawn: boolean = false, includeHeartRegions: boolean = true, worldType?: 'overworld' | 'nether', useModernWorldHeight: boolean = true, useGreetingsAndFarewells: boolean = false, greetingSize: 'large' | 'small' = 'large'): string {
+export function generateRegionYAML(region: Region, includeVillages: boolean = true, randomMobSpawn: boolean = false, includeHeartRegions: boolean = true, worldType?: 'overworld' | 'nether', useModernWorldHeight: boolean = true, useGreetingsAndFarewells: boolean = false, greetingSize: 'large' | 'small' = 'large', includeChallengeLevelSubheading: boolean = false): string {
   const points = region.points.map(point => `      - {x: ${Math.round(point.x)}, z: ${Math.round(point.z)}}`).join('\n')
   
   // Check if this is a main region (not spawn, hearts, or villages)
@@ -55,7 +55,9 @@ export function generateRegionYAML(region: Region, includeVillages: boolean = tr
   if (useGreetingsAndFarewells) {
     if (isMainRegion && region.challengeLevel) {
       // Main regions with challenge levels get the new multi-line format
-      const challengeColor = getChallengeLevelColor(region.challengeLevel)
+      const challengeColor = includeChallengeLevelSubheading 
+        ? getChallengeLevelColor(region.challengeLevel)
+        : '§f'
       
       if (randomMobSpawn) {
         const randomMobs = generateRandomMobList()

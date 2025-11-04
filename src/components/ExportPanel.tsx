@@ -13,6 +13,7 @@ export function ExportPanel() {
   const [useModernWorldHeight, setUseModernWorldHeight] = useState(true)
   const [useGreetingsAndFarewells, setUseGreetingsAndFarewells] = useState(false)
   const [greetingSize, setGreetingSize] = useState<'large' | 'small'>('large')
+  const [includeChallengeLevelSubheading, setIncludeChallengeLevelSubheading] = useState(false)
   const [viewingImage, setViewingImage] = useState<{ type: 'greeting' | 'farewell', size: 'large' | 'small' } | null>(null)
 
   const handleExportYAML = () => {
@@ -23,7 +24,7 @@ export function ExportPanel() {
     } : null
     // Force spawn region to false for nether since it doesn't exist
     const finalIncludeSpawnRegion = worldType.worldType === 'nether' ? false : includeSpawnRegion
-    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, finalIncludeSpawnRegion, spawnData, worldType.worldType, useModernWorldHeight, useGreetingsAndFarewells, greetingSize)
+    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, finalIncludeSpawnRegion, spawnData, worldType.worldType, useModernWorldHeight, useGreetingsAndFarewells, greetingSize, includeChallengeLevelSubheading)
   }
 
   const computedHasVillages = regions.regions.some(region => region.subregions && region.subregions.length > 0)
@@ -196,6 +197,20 @@ export function ExportPanel() {
                 />
                 <label htmlFor="randomMobSpawn" className="ml-2 text-white">
                   Random mob spawn
+                </label>
+              </div>
+              
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="includeChallengeLevelSubheading"
+                  checked={includeChallengeLevelSubheading}
+                  onChange={(e) => setIncludeChallengeLevelSubheading(e.target.checked)}
+                  disabled={!useGreetingsAndFarewells}
+                  className="w-4 h-4 text-blue-600 bg-gray-700 border-gunmetal rounded focus:ring-blue-500 focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <label htmlFor="includeChallengeLevelSubheading" className="ml-2 text-white">
+                  Include challenge level subheading in greetings
                 </label>
               </div>
               
