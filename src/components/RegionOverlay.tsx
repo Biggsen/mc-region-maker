@@ -267,13 +267,19 @@ export function RegionOverlay({
       const centerX = canvasPoints.reduce((sum, p) => sum + p.x, 0) / canvasPoints.length
       const centerY = canvasPoints.reduce((sum, p) => sum + p.y, 0) / canvasPoints.length
       
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
-      ctx.fillRect(centerX - 30, centerY - 10, 60, 20)
-      
-      ctx.fillStyle = 'white'
       ctx.font = '12px Arial'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
+      const textMetrics = ctx.measureText(region.name)
+      const textWidth = textMetrics.width
+      const padding = 8
+      const boxWidth = textWidth + padding * 2
+      const boxHeight = 20
+      
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+      ctx.fillRect(centerX - boxWidth / 2, centerY - boxHeight / 2, boxWidth, boxHeight)
+      
+      ctx.fillStyle = 'white'
       ctx.fillText(region.name, centerX, centerY)
     }
   }
@@ -312,13 +318,19 @@ export function RegionOverlay({
 
     // Draw center point label only for selected regions
     if (isSelected) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
-      ctx.fillRect(canvasPos.x - 40, canvasPos.y - markerSize - 20, 80, 16)
-      
-      ctx.fillStyle = 'white'
       ctx.font = '9px Arial'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
+      const textMetrics = ctx.measureText('Region Heart')
+      const textWidth = textMetrics.width
+      const padding = 6
+      const boxWidth = textWidth + padding * 2
+      const boxHeight = 16
+      
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+      ctx.fillRect(canvasPos.x - boxWidth / 2, canvasPos.y - markerSize - 20, boxWidth, boxHeight)
+      
+      ctx.fillStyle = 'white'
       ctx.fillText('Region Heart', canvasPos.x, canvasPos.y - markerSize - 12)
     }
   }
@@ -352,13 +364,19 @@ export function RegionOverlay({
     
     // Draw village name
     if (isParentSelected) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
-      ctx.fillRect(canvasPos.x - 40, canvasPos.y - 25, 80, 20)
-      
-      ctx.fillStyle = 'white'
       ctx.font = '10px Arial'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
+      const textMetrics = ctx.measureText(subregion.name)
+      const textWidth = textMetrics.width
+      const padding = 6
+      const boxWidth = textWidth + padding * 2
+      const boxHeight = 20
+      
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+      ctx.fillRect(canvasPos.x - boxWidth / 2, canvasPos.y - 25, boxWidth, boxHeight)
+      
+      ctx.fillStyle = 'white'
       ctx.fillText(subregion.name, canvasPos.x, canvasPos.y - 15)
     }
   }
