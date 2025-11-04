@@ -1,5 +1,10 @@
 # World Seed & Dimension Management Specification
 
+## Status: ✅ IMPLEMENTED
+
+**Implementation Date**: Completed  
+**Known Issues**: See "Known Issues & Future Refactoring" section below
+
 ## Overview
 This specification outlines the implementation of world seed and dimension management to ensure critical seed information is properly captured, displayed, edited, and persisted across all map loading scenarios.
 
@@ -131,7 +136,7 @@ Currently, when users generate or load map images, the seed information is not r
 
 #### Import Behavior
 - Restore seed/dimension if present in export file
-- If seed/dimension missing (legacy files), leave current values unchanged
+- If seed/dimension missing (legacy files), clear current values (intentional - user is loading a new project)
 - Update localStorage immediately on import
 
 ## Implementation Details
@@ -148,7 +153,9 @@ Currently, when users generate or load map images, the seed information is not r
 - Inline-editable seed and dimension display
 - Similar pattern to `WorldNameHeading.tsx`
 - Click to edit, Enter to save, Escape to cancel
-- Dimension uses dropdown: overworld/nether/end/none
+- Dimension uses dropdown: overworld/nether/end
+- **Note**: "none" option was considered but not implemented (not needed)
+- **Known Issue**: Currently uses `worldType` as fallback for dimension display, which can cause confusion (will be fixed in unification refactor)
 
 ### Modified Files
 
@@ -270,12 +277,12 @@ The current issue where seed/dimension could be lost during import:
 
 ### Legacy Export Files
 - Files without seed/dimension fields should import successfully
-- Existing seed/dimension in localStorage should remain unchanged if not in import file
+- When loading a project file, seed/dimension are cleared if not present (intentional - user is loading a new project, should start fresh)
 
 ### Empty Values
 - Seed can be empty string (user clears it)
-- Dimension can be empty (user selects "None")
-- Both fields optional but at least one recommended
+- Dimension defaults to 'overworld' if not set
+- Both fields optional but seed is recommended for map generation
 
 ### Multiple Import Methods
 - World Details section maintains seed/dimension state across all operations
@@ -289,18 +296,18 @@ The current issue where seed/dimension could be lost during import:
 
 ## Testing Checklist
 
-- [ ] Seed/dimension displayed on Regions tab
-- [ ] Inline editing works for both fields
-- [ ] Changes persist to localStorage
-- [ ] Generate Map → Import sets seed correctly
-- [ ] Load from URL captures seed/dimension
-- [ ] Save project includes seed/dimension in file
-- [ ] Load project restores seed/dimension
-- [ ] Legacy files without seed import successfully
-- [ ] Clearing all data clears seed/dimension
-- [ ] Dimension dropdown shows correct options
-- [ ] Seed field accepts text and numbers
-- [ ] Race condition fixed (seed persists after import)
+- [x] Seed/dimension displayed on Regions tab
+- [x] Inline editing works for both fields
+- [x] Changes persist to localStorage
+- [x] Generate Map → Import sets seed correctly
+- [x] Load from URL captures seed/dimension
+- [x] Save project includes seed/dimension in file
+- [x] Load project restores seed/dimension (clears if missing - intentional)
+- [x] Legacy files without seed import successfully
+- [x] Clearing all data clears seed/dimension
+- [x] Dimension dropdown shows correct options (overworld/nether/end)
+- [x] Seed field accepts text and numbers
+- [x] Race condition fixed (seed persists after import)
 
 ## Migration Notes
 
@@ -314,10 +321,27 @@ The current issue where seed/dimension could be lost during import:
 - New format (WorldSeed): Dedicated storage for seed/dimension only
 - Both can coexist during transition
 
+## Known Issues & Future Refactoring
+
+### WorldType / Dimension Unification
+
+**Issue**: There is conceptual duplication between `worldType` and `dimension`:
+- `worldType`: Only supports `'overworld' | 'nether'` (used for name generation)
+- `dimension`: Supports `'overworld' | 'nether' | 'end'` (used for seed/map generation)
+
+**Impact**: 
+- Confusion in `SeedInfoHeading.tsx` which uses `worldType` as fallback for `dimension` display
+- Two separate storage locations for essentially the same concept
+- Export files contain both fields
+
+**Solution**: See `spec/worldtype-dimension-unification-spec.md` for refactoring plan to unify these concepts.
+
+**Status**: Spec created, implementation pending
+
 ## Future Enhancements
 - Auto-detect seed from map image metadata (if available)
 - Seed validation (Minecraft seed format)
 - Quick copy seed to clipboard button
 - Seed history/autocomplete
-- Default dimension based on world type
+- Unify worldType and dimension (see unification spec above)
 
