@@ -48,6 +48,7 @@ export type MapState = {
   lastMousePos: { x: number; y: number } | null
   originSelected: boolean
   originOffset: { x: number; y: number } | null
+  imageOpacity: number
 }
 
 export type EditMode = {

@@ -11,7 +11,8 @@ export function useMapState() {
     isDragging: false,
     lastMousePos: null,
     originSelected: false,
-    originOffset: null
+    originOffset: null,
+    imageOpacity: 1
   })
 
   // Load saved state on mount
@@ -117,6 +118,10 @@ export function useMapState() {
     }))
   }, [mapState.scale, mapState.offsetX, mapState.offsetY])
 
+  const setImageOpacity = useCallback((opacity: number) => {
+    setMapState(prev => ({ ...prev, imageOpacity: Math.max(0, Math.min(1, opacity)) }))
+  }, [])
+
   return {
     mapState,
     setImage,
@@ -128,6 +133,7 @@ export function useMapState() {
     startDragging,
     stopDragging,
     handleMouseMove,
-    handleWheel
+    handleWheel,
+    setImageOpacity
   }
 }

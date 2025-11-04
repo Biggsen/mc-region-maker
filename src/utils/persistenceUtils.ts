@@ -103,6 +103,11 @@ export async function loadMapState(): Promise<MapState | null> {
     
     const parsed = JSON.parse(saved)
     
+    // Set default opacity for backward compatibility
+    if (parsed.imageOpacity === undefined) {
+      parsed.imageOpacity = 1
+    }
+    
     // Load image from source URL if it exists
     if (parsed.image && typeof parsed.image === 'string') {
       parsed.image = await loadImageFromSource(parsed.image)

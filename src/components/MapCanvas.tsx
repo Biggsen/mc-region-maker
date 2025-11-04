@@ -11,7 +11,7 @@ import { Scan } from 'lucide-react'
 export function MapCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { mapState: mapStateHook, regions, spawn, mapCanvas, customMarkers } = useAppContext()
-  const { mapState, setScale, setOffset, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel } = mapStateHook
+  const { mapState, setScale, setOffset, setOrigin, startDragging, stopDragging, handleMouseMove, handleWheel, setImageOpacity } = mapStateHook
   const { 
     drawingRegion, 
     addPointToDrawing, 
@@ -138,13 +138,14 @@ export function MapCanvas() {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    // Draw image
+    // Draw image with opacity
     ctx.save()
+    ctx.globalAlpha = mapState.imageOpacity
     ctx.translate(mapState.offsetX, mapState.offsetY)
     ctx.scale(mapState.scale, mapState.scale)
     ctx.drawImage(mapState.image, 0, 0)
     ctx.restore()
-  }, [mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY])
+  }, [mapState.image, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.imageOpacity])
 
   // Draw map whenever state changes
   useEffect(() => {
@@ -536,18 +537,43 @@ export function MapCanvas() {
               </p>
             </div>
           )}
-          <MapDisplayControls
-            highlightMode={highlightMode}
-            orphanedVillageMarkers={orphanedVillageMarkers}
-            showOrphanedVillages={showOrphanedVillages}
-            toggleHighlightAll={regions.toggleHighlightAll}
-            toggleShowRegions={regions.toggleShowRegions}
-            toggleShowVillages={regions.toggleShowVillages}
-            toggleShowOrphanedVillages={customMarkers.toggleShowOrphanedVillages}
-            toggleShowCenterPoints={regions.toggleShowCenterPoints}
-            toggleShowChallengeLevels={regions.toggleShowChallengeLevels}
-            toggleShowGrid={regions.toggleShowGrid}
-          />
+          <div className="absolute bottom-4 left-[220px] z-10 flex items-end gap-3">
+            <MapDisplayControls
+              highlightMode={highlightMode}
+              orphanedVillageMarkers={orphanedVillageMarkers}
+              showOrphanedVillages={showOrphanedVillages}
+              toggleHighlightAll={regions.toggleHighlightAll}
+              toggleShowRegions={regions.toggleShowRegions}
+              toggleShowVillages={regions.toggleShowVillages}
+              toggleShowOrphanedVillages={customMarkers.toggleShowOrphanedVillages}
+              toggleShowCenterPoints={regions.toggleShowCenterPoints}
+              toggleShowChallengeLevels={regions.toggleShowChallengeLevels}
+              toggleShowGrid={regions.toggleShowGrid}
+            />
+            
+            <div className="bg-gray-900/90 backdrop-blur-sm border border-gunmetal rounded-lg px-3 py-2 shadow-lg">
+              <div className="flex items-center gap-2 min-w-[140px]">
+                <label className="text-white text-xs font-medium whitespace-nowrap">
+                  Opacity:
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={mapState.imageOpacity}
+                  onChange={(e) => setImageOpacity(parseFloat(e.target.value))}
+                  className="w-16 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                  style={{
+                    background: `linear-gradient(to right, #4a5568 0%, #4a5568 ${mapState.imageOpacity * 100}%, #2d3748 ${mapState.imageOpacity * 100}%, #2d3748 100%)`
+                  }}
+                />
+                <span className="text-white text-xs font-mono w-8 text-right">
+                  {Math.round(mapState.imageOpacity * 100)}%
+                </span>
+              </div>
+            </div>
+          </div>
         </>
       )}
       

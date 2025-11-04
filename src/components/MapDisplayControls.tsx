@@ -52,10 +52,10 @@ export function MapDisplayControls({
   }) => (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-2 py-1 rounded text-xs transition-colors ${
+      className={`flex items-center gap-2 px-1.5 py-0.5 rounded text-xs transition-colors ${
         isActive 
-          ? 'bg-gray-700 text-white' 
-          : 'text-gray-400 hover:text-gray-300 hover:bg-eerie-back'
+          ? 'text-white' 
+          : 'text-gray-400 hover:text-white'
       }`}
       title={title}
     >
@@ -65,15 +65,15 @@ export function MapDisplayControls({
   )
 
   return (
-    <div className="absolute bottom-4 left-[220px] z-10">
+    <div>
       {isExpanded && (
-        <div className="mb-2 bg-gray-900/80 backdrop-blur-sm border border-gunmetal rounded-lg px-3 py-3 space-y-1">
+        <div className="mb-2 bg-gray-900/80 backdrop-blur-sm border border-gunmetal rounded-lg px-1.5 py-1.5 space-y-1 w-[100px]">
           <ToggleButton
             isActive={highlightMode.highlightAll}
             onClick={toggleHighlightAll}
             title="Highlight all regions"
           >
-            Highlight All
+            Highlight
           </ToggleButton>
           
           <ToggleButton
@@ -136,7 +136,7 @@ export function MapDisplayControls({
       
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 hover:text-white transition-colors bg-gray-900/80 backdrop-blur-sm border border-gunmetal rounded-lg"
+        className="flex items-center justify-center gap-2 px-3 py-1 text-sm text-gray-300 hover:text-white transition-colors bg-gray-900/80 backdrop-blur-sm border border-gunmetal rounded-lg w-[100px]"
       >
         {isExpanded ? <ChevronUp size={14} /> : <ChevronRight size={14} />}
         Display
