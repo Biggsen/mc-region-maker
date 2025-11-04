@@ -9,6 +9,7 @@ interface ColorSwatch {
 
 const colors: ColorSwatch[] = [
   { name: 'Lapis Lazuli', hex: '#386595', className: 'bg-lapis-lazuli' }, // primary
+  { name: 'Lapis Lighter', hex: '#4470A5', className: 'bg-lapis-lighter' },
   { name: 'Viridian', hex: '#287B5F', className: 'bg-viridian' }, // secondary
   { name: 'Violet Blue', hex: '#4A429E', className: 'bg-violet-blue' },
   { name: 'Silver Lake Blue', hex: '#5C8DC1', className: 'bg-silver-lake-blue' },
@@ -21,6 +22,14 @@ const colors: ColorSwatch[] = [
   { name: 'Bluewood', hex: '#213241', className: 'bg-bluewood' },
   { name: 'Persimmon', hex: '#E06629', className: 'bg-persimmon' },
   { name: 'Orange Crayola', hex: '#E67F4C', className: 'bg-orange-crayola' },
+  { name: 'Brunswick Green', hex: '#194D3C', className: 'bg-brunswick-green' },
+  { name: 'Outer Space', hex: '#414E4C', className: 'bg-outer-space' },
+  { name: 'Hover Surface', hex: '#2D3433', className: 'bg-hover-surface' },
+  { name: 'Active Surface', hex: '#1E2322', className: 'bg-active-surface' },
+  { name: 'Input Background', hex: '#1E2322', className: 'bg-input-bg' },
+  { name: 'Input Border', hex: '#3A4140', className: 'bg-input-border' },
+  { name: 'Input Text', hex: '#F9FAFB', className: 'bg-input-text' },
+  { name: 'Battleship Grey', hex: '#7A908C', className: 'bg-battleship-grey' },
 ]
 
 export function StyleGuide() {
@@ -38,7 +47,7 @@ export function StyleGuide() {
                 className="bg-eerie-back rounded-lg overflow-hidden border border-gunmetal shadow-lg"
               >
                 <div className={`h-32 ${color.className} flex items-center justify-center`}>
-                  {(color.name === 'Night' || color.name === 'Eerie Back' || color.name === 'Gunmetal') && (
+                  {(color.name === 'Night' || color.name === 'Eerie Back' || color.name === 'Gunmetal' || color.name === 'Active Surface' || color.name === 'Input Background') && (
                     <div className="w-full h-full border-2 border-dashed border-white/20"></div>
                   )}
                 </div>

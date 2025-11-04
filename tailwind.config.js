@@ -28,6 +28,7 @@ export default {
         'orange-crayola': '#E67F4C',
         'brunswick-green': '#194D3C',
         'outer-space': '#414E4C',
+        'battleship-grey': '#7A908C',
       },
     },
   },
