@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { saveImageDetails, loadImageDetails, ImageDetails } from '../utils/persistenceUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
@@ -19,10 +19,12 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
   const [isPolling, setIsPolling] = useState(false)
   const [isLoadingUrl, setIsLoadingUrl] = useState(false)
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
+  const [previewImageDimensions, setPreviewImageDimensions] = useState<{ width: number; height: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [seedError, setSeedError] = useState<string | null>(null)
   const [loadedMapDetails, setLoadedMapDetails] = useState<ImageDetails | null>(null)
   const [showLoadSection, setShowLoadSection] = useState(false)
+  const isUpdatingDetailsRef = useRef(false)
   
   // Local state for import form inputs (not saved until import)
   const [importWorldName, setImportWorldName] = useState(worldName.worldName)
@@ -32,6 +34,11 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
   const { setImage, setOffset } = mapState
   
   const hasMapLoaded = !!mapState.mapState.image
+
+  // Helper function to calculate world size from image dimensions
+  const calculateWorldSize = (width: number, height: number): number => {
+    return Math.round(Math.max(width, height) / 125)
+  }
 
   // Initialize local state from context when load section is opened
   useEffect(() => {
@@ -43,7 +50,11 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
   }, [showLoadSection, worldName.worldName, seedInfo.seedInfo.seed, seedInfo.seedInfo.dimension])
 
   // Load saved image details on mount and when map image changes
+  // Skip loading if we're actively updating details to prevent race condition
   useEffect(() => {
+    if (isUpdatingDetailsRef.current) {
+      return
+    }
     const savedDetails = loadImageDetails()
     if (savedDetails) {
       setLoadedMapDetails(savedDetails)
@@ -76,6 +87,10 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
         originalUrl: url,
         loadedFrom: imageUrl
       })
+      
+      // Mark that we're updating details to prevent race condition with load useEffect
+      isUpdatingDetailsRef.current = true
+      
       setImage(img)
       // Center the image
       const canvasWidth = window.innerWidth - 384 // Account for sidebar (w-96 = 384px)
@@ -99,15 +114,24 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
         ? Math.round(img.width / 125)
         : Math.round(Math.max(img.width, img.height) / 125)
       
-      // Update loaded map details with image size and calculated world size
-      // Use local import state if available (when importing), otherwise use context
-      setLoadedMapDetails(prev => ({
-        ...prev,
+      // Create new image details
+      const newImageDetails: ImageDetails = {
         seed: importSeed.trim() || seedInfo.seedInfo.seed,
         dimension: importDimension || seedInfo.seedInfo.dimension,
         imageSize: { width: img.width, height: img.height },
         worldSize: calculatedWorldSize
-      }))
+      }
+      
+      // Save to localStorage immediately
+      saveImageDetails(newImageDetails)
+      
+      // Update loaded map details state
+      setLoadedMapDetails(newImageDetails)
+      
+      // Reset flag after a short delay to allow state to update
+      setTimeout(() => {
+        isUpdatingDetailsRef.current = false
+      }, 100)
     }
     img.onerror = (error) => {
       console.error('Failed to load image:', error)
@@ -129,6 +153,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     setError(null)
     setSeedError(null)
     setPreviewImageUrl(null)
+    setPreviewImageDimensions(null)
     
     try {
       // Step 1: Start generation job
@@ -193,6 +218,9 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       
       const generatedImageUrl = await pollStatus()
       setPreviewImageUrl(generatedImageUrl)
+      // Calculate dimensions from world size (formula: worldSize * 125 = image size)
+      const imageSize = worldSize * 125
+      setPreviewImageDimensions({ width: imageSize, height: imageSize })
       
     } catch (error) {
       console.error('Error generating map:', error)
@@ -228,6 +256,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       await new Promise((resolve, reject) => {
         testImg.onload = () => {
           setPreviewImageUrl(proxiedUrl)
+          setPreviewImageDimensions({ width: testImg.width, height: testImg.height })
           resolve(null)
         }
         testImg.onerror = () => {
@@ -280,6 +309,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     
     loadImageToCanvas(previewImageUrl)
     setPreviewImageUrl(null)
+    setPreviewImageDimensions(null)
     setImageUrl('') // Clear URL input
     setShowLoadSection(false) // Hide load section after import
   }
@@ -448,7 +478,12 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       {/* Unified Preview - only show when no map is loaded or when previewing */}
       {previewImageUrl && !hasMapLoaded && (
         <div className="border-b border-gunmetal pb-4">
-          <h4 className="text-sm font-medium text-gray-300 mb-2">Map Image Preview</h4>
+          <h3 className="text-lg font-semibold text-white mb-2">Map Image Preview</h3>
+          {previewImageDimensions && (
+            <p className="text-sm text-gray-300 mb-3">
+              {calculateWorldSize(previewImageDimensions.width, previewImageDimensions.height)}k ({previewImageDimensions.width}x{previewImageDimensions.height})
+            </p>
+          )}
           <div className="bg-gray-700 rounded p-2 mb-2">
             <img 
               src={previewImageUrl} 
@@ -481,6 +516,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
               onClick={() => {
                 setShowLoadSection(false)
                 setPreviewImageUrl(null)
+                setPreviewImageDimensions(null)
                 setImageUrl('')
                 setError(null)
                 setSeedError(null)
@@ -502,7 +538,12 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
             {/* Preview when changing map */}
             {previewImageUrl && (
               <div className="border-b border-gunmetal pb-4 mt-4">
-                <h4 className="text-sm font-medium text-gray-300 mb-2">Map Image Preview</h4>
+                <h3 className="text-lg font-semibold text-white mb-2">Map Image Preview</h3>
+                {previewImageDimensions && (
+                  <p className="text-sm text-gray-300 mb-3">
+                    {calculateWorldSize(previewImageDimensions.width, previewImageDimensions.height)}k ({previewImageDimensions.width}x{previewImageDimensions.height})
+                  </p>
+                )}
                 <div className="bg-gray-700 rounded p-2 mb-2">
                   <img 
                     src={previewImageUrl} 
