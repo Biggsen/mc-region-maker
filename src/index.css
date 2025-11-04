@@ -88,3 +88,45 @@ input[type="range"].slider::-moz-range-thumb:hover {
   font-weight: 700;
   font-style: normal;
 }
+
+.catamaran-light {
+  font-family: "Catamaran", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.catamaran-regular {
+  font-family: "Catamaran", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.catamaran-medium {
+  font-family: "Catamaran", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.catamaran-semibold {
+  font-family: "Catamaran", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.catamaran-bold {
+  font-family: "Catamaran", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.catamaran-extrabold {
+  font-family: "Catamaran", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+}
