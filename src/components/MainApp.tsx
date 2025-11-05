@@ -257,7 +257,16 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
         }}>Region Forge</span>
       </div>
       
-      <div className="flex space-x-2">
+      <div className="flex items-center space-x-2">
+        <a
+          href="https://discord.gg/jhWemrA2xH"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors mr-4"
+        >
+          <img src="/discord-symbol.svg" alt="Discord" className="w-6 h-6" />
+          <span>Discord</span>
+        </a>
         <Button 
           variant="secondary-outline"
           onClick={handleLoadClick}
