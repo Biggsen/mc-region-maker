@@ -7,7 +7,8 @@ import { RegionDetailsView } from './RegionDetailsView'
 import { Button } from './Button'
 import { DeleteAllRegionsModal } from './DeleteAllRegionsModal'
 import { DeleteRegionModal } from './DeleteRegionModal'
-import { Trash2, Search, LineSquiggle, ArrowUp, ArrowDown, ZoomIn } from 'lucide-react'
+import { SortButton } from './SortButton'
+import { Trash2, Search, LineSquiggle, ZoomIn } from 'lucide-react'
 
 export function RegionPanel() {
   const { regions, worldType, mapState: mapStateHook, toast } = useAppContext()
@@ -49,9 +50,6 @@ export function RegionPanel() {
   const [regionToDelete, setRegionToDelete] = useState<{ id: string; name: string } | null>(null)
   const [sortBy, setSortBy] = useState<'name' | 'size' | 'newest'>('newest')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-
-
-
 
 
   const handleCopyYAML = async (regionId: string) => {
@@ -250,7 +248,11 @@ export function RegionPanel() {
           <div className="flex-shrink-0 mb-4 flex items-center gap-2">
             <span className="text-gray-400 text-sm">Sort by:</span>
             <div className="flex gap-1">
-              <button
+              <SortButton
+                sortKey="newest"
+                currentSort={sortBy}
+                sortOrder={sortOrder}
+                label="Newest"
                 onClick={() => {
                   if (sortBy === 'newest') {
                     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
@@ -259,18 +261,12 @@ export function RegionPanel() {
                     setSortOrder('desc')
                   }
                 }}
-                className={`px-3 py-1.5 rounded text-sm border transition-colors flex items-center gap-1 ${
-                  sortBy === 'newest'
-                    ? 'bg-outer-space border-outer-space text-white'
-                    : 'bg-input-bg border-input-border text-gray-300 hover:bg-gunmetal hover:border-outer-space'
-                }`}
-              >
-                Newest
-                {sortBy === 'newest' && (
-                  sortOrder === 'desc' ? <ArrowDown size={14} /> : <ArrowUp size={14} />
-                )}
-              </button>
-              <button
+              />
+              <SortButton
+                sortKey="name"
+                currentSort={sortBy}
+                sortOrder={sortOrder}
+                label="Name"
                 onClick={() => {
                   if (sortBy === 'name') {
                     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
@@ -279,18 +275,12 @@ export function RegionPanel() {
                     setSortOrder('asc')
                   }
                 }}
-                className={`px-3 py-1.5 rounded text-sm border transition-colors flex items-center gap-1 ${
-                  sortBy === 'name'
-                    ? 'bg-outer-space border-outer-space text-white'
-                    : 'bg-input-bg border-input-border text-gray-300 hover:bg-gunmetal hover:border-outer-space'
-                }`}
-              >
-                Name
-                {sortBy === 'name' && (
-                  sortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
-                )}
-              </button>
-              <button
+              />
+              <SortButton
+                sortKey="size"
+                currentSort={sortBy}
+                sortOrder={sortOrder}
+                label="Size"
                 onClick={() => {
                   if (sortBy === 'size') {
                     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
@@ -299,17 +289,7 @@ export function RegionPanel() {
                     setSortOrder('asc')
                   }
                 }}
-                className={`px-3 py-1.5 rounded text-sm border transition-colors flex items-center gap-1 ${
-                  sortBy === 'size'
-                    ? 'bg-outer-space border-outer-space text-white'
-                    : 'bg-input-bg border-input-border text-gray-300 hover:bg-gunmetal hover:border-outer-space'
-                }`}
-              >
-                Size
-                {sortBy === 'size' && (
-                  sortOrder === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
-                )}
-              </button>
+              />
             </div>
           </div>
 
