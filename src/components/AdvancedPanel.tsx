@@ -99,10 +99,10 @@ export function AdvancedPanel() {
     try {
       const importData = await importMapData(file)
       
-      // Import only regions, ignore all other data
+      // Import only regions from the export file, ignoring map state/image/settings
+      // This allows merging regions from another project without replacing current map
       regions.replaceRegions(importData.regions)
       regions.setSelectedRegionId(null)
-      console.log('Imported regions only from map export')
       
       // Clear the file input
       if (importFileInputRef.current) {

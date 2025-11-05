@@ -716,14 +716,9 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
   }, [])
 
   const randomizeChallengeLevels = useCallback(() => {
-    console.log('Starting randomization for', regions.length, 'regions')
-    
     // Find regions with spawn and exclude them from randomization
     const spawnRegions = regions.filter(region => region.hasSpawn)
     const regionsToRandomize = regions.filter(region => !region.hasSpawn)
-    
-    console.log('Spawn regions found:', spawnRegions.map(r => r.name))
-    console.log('Regions to randomize:', regionsToRandomize.length)
     
     // Define the balanced distribution
     const distribution = {
@@ -734,8 +729,6 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
       Vanilla: Math.max(0, regionsToRandomize.length - 20) // Rest go to vanilla
     }
     
-    console.log('Distribution:', distribution)
-    
     // Create array of challenge levels based on distribution
     const challengeLevels: ChallengeLevel[] = []
     Object.entries(distribution).forEach(([level, count]) => {
@@ -744,22 +737,17 @@ export function useRegions(worldType: 'overworld' | 'nether' = 'overworld') {
       }
     })
     
-    console.log('Challenge levels array:', challengeLevels)
-    
     // Shuffle the array
     const shuffledLevels = [...challengeLevels].sort(() => Math.random() - 0.5)
-    console.log('Shuffled levels:', shuffledLevels)
     
     // Apply challenge levels to non-spawn regions
     regionsToRandomize.forEach((region, index) => {
       const challengeLevel = shuffledLevels[index] || 'Vanilla'
-      console.log(`Setting region ${region.name} to ${challengeLevel}`)
       updateRegion(region.id, { challengeLevel })
     })
     
     // Ensure spawn regions are always vanilla
     spawnRegions.forEach(region => {
-      console.log(`Setting spawn region ${region.name} to Vanilla`)
       updateRegion(region.id, { challengeLevel: 'Vanilla' })
     })
   }, [regions, updateRegion])

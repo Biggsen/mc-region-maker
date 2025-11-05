@@ -131,7 +131,6 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
             alert(validationError)
           } else {
             mapState.setImage(image)
-            console.log('Loaded embedded image from complete map export')
           }
         } catch (error) {
           console.warn('Failed to load embedded image, continuing without image')

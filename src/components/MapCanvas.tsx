@@ -49,17 +49,6 @@ export function MapCanvas({ onNavigateToRegions }: MapCanvasProps) {
     setMarker(coordinates)
   }, [setMarker])
 
-  // Debug mapState changes
-  useEffect(() => {
-    console.log('MapState changed:', {
-      hasImage: !!mapState.image,
-      imageWidth: mapState.image?.width,
-      imageHeight: mapState.image?.height,
-      offsetX: mapState.offsetX,
-      offsetY: mapState.offsetY,
-      scale: mapState.scale
-    })
-  }, [mapState.image, mapState.offsetX, mapState.offsetY, mapState.scale])
 
   // Handle space key for panning mode
   useEffect(() => {
@@ -129,20 +118,12 @@ export function MapCanvas({ onNavigateToRegions }: MapCanvasProps) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    console.log('Drawing map:', {
-      imageWidth: mapState.image.width,
-      imageHeight: mapState.image.height,
-      canvasWidth: canvas.width,
-      canvasHeight: canvas.height,
-      offsetX: mapState.offsetX,
-      offsetY: mapState.offsetY,
-      scale: mapState.scale
-    })
-
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     // Draw image with opacity
+    // Transform order matters: translate first to move to offset position,
+    // then scale from that position, then draw the image
     ctx.save()
     ctx.globalAlpha = mapState.imageOpacity
     ctx.translate(mapState.offsetX, mapState.offsetY)

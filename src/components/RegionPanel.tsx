@@ -66,8 +66,6 @@ export function RegionPanel() {
 
 
   const handleZoomToRegion = (region: { id: string; name: string; points: { x: number; z: number }[] }) => {
-    console.log('Zoom to region clicked', { regionName: region.name, hasImage: !!mapState.image, pointsCount: region.points.length })
-    
     if (!mapState.image) {
       console.warn('Cannot zoom: No image loaded')
       alert('Cannot zoom to region: No map image is loaded. Please load a map image first from the Map tab.')
@@ -129,18 +127,6 @@ export function RegionPanel() {
       const canvasCenterY = canvasHeight / 2
       const newOffsetX = canvasCenterX - centerX * newScale
       const newOffsetY = canvasCenterY - centerY * newScale
-
-      console.log('Zooming to region', {
-        regionName: region.name,
-        pixelBounds: { minX, maxX, minY, maxY },
-        width,
-        height,
-        centerX,
-        centerY,
-        newScale,
-        newOffsetX,
-        newOffsetY
-      })
 
       setScale(newScale)
       setOffset(newOffsetX, newOffsetY)
@@ -397,7 +383,6 @@ export function RegionPanel() {
                         onClick={(e) => {
                           e.preventDefault()
                           e.stopPropagation()
-                          console.log('Zoom button clicked for region:', region.name)
                           handleZoomToRegion(region)
                         }}
                         className="text-gray-300 text-sm p-1 rounded transition-colors hover:bg-viridian hover:text-white"

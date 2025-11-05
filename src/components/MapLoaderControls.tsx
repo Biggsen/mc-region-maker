@@ -136,18 +136,9 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       ? `${proxyUrl}?url=${encodeURIComponent(url)}`
       : url
     
-    console.log('Loading image:', { original: url, proxied: imageUrl })
-    
     // Set crossOrigin to anonymous to allow canvas export
     img.crossOrigin = 'anonymous'
     img.onload = () => {
-      console.log('Image loaded from URL:', {
-        width: img.width,
-        height: img.height,
-        originalUrl: url,
-        loadedFrom: imageUrl
-      })
-      
       // Validate image dimensions before proceeding
       const validationError = validateImageDimensions(img.width, img.height)
       if (validationError) {
@@ -164,7 +155,6 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       const canvasHeight = window.innerHeight - 64 // Account for nav bar
       const centerX = (canvasWidth - img.width) / 2
       const centerY = (canvasHeight - img.height) / 2
-      console.log('Setting offset:', { centerX, centerY })
       setOffset(centerX, centerY)
       
       // Auto-set origin to center for square images
@@ -172,7 +162,6 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
         const originX = Math.floor(img.width / 2)
         const originY = Math.floor(img.height / 2)
         mapState.setOrigin(originX, originY)
-        console.log('Auto-set origin to center for square image:', { originX, originY })
       }
       
       // Calculate world size from image dimensions (assuming square images)
@@ -248,7 +237,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       }
       
       const jobId = generateResult.jobId
-      console.log('Job started:', jobId)
+      // Start polling for job completion (async map generation)
       
       setIsPolling(true)
       

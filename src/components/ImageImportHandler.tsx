@@ -12,7 +12,6 @@ export function ImageImportHandler() {
     if (location.state?.importImage && !hasProcessedRef.current) {
       hasProcessedRef.current = true // Prevent multiple executions
       const imageUrl = location.state.importImage  // Already full URL from service
-      console.log('Loading imported image:', imageUrl)
       
       // Load the image
       const img = new Image()
@@ -27,14 +26,10 @@ export function ImageImportHandler() {
         ? `${proxyUrl}?url=${encodeURIComponent(imageUrl)}`
         : imageUrl
       
-      console.log('Loading imported image:', { original: imageUrl, proxied: proxiedImageUrl })
-      
       // Set crossOrigin to anonymous for CORS
       img.crossOrigin = 'anonymous'
       
       img.onload = () => {
-        console.log('Image loaded successfully:', imageUrl)
-        
         // Validate image dimensions before proceeding
         const MIN_SIZE = 250
         const MAX_SIZE = 2000
@@ -55,8 +50,6 @@ export function ImageImportHandler() {
         }
         
         // Clear all existing data for fresh start
-        console.log('Clearing existing data for fresh map import...')
-        
         // Clear all regions
         regions.replaceRegions([])
         regions.setSelectedRegionId(null)
@@ -75,7 +68,6 @@ export function ImageImportHandler() {
           const centerX = Math.floor(img.width / 2)
           const centerY = Math.floor(img.height / 2)
           mapState.setOrigin(centerX, centerY)
-          console.log('Auto-set origin to center for square image:', { centerX, centerY })
         }
         
         // Calculate world size from image dimensions (assuming square images)
@@ -110,13 +102,9 @@ export function ImageImportHandler() {
       
       img.onerror = (error) => {
         console.error('Failed to load image:', error)
-        console.log('Attempted URL:', imageUrl)
-        console.log('Image object:', img)
-        console.log('Error event:', error)
         
         // Try without crossOrigin as fallback
         if (img.crossOrigin === 'anonymous') {
-          console.log('Retrying without crossOrigin...')
           img.crossOrigin = null
           img.src = proxiedImageUrl
           return
