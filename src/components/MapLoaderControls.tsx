@@ -428,8 +428,8 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
             disabled={isLoading}
           >
             <option value="overworld">Overworld</option>
-            <option value="nether">Nether</option>
-            <option value="end">End</option>
+            <option value="nether" disabled>Nether (Coming soon)</option>
+            <option value="end" disabled>End (Coming soon)</option>
           </select>
         </div>
       </div>
