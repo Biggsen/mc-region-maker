@@ -11,7 +11,6 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainApp />} />
-          <Route path="/regions" element={<MainApp />} />
           <Route path="/styleguide" element={<StyleGuide />} />
         </Routes>
       </BrowserRouter>
