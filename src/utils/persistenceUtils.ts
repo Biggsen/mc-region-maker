@@ -1,4 +1,5 @@
 import { MapState, Region } from '../types'
+import { validateImageDimensions } from './imageValidation'
 
 export interface ImageDetails {
   seed?: string
@@ -35,34 +36,14 @@ export function getImageSource(image: HTMLImageElement): string {
   return image.src
 }
 
-// Helper function to validate image dimensions
-function validateImageDimensions(width: number, height: number): string | null {
-  const MIN_SIZE = 250
-  const MAX_SIZE = 2000
-
-  if (width !== height) {
-    return `Image must be square (width and height must be equal). Current dimensions: ${width}x${height}`
-  }
-
-  if (width < MIN_SIZE || height < MIN_SIZE) {
-    return `Image is too small. Minimum size is ${MIN_SIZE}x${MIN_SIZE}. Current dimensions: ${width}x${height}`
-  }
-
-  if (width > MAX_SIZE || height > MAX_SIZE) {
-    return `Image is too large. Maximum size is ${MAX_SIZE}x${MAX_SIZE}. Current dimensions: ${width}x${height}`
-  }
-
-  return null
-}
-
 // Load image from source URL
 export function loadImageFromSource(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image()
     image.onload = () => {
-      const validationError = validateImageDimensions(image.width, image.height)
-      if (validationError) {
-        reject(new Error(validationError))
+      const validation = validateImageDimensions(image.width, image.height)
+      if (!validation.isValid) {
+        reject(new Error(validation.error || 'Image validation failed'))
       } else {
         resolve(image)
       }

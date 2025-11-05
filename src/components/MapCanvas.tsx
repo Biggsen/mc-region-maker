@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { canvasToImage, pixelToWorld, isPointInPolygon } from '../utils/coordinateUtils'
+import { SIDEBAR_WIDTH } from '../utils/constants'
 import { GridOverlay } from './GridOverlay'
 import { RegionOverlay } from './RegionOverlay'
 import { CustomMarkerOverlay } from './CustomMarkerOverlay'
@@ -384,9 +385,8 @@ export function MapCanvas({ onNavigateToRegions }: MapCanvasProps) {
     if (!canvas) return
 
     const updateCanvasSize = () => {
-      // Get the available space by subtracting the sidebar width (384px = w-96)
-      const sidebarWidth = 384
-      canvas.width = window.innerWidth - sidebarWidth
+      // Get the available space by subtracting the sidebar width
+      canvas.width = window.innerWidth - SIDEBAR_WIDTH
       canvas.height = window.innerHeight
     }
 
@@ -490,7 +490,7 @@ export function MapCanvas({ onNavigateToRegions }: MapCanvasProps) {
           onClick={() => {
             setScale(1)
             if (mapState.image) {
-              const canvasWidth = window.innerWidth - 384 // Account for sidebar
+              const canvasWidth = window.innerWidth - SIDEBAR_WIDTH // Account for sidebar
               const canvasHeight = window.innerHeight - 64 // Account for nav bar
               const centerX = (canvasWidth - mapState.image.width) / 2
               const centerY = (canvasHeight - mapState.image.height) / 2

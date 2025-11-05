@@ -9,6 +9,7 @@ import { ImageImportHandler } from './ImageImportHandler'
 import { MapLoaderControls } from './MapLoaderControls'
 import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
 import { saveActiveTab, loadActiveTab, loadImageDetails, saveImageDetails, saveExportSettings, ImageDetails } from '../utils/persistenceUtils'
+import { validateImageDimensions } from '../utils/imageValidation'
 import { Map, Edit3, Download, FolderOpen, Save, Settings } from 'lucide-react'
 import { ImportConfirmationModal } from './ImportConfirmationModal'
 import { Button } from './Button'
@@ -94,26 +95,6 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
     setShowLoadModal(false)
   }
 
-  // Helper function to validate image dimensions
-  const validateImageDimensions = (width: number, height: number): string | null => {
-    const MIN_SIZE = 250
-    const MAX_SIZE = 2000
-
-    if (width !== height) {
-      return `Image must be square (width and height must be equal). Current dimensions: ${width}x${height}`
-    }
-
-    if (width < MIN_SIZE || height < MIN_SIZE) {
-      return `Image is too small. Minimum size is ${MIN_SIZE}x${MIN_SIZE}. Current dimensions: ${width}x${height}`
-    }
-
-    if (width > MAX_SIZE || height > MAX_SIZE) {
-      return `Image is too large. Maximum size is ${MAX_SIZE}x${MAX_SIZE}. Current dimensions: ${width}x${height}`
-    }
-
-    return null
-  }
-
   const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -126,9 +107,9 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
         // New format with embedded image data
         try {
           const image = await loadImageFromBase64(importData.imageData)
-          const validationError = validateImageDimensions(image.width, image.height)
-          if (validationError) {
-            alert(validationError)
+          const validation = validateImageDimensions(image.width, image.height)
+          if (!validation.isValid) {
+            alert(validation.error)
           } else {
             mapState.setImage(image)
           }
@@ -139,9 +120,9 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
         // Legacy format with image source URL
         try {
           const image = await loadImageFromSrc(importData.mapState.imageSrc)
-          const validationError = validateImageDimensions(image.width, image.height)
-          if (validationError) {
-            alert(validationError)
+          const validation = validateImageDimensions(image.width, image.height)
+          if (!validation.isValid) {
+            alert(validation.error)
           } else {
             mapState.setImage(image)
           }

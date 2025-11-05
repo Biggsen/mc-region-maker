@@ -2,6 +2,9 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { saveImageDetails, loadImageDetails, ImageDetails } from '../utils/persistenceUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
+import { validateImageDimensions } from '../utils/imageValidation'
+import { getImageProxyUrl } from '../utils/imageUtils'
+import { SIDEBAR_WIDTH } from '../utils/constants'
 import { Button } from './Button'
 import { WorldNameHeading } from './WorldNameHeading'
 import { SeedInfoHeading } from './SeedInfoHeading'
@@ -40,26 +43,6 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
   // Helper function to calculate world size from image dimensions
   const calculateWorldSize = (width: number, height: number): number => {
     return Math.round(Math.max(width, height) / 125)
-  }
-
-  // Helper function to validate image dimensions
-  const validateImageDimensions = (width: number, height: number): string | null => {
-    const MIN_SIZE = 250
-    const MAX_SIZE = 2000
-
-    if (width !== height) {
-      return `Image must be square (width and height must be equal). Current dimensions: ${width}x${height}`
-    }
-
-    if (width < MIN_SIZE || height < MIN_SIZE) {
-      return `Image is too small. Minimum size is ${MIN_SIZE}x${MIN_SIZE}. Current dimensions: ${width}x${height}`
-    }
-
-    if (width > MAX_SIZE || height > MAX_SIZE) {
-      return `Image is too large. Maximum size is ${MAX_SIZE}x${MAX_SIZE}. Current dimensions: ${width}x${height}`
-    }
-
-    return null
   }
 
   // Initialize local state from context when load section is opened
@@ -127,22 +110,15 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     const img = new Image()
     
     // Use proxy for external URLs to avoid CORS issues
-    const isProduction = import.meta.env.PROD
-    const proxyUrl = isProduction 
-      ? '/api/proxy-image' 
-      : 'http://localhost:3002/api/proxy-image'
-    
-    const imageUrl = url.startsWith('http') && !url.includes('localhost') 
-      ? `${proxyUrl}?url=${encodeURIComponent(url)}`
-      : url
+    const imageUrl = getImageProxyUrl(url)
     
     // Set crossOrigin to anonymous to allow canvas export
     img.crossOrigin = 'anonymous'
     img.onload = () => {
       // Validate image dimensions before proceeding
-      const validationError = validateImageDimensions(img.width, img.height)
-      if (validationError) {
-        alert(validationError)
+      const validation = validateImageDimensions(img.width, img.height)
+      if (!validation.isValid) {
+        alert(validation.error)
         return
       }
       
@@ -151,7 +127,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       
       setImage(img)
       // Center the image
-      const canvasWidth = window.innerWidth - 384 // Account for sidebar (w-96 = 384px)
+      const canvasWidth = window.innerWidth - SIDEBAR_WIDTH // Account for sidebar
       const canvasHeight = window.innerHeight - 64 // Account for nav bar
       const centerX = (canvasWidth - img.width) / 2
       const centerY = (canvasHeight - img.height) / 2
@@ -296,14 +272,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       }
       
       // Use proxy for external URLs to avoid CORS issues
-      const isProduction = import.meta.env.PROD
-      const proxyUrl = isProduction 
-        ? '/api/proxy-image' 
-        : 'http://localhost:3002/api/proxy-image'
-      
-      const proxiedImageUrl = generatedImageUrl.startsWith('http') && !generatedImageUrl.includes('localhost') 
-        ? `${proxyUrl}?url=${encodeURIComponent(generatedImageUrl)}`
-        : generatedImageUrl
+      const proxiedImageUrl = getImageProxyUrl(generatedImageUrl)
       
       setPreviewImageUrl(proxiedImageUrl)
       // Calculate dimensions from world size (formula: worldSize * 125 = image size)
@@ -333,14 +302,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     try {
       // Just load to preview, not to canvas yet
       // Use proxy for external URLs to avoid CORS issues
-      const isProduction = import.meta.env.PROD
-      const proxyUrl = isProduction 
-        ? '/api/proxy-image' 
-        : 'http://localhost:3002/api/proxy-image'
-      
-      const proxiedUrl = imageUrl.trim().startsWith('http') && !imageUrl.trim().includes('localhost') 
-        ? `${proxyUrl}?url=${encodeURIComponent(imageUrl.trim())}`
-        : imageUrl.trim()
+      const proxiedUrl = getImageProxyUrl(imageUrl.trim())
       
       // Test if image loads
       const testImg = new Image()
@@ -348,9 +310,9 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       
       await new Promise((resolve, reject) => {
         testImg.onload = () => {
-          const validationError = validateImageDimensions(testImg.width, testImg.height)
-          if (validationError) {
-            reject(new Error(validationError))
+          const validation = validateImageDimensions(testImg.width, testImg.height)
+          if (!validation.isValid) {
+            reject(new Error(validation.error || 'Image validation failed'))
             return
           }
           setPreviewImageUrl(proxiedUrl)

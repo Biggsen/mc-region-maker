@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/polygonUtils'
 import { worldToPixel } from '../utils/coordinateUtils'
+import { SIDEBAR_WIDTH } from '../utils/constants'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
 import { Button } from './Button'
@@ -101,8 +102,7 @@ export function RegionPanel() {
       const centerY = (minY + maxY) / 2
 
       // Calculate available canvas space (accounting for sidebar)
-      // Canvas width is window.innerWidth - 384 (sidebar), height is window.innerHeight
-      const canvasWidth = window.innerWidth - 384 // Sidebar width
+      const canvasWidth = window.innerWidth - SIDEBAR_WIDTH // Sidebar width
       const canvasHeight = window.innerHeight // Full window height
 
       // Add padding (20% on each side)
