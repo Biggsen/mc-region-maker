@@ -7,6 +7,7 @@ import { AdvancedPanel } from './AdvancedPanel'
 import { LoadingOverlay } from './LoadingOverlay'
 import { ImageImportHandler } from './ImageImportHandler'
 import { MapLoaderControls } from './MapLoaderControls'
+import { ToastContainer } from './ToastContainer'
 import { exportCompleteMap, importMapData, loadImageFromSrc, loadImageFromBase64 } from '../utils/exportUtils'
 import { saveActiveTab, loadActiveTab, loadImageDetails, saveImageDetails, saveExportSettings, ImageDetails } from '../utils/persistenceUtils'
 import { validateImageDimensions } from '../utils/imageValidation'
@@ -18,7 +19,7 @@ import { useDataChanged } from '../hooks/useDataChanged'
 type TabType = 'map' | 'regions' | 'export' | 'advanced'
 
 function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabChange: (tab: TabType) => void }) {
-  const { regions, mapState, worldName, spawn, worldType, seedInfo } = useAppContext()
+  const { regions, mapState, worldName, spawn, worldType, seedInfo, toast } = useAppContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showLoadModal, setShowLoadModal] = useState(false)
   
@@ -60,7 +61,8 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
       seedInfo.seedInfo.seed,
       seedInfo.seedInfo.dimension,
       imageDetails?.worldSize,
-      imageDetails?.imageSize
+      imageDetails?.imageSize,
+      toast.showToast
     )
     markAsSaved()
   }
@@ -109,7 +111,7 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
           const image = await loadImageFromBase64(importData.imageData)
           const validation = validateImageDimensions(image.width, image.height)
           if (!validation.isValid) {
-            alert(validation.error)
+            toast.showToast(validation.error || 'Image validation failed', 'error')
           } else {
             mapState.setImage(image)
           }
@@ -122,7 +124,7 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
           const image = await loadImageFromSrc(importData.mapState.imageSrc)
           const validation = validateImageDimensions(image.width, image.height)
           if (!validation.isValid) {
-            alert(validation.error)
+            toast.showToast(validation.error || 'Image validation failed', 'error')
           } else {
             mapState.setImage(image)
           }
@@ -199,8 +201,9 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
 
       // Mark as saved since we just loaded from a saved file
       markAsSaved()
+      toast.showToast('Project file loaded successfully', 'success')
     } catch (error) {
-      alert('Failed to load project file. Please make sure it\'s a valid project file.')
+      toast.showToast('Failed to load project file. Please make sure it\'s a valid project file.', 'error')
       console.error('Import error:', error)
     }
   }
@@ -287,6 +290,7 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
 
 // Component to handle image import within AppProvider context
 function MainAppContent() {
+  const { toast } = useAppContext()
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabType>(loadActiveTab())
   const [showImportModal, setShowImportModal] = useState(false)
@@ -355,6 +359,8 @@ function MainAppContent() {
         </div>
         
         {isLoading && <LoadingOverlay />}
+        
+        <ToastContainer toasts={toast.toasts} onDismiss={toast.dismissToast} />
         
         <ImportConfirmationModal
           isOpen={showImportModal}

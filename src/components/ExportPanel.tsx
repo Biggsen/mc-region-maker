@@ -6,7 +6,7 @@ import { BaseModal } from './BaseModal'
 import { Button } from './Button'
 
 export function ExportPanel() {
-  const { regions, spawn, worldType } = useAppContext()
+  const { regions, spawn, worldType, toast } = useAppContext()
   const [includeVillages, setIncludeVillages] = useState(false)
   const [randomMobSpawn, setRandomMobSpawn] = useState(false)
   const [includeHeartRegions, setIncludeHeartRegions] = useState(false)
@@ -68,7 +68,7 @@ export function ExportPanel() {
     } : null
     // Force spawn region to false for nether since it doesn't exist
     const finalIncludeSpawnRegion = worldType.worldType === 'nether' ? false : includeSpawnRegion
-    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, finalIncludeSpawnRegion, spawnData, worldType.worldType, useModernWorldHeight, useGreetingsAndFarewells, greetingSize, includeChallengeLevelSubheading)
+    exportRegionsYAML(regions.regions, includeVillages, randomMobSpawn, includeHeartRegions, finalIncludeSpawnRegion, spawnData, worldType.worldType, useModernWorldHeight, useGreetingsAndFarewells, greetingSize, includeChallengeLevelSubheading, toast.showToast)
   }
 
   const computedHasVillages = regions.regions.some(region => region.subregions && region.subregions.length > 0)

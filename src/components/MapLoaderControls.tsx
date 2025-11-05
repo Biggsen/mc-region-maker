@@ -16,7 +16,7 @@ interface MapLoaderControlsProps {
 }
 
 export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControlsProps) {
-  const { mapState, regions, seedInfo, worldName } = useAppContext()
+  const { mapState, regions, seedInfo, worldName, toast } = useAppContext()
   const [imageUrl, setImageUrl] = useState('')
   const [worldSize, setWorldSize] = useState(8)
   const [isLoading, setIsLoading] = useState(false)
@@ -118,7 +118,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
       // Validate image dimensions before proceeding
       const validation = validateImageDimensions(img.width, img.height)
       if (!validation.isValid) {
-        alert(validation.error)
+        toast.showToast(validation.error || 'Image validation failed', 'error')
         return
       }
       
@@ -167,7 +167,7 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
     }
     img.onerror = (error) => {
       console.error('Failed to load image:', error)
-      alert('Failed to load image from URL. Please check the URL and try again.')
+      toast.showToast('Failed to load image from URL. Please check the URL and try again.', 'error')
     }
     img.src = imageUrl
   }, [setImage, setOffset, mapState, seedInfo, importSeed, importDimension])

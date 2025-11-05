@@ -10,7 +10,7 @@ import { DeleteRegionModal } from './DeleteRegionModal'
 import { Trash2, Search, LineSquiggle, ArrowUp, ArrowDown, ZoomIn } from 'lucide-react'
 
 export function RegionPanel() {
-  const { regions, worldType, mapState: mapStateHook } = useAppContext()
+  const { regions, worldType, mapState: mapStateHook, toast } = useAppContext()
   const {
     regions: regionsList,
     selectedRegionId,
@@ -58,9 +58,10 @@ export function RegionPanel() {
     const yaml = getRegionYAML(regionId)
     try {
       await copyToClipboard(yaml)
-      alert('YAML copied to clipboard!')
+      toast.showToast('YAML copied to clipboard!', 'success')
     } catch (error) {
       console.error('Failed to copy to clipboard:', error)
+      toast.showToast('Failed to copy YAML to clipboard', 'error')
     }
   }
 
@@ -68,7 +69,7 @@ export function RegionPanel() {
   const handleZoomToRegion = (region: { id: string; name: string; points: { x: number; z: number }[] }) => {
     if (!mapState.image) {
       console.warn('Cannot zoom: No image loaded')
-      alert('Cannot zoom to region: No map image is loaded. Please load a map image first from the Map tab.')
+      toast.showToast('Cannot zoom to region: No map image is loaded. Please load a map image first from the Map tab.', 'error')
       return
     }
 

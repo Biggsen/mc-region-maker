@@ -10,7 +10,7 @@ import { Trash2 } from 'lucide-react'
 import { ClearDataModal } from './ClearDataModal'
 
 export function AdvancedPanel() {
-  const { regions, worldType, mapCanvas } = useAppContext()
+  const { regions, worldType, mapCanvas, toast, worldName, spawn } = useAppContext()
   const villageFileInputRef = useRef<HTMLInputElement>(null)
   const importFileInputRef = useRef<HTMLInputElement>(null)
   const [isImportingVillages, setIsImportingVillages] = useState(false)
@@ -29,15 +29,15 @@ export function AdvancedPanel() {
   const [showClearDataModal, setShowClearDataModal] = useState(false)
 
   const handleGenerateAchievements = () => {
-    generateAchievementsYAML(regions.regions, worldType.worldType)
+    generateAchievementsYAML(regions.regions, worldType.worldType, toast.showToast)
   }
 
   const handleGenerateEventConditions = () => {
-    generateEventConditionsYAML(regions.regions, worldType.worldType)
+    generateEventConditionsYAML(regions.regions, worldType.worldType, toast.showToast)
   }
 
   const handleGenerateLevelledMobsRules = () => {
-    generateLevelledMobsRulesYAML(regions.regions, worldType.worldType)
+    generateLevelledMobsRulesYAML(regions.regions, worldName.worldName, spawn.spawnState.coordinates, worldType.worldType, toast.showToast)
   }
 
   const handleRandomizeChallengeLevels = () => {

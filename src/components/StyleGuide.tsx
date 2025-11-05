@@ -1,5 +1,7 @@
 import { Button } from './Button'
-import { Download, Save, ArrowRight, Settings } from 'lucide-react'
+import { ToastContainer } from './ToastContainer'
+import { useToast } from '../hooks/useToast'
+import { Download, Save, ArrowRight, Settings, X } from 'lucide-react'
 
 interface ColorSwatch {
   name: string
@@ -33,8 +35,11 @@ const colors: ColorSwatch[] = [
 ]
 
 export function StyleGuide() {
+  const toast = useToast()
+
   return (
     <div className="min-h-screen bg-night text-white p-8">
+      <ToastContainer toasts={toast.toasts} onDismiss={toast.dismissToast} />
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 text-white">Region Forge Style Guide</h1>
         
@@ -175,6 +180,77 @@ export function StyleGuide() {
             <div>
               <p className="text-xs text-gray-500 mb-2">Small Text</p>
               <p className="text-gray-400 text-sm">12px / Regular / Gray-500</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-6 text-lapis-lazuli">Toast Notifications</h2>
+          <div className="bg-eerie-back border border-gunmetal rounded-lg p-6 space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold mb-4 text-white">Toast Types</h3>
+              <p className="text-sm text-gray-400 mb-4">
+                Click the buttons below to see toast notifications appear in the top-right corner.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button 
+                  variant="primary" 
+                  onClick={() => toast.showToast('Operation completed successfully!', 'success')}
+                >
+                  Show Success Toast
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => toast.showToast('Something went wrong. Please try again.', 'error')}
+                >
+                  Show Error Toast
+                </Button>
+                <Button 
+                  variant="secondary-outline" 
+                  onClick={() => toast.showToast('Warning: This action may have consequences.', 'warning')}
+                >
+                  Show Warning Toast
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => toast.showToast('Here is some helpful information.', 'info')}
+                >
+                  Show Info Toast
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold mb-4 text-white">Toast Examples</h3>
+              <div className="space-y-3">
+                <div className="bg-green-600 text-white p-4 rounded-lg shadow-lg flex items-start justify-between gap-3">
+                  <p className="flex-1 text-sm">YAML copied to clipboard!</p>
+                  <button className="flex-shrink-0 hover:opacity-70 transition-opacity">
+                    <X size={18} />
+                  </button>
+                </div>
+                <div className="bg-red-600 text-white p-4 rounded-lg shadow-lg flex items-start justify-between gap-3">
+                  <p className="flex-1 text-sm">Failed to load image from URL. Please check the URL and try again.</p>
+                  <button className="flex-shrink-0 hover:opacity-70 transition-opacity">
+                    <X size={18} />
+                  </button>
+                </div>
+                <div className="bg-yellow-600 text-white p-4 rounded-lg shadow-lg flex items-start justify-between gap-3">
+                  <p className="flex-1 text-sm">Image validation failed. Minimum size is 250x250.</p>
+                  <button className="flex-shrink-0 hover:opacity-70 transition-opacity">
+                    <X size={18} />
+                  </button>
+                </div>
+                <div className="bg-blue-600 text-white p-4 rounded-lg shadow-lg flex items-start justify-between gap-3">
+                  <p className="flex-1 text-sm">Generated 12 achievements</p>
+                  <button className="flex-shrink-0 hover:opacity-70 transition-opacity">
+                    <X size={18} />
+                  </button>
+                </div>
+              </div>
+              <p className="text-sm text-gray-400 mt-4">
+                Toasts auto-dismiss after 3 seconds (5 seconds for errors). Click the X button to dismiss manually.
+              </p>
             </div>
           </div>
         </section>

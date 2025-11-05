@@ -7,7 +7,7 @@ import { getImageProxyUrl } from '../utils/imageUtils'
 
 export function ImageImportHandler() {
   const location = useLocation()
-  const { mapState, regions, worldName, spawn, seedInfo } = useAppContext()
+  const { mapState, regions, worldName, spawn, seedInfo, toast } = useAppContext()
   const hasProcessedRef = useRef(false)
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export function ImageImportHandler() {
         // Validate image dimensions before proceeding
         const validation = validateImageDimensions(img.width, img.height)
         if (!validation.isValid) {
-          alert(validation.error)
+          toast.showToast(validation.error || 'Image validation failed', 'error')
           return
         }
         
@@ -93,7 +93,7 @@ export function ImageImportHandler() {
           return
         }
         
-        alert(`Failed to load image. Make sure the API server is running and accessible.`)
+        toast.showToast('Failed to load image. Make sure the API server is running and accessible.', 'error')
       }
       
       img.src = proxiedImageUrl

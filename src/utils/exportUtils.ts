@@ -24,9 +24,20 @@ const CURRENT_VERSION = '1.0.0'
 
 
 // Export complete map with embedded image data
-export async function exportCompleteMap(regions: Region[], mapState: MapState, worldName: string, spawnCoordinates?: { x: number; z: number; radius?: number } | null, worldType?: 'overworld' | 'nether', seed?: string, dimension?: string, worldSize?: number, imageSize?: { width: number; height: number }): Promise<void> {
+export async function exportCompleteMap(
+  regions: Region[], 
+  mapState: MapState, 
+  worldName: string, 
+  spawnCoordinates?: { x: number; z: number; radius?: number } | null, 
+  worldType?: 'overworld' | 'nether', 
+  seed?: string, 
+  dimension?: string, 
+  worldSize?: number, 
+  imageSize?: { width: number; height: number },
+  onShowToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void
+): Promise<void> {
   if (!mapState.image) {
-    alert('No map image loaded. Please load an image first.')
+    onShowToast('No map image loaded. Please load an image first.', 'error')
     return
   }
 
@@ -102,9 +113,11 @@ export async function exportCompleteMap(regions: Region[], mapState: MapState, w
     link.click()
     
     URL.revokeObjectURL(link.href)
+    
+    onShowToast('Map exported successfully!', 'success')
   } catch (error) {
     console.error('Error exporting complete map:', error)
-    alert('Failed to export complete map. Please try again.')
+    onShowToast('Failed to export complete map. Please try again.', 'error')
   }
 }
 
@@ -120,10 +133,11 @@ export function exportRegionsYAML(
   useModernWorldHeight: boolean = true,
   useGreetingsAndFarewells: boolean = false,
   greetingSize: 'large' | 'small' = 'large',
-  includeChallengeLevelSubheading: boolean = false
+  includeChallengeLevelSubheading: boolean = false,
+  onShowToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void
 ): void {
   if (regions.length === 0 && (!includeSpawnRegion || worldType === 'nether')) {
-    alert('No regions to export')
+    onShowToast('No regions to export', 'error')
     return
   }
 
@@ -189,9 +203,9 @@ function generateSpawnRegionYAML(spawnCoordinates: { x: number; z: number; radiu
 }
 
 // Generate achievements YAML for regions and villages
-export function generateAchievementsYAML(regions: Region[], worldType?: 'overworld' | 'nether'): void {
+export function generateAchievementsYAML(regions: Region[], worldType?: 'overworld' | 'nether', onShowToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void): void {
   if (regions.length === 0) {
-    alert('No regions to generate achievements for')
+    onShowToast('No regions to generate achievements for', 'error')
     return
   }
 
@@ -264,13 +278,13 @@ export function generateAchievementsYAML(regions: Region[], worldType?: 'overwor
   
   URL.revokeObjectURL(link.href)
   
-  alert(`Generated ${achievementCount} achievements`)
+  onShowToast(`Generated ${achievementCount} achievements`, 'success')
 }
 
 // Generate event conditions YAML for regions and villages
-export function generateEventConditionsYAML(regions: Region[], worldType?: 'overworld' | 'nether'): void {
+export function generateEventConditionsYAML(regions: Region[], worldType?: 'overworld' | 'nether', onShowToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void): void {
   if (regions.length === 0) {
-    alert('No regions to generate event conditions for')
+    onShowToast('No regions to generate event conditions for', 'error')
     return
   }
 
@@ -344,7 +358,7 @@ export function generateEventConditionsYAML(regions: Region[], worldType?: 'over
   
   URL.revokeObjectURL(link.href)
   
-  alert(`Generated ${eventCount} event conditions`)
+  onShowToast(`Generated ${eventCount} event conditions`, 'success')
 }
 
 // Import map data from JSON file
@@ -407,10 +421,12 @@ export function loadImageFromSrc(src: string): Promise<HTMLImageElement> {
 export function generateLevelledMobsRulesYAML(
   regions: Region[], 
   worldName: string,
-  spawnCoordinates?: { x: number; z: number; radius?: number } | null
+  spawnCoordinates?: { x: number; z: number; radius?: number } | null,
+  worldType?: 'overworld' | 'nether',
+  onShowToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void
 ): void {
   if (regions.length === 0 && !spawnCoordinates) {
-    alert('No regions or spawn to generate LevelledMobs rules for')
+    onShowToast('No regions or spawn to generate LevelledMobs rules for', 'error')
     return
   }
 
@@ -502,7 +518,7 @@ export function generateLevelledMobsRulesYAML(
   
   URL.revokeObjectURL(link.href)
   
-  alert(`Generated ${ruleCount} LevelledMobs rules`)
+  onShowToast(`Generated ${ruleCount} LevelledMobs rules`, 'success')
 }
 
 // Validate imported data structure
