@@ -519,6 +519,9 @@ export function MapLoaderControls({ onShowImportConfirmation }: MapLoaderControl
               className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none text-sm placeholder:text-gray-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={isLoading || isLoadingUrl}
             />
+            <p className="text-xs text-gray-500">
+              Image must be square and between 250x250 and 2000x2000 pixels. World size is calculated as image size ÷ 125 (e.g., 1000x1000 = 8k world).
+            </p>
             {urlError && (
               <div className="p-2 bg-red-900 border border-red-700 rounded text-red-300 text-sm">
                 {urlError}

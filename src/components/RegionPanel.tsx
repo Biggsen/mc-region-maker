@@ -155,6 +155,7 @@ export function RegionPanel() {
                 }}
                 onCancelDrawing={() => regions.cancelDrawingRegion()}
                 isDrawing={!!drawingRegion}
+                hasMap={!!mapState.image}
               />
             </div>
           )}

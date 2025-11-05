@@ -9,6 +9,7 @@ interface RegionCreationFormProps {
   onCancelDrawing: () => void
   isDrawing: boolean
   existingRegions: Region[]
+  hasMap: boolean
 }
 
 export function RegionCreationForm({ 
@@ -16,7 +17,8 @@ export function RegionCreationForm({
   onStartDrawing,
   onCancelDrawing,
   isDrawing,
-  existingRegions
+  existingRegions,
+  hasMap
 }: RegionCreationFormProps) {
   const [newRegionName, setNewRegionName] = useState('')
   const [showNewRegionForm, setShowNewRegionForm] = useState(false)
@@ -66,13 +68,22 @@ export function RegionCreationForm({
   return (
     <div className="space-y-2">
       {!showNewRegionForm && !isDrawing ? (
-        <Button
-          variant="primary"
-          onClick={() => setShowNewRegionForm(true)}
-          className="w-full"
-        >
-          Create New Region
-        </Button>
+        <>
+          {!hasMap && (
+            <p className="text-sm text-gray-400 mb-2">
+              To create regions, you need to import a map first.
+            </p>
+          )}
+          <Button
+            variant="primary"
+            onClick={() => setShowNewRegionForm(true)}
+            className="w-full"
+            disabled={!hasMap}
+            title={!hasMap ? 'Please import a map first from the Map tab' : undefined}
+          >
+            Create New Region
+          </Button>
+        </>
       ) : null}
       
       {showNewRegionForm && (
