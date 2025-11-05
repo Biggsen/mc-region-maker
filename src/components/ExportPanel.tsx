@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { exportRegionsYAML } from '../utils/exportUtils'
 import { loadExportSettings, saveExportSettings } from '../utils/persistenceUtils'
@@ -33,6 +33,44 @@ export function ExportPanel() {
     }
     setIsInitialized(true)
   }, [])
+
+  // Load saved export settings when they're updated externally (e.g., from project load)
+  const loadSettings = useCallback(() => {
+    const savedSettings = loadExportSettings()
+    if (savedSettings) {
+      setIncludeVillages(savedSettings.includeVillages)
+      setRandomMobSpawn(savedSettings.randomMobSpawn)
+      setIncludeHeartRegions(savedSettings.includeHeartRegions)
+      setIncludeSpawnRegion(savedSettings.includeSpawnRegion)
+      setUseModernWorldHeight(savedSettings.useModernWorldHeight)
+      setUseGreetingsAndFarewells(savedSettings.useGreetingsAndFarewells)
+      setGreetingSize(savedSettings.greetingSize)
+      setIncludeChallengeLevelSubheading(savedSettings.includeChallengeLevelSubheading)
+    }
+  }, [])
+
+  // Listen for export settings updates (from project load or other sources)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'mc-region-maker-export-settings') {
+        loadSettings()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Also listen for custom events for same-tab updates
+    const handleExportSettingsUpdate = () => {
+      loadSettings()
+    }
+    
+    window.addEventListener('exportSettingsUpdated', handleExportSettingsUpdate)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('exportSettingsUpdated', handleExportSettingsUpdate)
+    }
+  }, [loadSettings])
 
   // Save export settings whenever they change (but not during initial load)
   useEffect(() => {

@@ -114,7 +114,8 @@ export async function exportCompleteMap(
     
     URL.revokeObjectURL(link.href)
     
-    onShowToast('Map exported successfully!', 'success')
+    // No toast - the browser's download dialog provides the necessary feedback
+    // We can't detect if the user actually saved or canceled the download
   } catch (error) {
     console.error('Error exporting complete map:', error)
     onShowToast('Failed to export complete map. Please try again.', 'error')

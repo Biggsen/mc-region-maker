@@ -192,6 +192,8 @@ function TabNavigation({ activeTab, onTabChange }: { activeTab: TabType; onTabCh
       // Restore export settings if they exist in import data
       if (importData.exportSettings) {
         saveExportSettings(importData.exportSettings)
+        // Dispatch custom event to notify ExportPanel to reload settings
+        window.dispatchEvent(new Event('exportSettingsUpdated'))
       }
 
       // Clear the file input
