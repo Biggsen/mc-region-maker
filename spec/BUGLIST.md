@@ -22,6 +22,26 @@
 
 ---
 
+### World Size Slider for Nether and End Dimensions
+**Priority:** Medium  
+**Status:** Open
+
+**Description:** The Nether and End dimensions should have world size slider controls, similar to the Overworld dimension.
+
+**Issue:**
+- Currently, world size slider may only be available for Overworld dimension
+- Nether and End dimensions should also allow users to adjust world size independently
+
+**Affected Components:**
+- World size controls (likely `WorldSizeHeading.tsx` or related components)
+- Dimension selection/world type management (likely `useWorldType.ts` or related hooks)
+
+**Expected Behavior:**
+- World size slider should be available and functional for all dimensions (Overworld, Nether, End)
+- Each dimension should maintain its own world size setting if applicable
+
+---
+
 ## Resolved Issues
 
 ### Image Validation
