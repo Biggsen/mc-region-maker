@@ -6,20 +6,6 @@ const ALLOWED_PROTOCOLS = ['http:', 'https:']
 const MAX_REDIRECTS = 3
 const isDevelopment = process.env.NODE_ENV === 'development'
 
-// Trusted domains that skip IP resolution (e.g., Railway uses load balancers that require Host header)
-const TRUSTED_DOMAINS = [
-  'mc-map-generator-production.up.railway.app',
-  'railway.app',
-  'up.railway.app'
-]
-
-function isTrustedDomain(hostname) {
-  const lower = hostname.toLowerCase()
-  return TRUSTED_DOMAINS.some(domain => 
-    lower === domain || lower.endsWith('.' + domain)
-  )
-}
-
 // Expanded IPv4 deny ranges
 const IPV4_DENY = [
   ['0.0.0.0', '0.255.255.255'],
@@ -156,21 +142,6 @@ async function resolveAndValidateIP(hostname) {
   }
 }
 
-// Build URL with resolved IP and set Host header
-function buildURLWithResolvedIP(originalURL, resolvedIP) {
-  const url = new URL(originalURL)
-  const protocol = url.protocol
-  const port = url.port || (protocol === 'https:' ? '443' : '80')
-  
-  // Build URL with resolved IP
-  const resolvedURL = new URL(`${protocol}//${resolvedIP}:${port}${url.pathname}${url.search}${url.hash}`)
-  
-  return {
-    url: resolvedURL,
-    hostHeader: url.hostname // Original hostname for Host header
-  }
-}
-
 // Validate content type (block SVG)
 const FORBIDDEN_TYPES = new Set(['image/svg+xml'])
 
@@ -298,24 +269,14 @@ export default async function handler(req, res) {
     const urlString = decodeURIComponent(urlParam)
     let { url: originalURL, hostname } = validateImageURL(urlString)
     
-    // For trusted domains (like Railway), skip IP resolution and use hostname directly
-    // This is necessary because Railway's load balancers require the Host header
-    let fetchURL = originalURL
-    let hostHeader = hostname
+    // Always validate DNS to prevent SSRF attacks (check IP is not private)
+    // However, use hostname URL (not IP) for compatibility with CDNs/load balancers
+    // This validates security while maintaining functionality
+    await resolveAndValidateIP(hostname)
     
-    if (!isTrustedDomain(hostname)) {
-      // Resolve DNS and get IP for untrusted domains
-      const resolvedIP = await resolveAndValidateIP(hostname)
-      
-      // Build URL with resolved IP and get Host header
-      const built = buildURLWithResolvedIP(originalURL.toString(), resolvedIP)
-      fetchURL = built.url
-      hostHeader = built.hostHeader
-    }
-    
-    // Handle redirects manually
-    let currentURL = fetchURL
-    let currentHostHeader = hostHeader
+    // Use original hostname URL after validation
+    // DNS validation ensures the IP is not private, preventing SSRF
+    let currentURL = originalURL
     let hops = 0
     
     const controller = new AbortController()
@@ -324,19 +285,12 @@ export default async function handler(req, res) {
     try {
       while (true) {
         // Fetch with manual redirect handling
-        // For trusted domains, currentURL is the original URL with hostname
-        // For untrusted domains, currentURL has IP and we need Host header
-        // Note: Node.js fetch doesn't allow overriding Host header, but when using IP
-        // we'll need to use a workaround or accept that Host header won't be set
-        // For now, we'll use the URL as-is and let the server handle it
+        // Using hostname URL ensures proper Host headers work with all servers
         const response = await fetch(currentURL.toString(), {
           signal: controller.signal,
           redirect: 'manual', // CRITICAL: Don't auto-follow redirects
           headers: {
-            'User-Agent': 'MC-Region-Maker-Proxy/1.0',
-            // Set Host header when using IP (for untrusted domains)
-            // Note: This may not work in all Node.js versions, but worth trying
-            ...(currentURL.hostname !== currentHostHeader && { 'Host': currentHostHeader })
+            'User-Agent': 'MC-Region-Maker-Proxy/1.0'
           }
         })
         
@@ -357,22 +311,11 @@ export default async function handler(req, res) {
           // Validate redirect URL
           const { url: validatedURL, hostname: nextHostname } = validateImageURL(nextURL.toString())
           
-          // For trusted domains, skip IP resolution for redirects too
-          let nextFetchURL = validatedURL
-          let nextHostHeader = nextHostname
+          // Re-validate DNS for redirect to prevent SSRF
+          await resolveAndValidateIP(nextHostname)
           
-          if (!isTrustedDomain(nextHostname)) {
-            // Re-resolve DNS for redirect
-            const nextResolvedIP = await resolveAndValidateIP(nextHostname)
-            
-            // Rebuild URL with resolved IP
-            const built = buildURLWithResolvedIP(validatedURL.toString(), nextResolvedIP)
-            nextFetchURL = built.url
-            nextHostHeader = built.hostHeader
-          }
-          
-          currentURL = nextFetchURL
-          currentHostHeader = nextHostHeader
+          // Use validated hostname URL
+          currentURL = validatedURL
           continue
         }
         

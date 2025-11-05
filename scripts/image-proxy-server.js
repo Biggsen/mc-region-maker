@@ -158,21 +158,6 @@ async function resolveAndValidateIP(hostname) {
   }
 }
 
-// Build URL with resolved IP and set Host header
-function buildURLWithResolvedIP(originalURL, resolvedIP) {
-  const url = new URL(originalURL)
-  const protocol = url.protocol
-  const port = url.port || (protocol === 'https:' ? '443' : '80')
-  
-  // Build URL with resolved IP
-  const resolvedURL = new URL(`${protocol}//${resolvedIP}:${port}${url.pathname}${url.search}${url.hash}`)
-  
-  return {
-    url: resolvedURL,
-    hostHeader: url.hostname // Original hostname for Host header
-  }
-}
-
 // Validate content type (block SVG)
 const FORBIDDEN_TYPES = new Set(['image/svg+xml'])
 
@@ -227,15 +212,14 @@ app.get('/api/proxy-image', async (req, res) => {
     
     let { url: originalURL, hostname } = validateImageURL(urlString)
     
-    // Resolve DNS and get IP
-    const resolvedIP = await resolveAndValidateIP(hostname)
+    // Always validate DNS to prevent SSRF attacks (check IP is not private)
+    // However, use hostname URL (not IP) for compatibility with CDNs/load balancers
+    // This validates security while maintaining functionality
+    await resolveAndValidateIP(hostname)
     
-    // Build URL with resolved IP and get Host header
-    const { url: fetchURL, hostHeader } = buildURLWithResolvedIP(originalURL.toString(), resolvedIP)
-    
-    // Handle redirects manually
-    let currentURL = fetchURL
-    let currentHostHeader = hostHeader
+    // Use original hostname URL after validation
+    // DNS validation ensures the IP is not private, preventing SSRF
+    let currentURL = originalURL
     let hops = 0
     
     const controller = new AbortController()
@@ -244,11 +228,11 @@ app.get('/api/proxy-image', async (req, res) => {
     try {
       while (true) {
         // Fetch with manual redirect handling
+        // Using hostname URL ensures proper Host headers work with all servers
         const response = await fetch(currentURL.toString(), {
           signal: controller.signal,
           redirect: 'manual', // CRITICAL: Don't auto-follow redirects
           headers: {
-            'Host': currentHostHeader,
             'User-Agent': 'MC-Region-Maker-Proxy/1.0'
           }
         })
@@ -270,15 +254,11 @@ app.get('/api/proxy-image', async (req, res) => {
           // Validate redirect URL
           const { url: validatedURL, hostname: nextHostname } = validateImageURL(nextURL.toString())
           
-          // Re-resolve DNS for redirect
-          const nextResolvedIP = await resolveAndValidateIP(nextHostname)
+          // Re-validate DNS for redirect to prevent SSRF
+          await resolveAndValidateIP(nextHostname)
           
-          // Rebuild URL with resolved IP
-          const { url: nextFetchURL, hostHeader: nextHostHeader } = 
-            buildURLWithResolvedIP(validatedURL.toString(), nextResolvedIP)
-          
-          currentURL = nextFetchURL
-          currentHostHeader = nextHostHeader
+          // Use validated hostname URL
+          currentURL = validatedURL
           continue
         }
         

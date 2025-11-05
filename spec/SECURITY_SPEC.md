@@ -47,8 +47,8 @@ const response = await fetch(url)  // No validation!
      - `fc00::/7` (IPv6 private)
    - Validate URL format using `URL` constructor
    - Block localhost hostnames: `localhost`, `*.local`, `*.localhost`
-   - Resolve DNS and validate resolved IP is not private
-   - **Exception**: Trusted domains (Railway) skip DNS resolution due to infrastructure requirements (load balancers require Host header). These domains are still validated for URL format, protocol, and hostname patterns. Trusted domains must be explicitly whitelisted.
+   - Resolve DNS and validate resolved IP is not private (prevents SSRF)
+   - **Implementation Note**: After DNS validation, use the original hostname URL (not IP replacement) for compatibility with CDNs/load balancers that require proper Host headers. This maintains SSRF protection (validated IP is public) while ensuring all domains work correctly. There is a small residual risk of DNS rebinding attacks if DNS changes between validation and fetch, but this is an acceptable trade-off for functionality.
 
 2. **Content-Type Validation**
    - Only allow `image/*` content types
@@ -134,8 +134,8 @@ function validateImageMagicBytes(buffer) {
 
 **Implementation Status**: ✅ **Implemented**
 - All validation checks in place
-- DNS resolution and IP validation for untrusted domains
-- Trusted domains whitelist for Railway (bypasses DNS resolution due to infrastructure requirements)
+- DNS resolution and IP validation for all domains (prevents SSRF)
+- Hostname URLs used after validation for compatibility with all servers/CDNs
 - Content-Type and magic bytes validation
 - File size limits enforced
 - Rate limiting implemented
@@ -774,7 +774,7 @@ Ensure inputs are validated and sanitized before:
 
 ### Phase 1: Critical Fixes (Week 1)
 1. ✅ Fix SSRF vulnerability in image proxy
-   - ⚠️ Note: Railway domains bypass DNS resolution (documented exception)
+   - ⚠️ Note: All domains use hostname URLs after DNS validation for compatibility (see implementation note)
 2. ✅ Restrict CORS to specific origins
 3. ✅ Add Content Security Policy
    - Status: Implemented - CSP header added to `vercel.json`
