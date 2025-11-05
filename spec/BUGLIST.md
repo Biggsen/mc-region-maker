@@ -2,7 +2,23 @@
 
 ## Open Issues
 
-(No open issues)
+### Region Creation Without Map Import
+**Priority:** High  
+**Status:** Open
+
+**Description:** Users can start creating a region even when no map has been imported, which should be prevented.
+
+**Issue:**
+- Region creation should be disabled or blocked until a map is loaded
+- Currently allows users to attempt region creation without a map context
+
+**Affected Components:**
+- Region creation functionality (likely `RegionCreationForm.tsx` or related components)
+- Map state management (likely `useMapState.ts` or `AppContext.tsx`)
+
+**Expected Behavior:**
+- Region creation UI should be disabled/grayed out when no map is loaded
+- Or show a clear message prompting user to import a map first
 
 ---
 
