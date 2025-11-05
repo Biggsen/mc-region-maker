@@ -335,16 +335,24 @@ export function MapCanvas({ onNavigateToRegions }: MapCanvasProps) {
     handleMouseMove(x, y)
   }, [mapState.image, mapState.originSelected, mapState.scale, mapState.offsetX, mapState.offsetY, mapState.originOffset, handleMouseMove, isMovingRegion, isMouseDown, updateMoveRegion, isWarping, regions.selectedRegionId, isSpacePressed, editMode.isEditing, warpRegion, warpRadius, warpStrength, regions.freehandEnabled, drawingRegion, addPointToDrawing])
 
-  const onWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
-    e.preventDefault()
+  // Add wheel event listener with passive: false to allow preventDefault
+  useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const rect = canvas.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const handleWheelEvent = (e: WheelEvent) => {
+      e.preventDefault()
+      const rect = canvas.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      handleWheel(e.deltaY, x, y)
+    }
 
-    handleWheel(e.deltaY, x, y)
+    canvas.addEventListener('wheel', handleWheelEvent, { passive: false })
+
+    return () => {
+      canvas.removeEventListener('wheel', handleWheelEvent)
+    }
   }, [handleWheel])
 
   // Edit mode handlers
@@ -505,7 +513,6 @@ export function MapCanvas({ onNavigateToRegions }: MapCanvasProps) {
         onMouseMove={onMouseMove}
         onMouseEnter={() => setIsMouseOverCanvas(true)}
         onMouseLeave={() => setIsMouseOverCanvas(false)}
-        onWheel={onWheel}
         onDoubleClick={handleDoubleClick}
       />
       
