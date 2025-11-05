@@ -214,17 +214,20 @@ if (isOriginAllowed(origin)) {
 2. **CSP Policy Specification**:
 ```
 default-src 'self';
-script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live;  # unsafe-eval needed for Vite dev
+script-src 'self' https://vercel.live https://www.googletagmanager.com;
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
 font-src 'self' https://fonts.gstatic.com;
 img-src 'self' data: blob: https: http:;  # Allow images from proxy
-connect-src 'self' https://mc-map-generator-production.up.railway.app https: http:;
+connect-src 'self' https://mc-map-generator-production.up.railway.app https://www.google-analytics.com https://www.googletagmanager.com https: http:;
 frame-ancestors 'none';
 base-uri 'self';
 form-action 'self';
 ```
 
-**Note**: `unsafe-eval` and `unsafe-inline` are required for Vite development but should be removed in production builds.
+**Note**: 
+- `unsafe-inline` is required for Vite development and inline styles. `unsafe-eval` is not needed for production builds.
+- Google Analytics (`www.googletagmanager.com`, `www.google-analytics.com`) is included for analytics tracking.
+- Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`) is included for font loading.
 
 **Implementation**: Add to `vercel.json`:
 ```json
@@ -235,13 +238,20 @@ form-action 'self';
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://mc-map-generator-production.up.railway.app https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+          "value": "default-src 'self'; script-src 'self' https://vercel.live https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://mc-map-generator-production.up.railway.app https://www.google-analytics.com https://www.googletagmanager.com https: http:; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
         }
       ]
     }
   ]
 }
 ```
+
+**Resources whitelisted:**
+- Scripts: `'self'`, `https://vercel.live`, `https://www.googletagmanager.com` (Google Analytics)
+- Styles: `'self'`, `'unsafe-inline'`, `https://fonts.googleapis.com` (Google Fonts CSS)
+- Fonts: `'self'`, `https://fonts.gstatic.com` (Google Fonts files)
+- Images: `'self'`, `data:`, `blob:`, `https:`, `http:` (allows image proxy)
+- Connections: `'self'`, Railway API, Google Analytics domains, `https:`, `http:`
 
 **Priority**: CRITICAL  
 **Estimated Effort**: 2 hours  
@@ -767,22 +777,38 @@ Ensure inputs are validated and sanitized before:
    - ⚠️ Note: Railway domains bypass DNS resolution (documented exception)
 2. ✅ Restrict CORS to specific origins
 3. ✅ Add Content Security Policy
+   - Status: Implemented - CSP header added to `vercel.json`
+   - Includes Google Analytics and Google Fonts domains
 4. ✅ Sanitize error messages
 
 ### Phase 2: High Priority (Week 2)
-5. ✅ Add file upload validation
+5. ⚠️ Add file upload validation
+   - Status: Partially implemented - Image dimension validation exists, but missing:
+     - File size limits (10MB)
+     - MIME type validation for JSON imports
+     - JSON parsing limits/timeouts
 6. ✅ Document localStorage security implications
-7. ✅ Add security headers
+7. ⚠️ Add security headers
+   - Status: Partially implemented - Only `X-Content-Type-Options` set in proxy-image.js responses
+   - Missing site-wide headers: X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy
 
 ### Phase 3: Medium Priority (Week 3-4)
 8. ✅ Implement rate limiting
-9. ✅ Improve URL validation in frontend
-10. ✅ Replace console logging with proper logging utility
+9. ❌ Improve URL validation in frontend
+   - Status: Not implemented - Still uses simple string checks (`startsWith('http')`)
+   - Should use `URL` constructor with proper hostname validation
+10. ❌ Replace console logging with proper logging utility
+    - Status: Not implemented - No `logger.ts` utility exists
 
 ### Phase 4: Ongoing
-11. ✅ Regular security audits
-12. ✅ Dependency updates
-13. ✅ Security monitoring
+11. ✅ Regular security audits (ongoing)
+12. ✅ Dependency updates (ongoing)
+13. ⚠️ Security monitoring
+    - Status: Basic logging in place, but missing:
+      - Error tracking service (Sentry, etc.)
+      - Rate limiting monitoring dashboard
+      - Security headers monitoring
+      - Dependency monitoring (Dependabot/Snyk)
 
 ---
 
