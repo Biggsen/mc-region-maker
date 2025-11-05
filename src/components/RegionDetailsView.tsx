@@ -299,27 +299,30 @@ export function RegionDetailsView({
       <div>
         <h4 className="text-sm font-medium text-gray-300 mb-2">Vertices</h4>
         <div className="flex space-x-2">
-          <button
+          <Button
+            variant="secondary"
             onClick={() => onSimplifyRegionVertices(selectedRegion.id, 10)}
-            className="flex-1 bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2"
+            leftIcon={<BrushCleaning className="w-4 h-4" />}
+            className="flex-1"
           >
-            <BrushCleaning className="w-4 h-4" />
             Simplify
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => onDoubleRegionVertices(selectedRegion.id)}
-            className="flex-1 bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2"
+            leftIcon={<Plus className="w-4 h-4" />}
+            className="flex-1"
           >
-            <Plus className="w-4 h-4" />
             Double
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => onHalveRegionVertices(selectedRegion.id)}
-            className="flex-1 bg-viridian hover:bg-viridian/80 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2"
+            leftIcon={<Minus className="w-4 h-4" />}
+            className="flex-1"
           >
-            <Minus className="w-4 h-4" />
             Halve
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -329,17 +332,18 @@ export function RegionDetailsView({
 
       {!editMode.isMovingRegion && (
         <div className="flex space-x-2">
-          <button
+          <Button
+            variant="secondary"
             onClick={() => {
               // Start move mode - user will click on map to set new position
               const center = calculateRegionCenter(selectedRegion)
               onStartMoveRegion(selectedRegion.id, center.x, center.z)
             }}
-            className="flex-1 font-medium py-2 px-4 rounded bg-viridian hover:bg-viridian/80 text-white flex items-center justify-center gap-2"
+            leftIcon={<Move className="w-4 h-4" />}
+            className="flex-1"
           >
-            <Move className="w-4 h-4" />
             Move Region
-          </button>
+          </Button>
         </div>
       )}
 
@@ -375,15 +379,16 @@ export function RegionDetailsView({
 
       {!editMode.isSplittingRegion && (
         <div className="flex space-x-2">
-          <button
+          <Button
+            variant="secondary"
             onClick={() => {
               onStartSplitRegion(selectedRegion.id)
             }}
-            className="flex-1 font-medium py-2 px-4 rounded bg-viridian hover:bg-viridian/80 text-white flex items-center justify-center gap-2"
+            leftIcon={<Scissors className="w-4 h-4" />}
+            className="flex-1"
           >
-            <Scissors className="w-4 h-4" />
             Split Region
-          </button>
+          </Button>
         </div>
       )}
 
