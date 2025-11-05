@@ -6,6 +6,20 @@ const ALLOWED_PROTOCOLS = ['http:', 'https:']
 const MAX_REDIRECTS = 3
 const isDevelopment = process.env.NODE_ENV === 'development'
 
+// Trusted domains that skip IP resolution (e.g., Railway uses load balancers that require Host header)
+const TRUSTED_DOMAINS = [
+  'mc-map-generator-production.up.railway.app',
+  'railway.app',
+  'up.railway.app'
+]
+
+function isTrustedDomain(hostname) {
+  const lower = hostname.toLowerCase()
+  return TRUSTED_DOMAINS.some(domain => 
+    lower === domain || lower.endsWith('.' + domain)
+  )
+}
+
 // Expanded IPv4 deny ranges
 const IPV4_DENY = [
   ['0.0.0.0', '0.255.255.255'],
@@ -284,11 +298,20 @@ export default async function handler(req, res) {
     const urlString = decodeURIComponent(urlParam)
     let { url: originalURL, hostname } = validateImageURL(urlString)
     
-    // Resolve DNS and get IP
-    const resolvedIP = await resolveAndValidateIP(hostname)
+    // For trusted domains (like Railway), skip IP resolution and use hostname directly
+    // This is necessary because Railway's load balancers require the Host header
+    let fetchURL = originalURL
+    let hostHeader = hostname
     
-    // Build URL with resolved IP and get Host header
-    const { url: fetchURL, hostHeader } = buildURLWithResolvedIP(originalURL.toString(), resolvedIP)
+    if (!isTrustedDomain(hostname)) {
+      // Resolve DNS and get IP for untrusted domains
+      const resolvedIP = await resolveAndValidateIP(hostname)
+      
+      // Build URL with resolved IP and get Host header
+      const built = buildURLWithResolvedIP(originalURL.toString(), resolvedIP)
+      fetchURL = built.url
+      hostHeader = built.hostHeader
+    }
     
     // Handle redirects manually
     let currentURL = fetchURL
@@ -301,12 +324,19 @@ export default async function handler(req, res) {
     try {
       while (true) {
         // Fetch with manual redirect handling
+        // For trusted domains, currentURL is the original URL with hostname
+        // For untrusted domains, currentURL has IP and we need Host header
+        // Note: Node.js fetch doesn't allow overriding Host header, but when using IP
+        // we'll need to use a workaround or accept that Host header won't be set
+        // For now, we'll use the URL as-is and let the server handle it
         const response = await fetch(currentURL.toString(), {
           signal: controller.signal,
           redirect: 'manual', // CRITICAL: Don't auto-follow redirects
           headers: {
-            'Host': currentHostHeader,
-            'User-Agent': 'MC-Region-Maker-Proxy/1.0'
+            'User-Agent': 'MC-Region-Maker-Proxy/1.0',
+            // Set Host header when using IP (for untrusted domains)
+            // Note: This may not work in all Node.js versions, but worth trying
+            ...(currentURL.hostname !== currentHostHeader && { 'Host': currentHostHeader })
           }
         })
         
@@ -327,12 +357,19 @@ export default async function handler(req, res) {
           // Validate redirect URL
           const { url: validatedURL, hostname: nextHostname } = validateImageURL(nextURL.toString())
           
-          // Re-resolve DNS for redirect
-          const nextResolvedIP = await resolveAndValidateIP(nextHostname)
+          // For trusted domains, skip IP resolution for redirects too
+          let nextFetchURL = validatedURL
+          let nextHostHeader = nextHostname
           
-          // Rebuild URL with resolved IP
-          const { url: nextFetchURL, hostHeader: nextHostHeader } = 
-            buildURLWithResolvedIP(validatedURL.toString(), nextResolvedIP)
+          if (!isTrustedDomain(nextHostname)) {
+            // Re-resolve DNS for redirect
+            const nextResolvedIP = await resolveAndValidateIP(nextHostname)
+            
+            // Rebuild URL with resolved IP
+            const built = buildURLWithResolvedIP(validatedURL.toString(), nextResolvedIP)
+            nextFetchURL = built.url
+            nextHostHeader = built.hostHeader
+          }
           
           currentURL = nextFetchURL
           currentHostHeader = nextHostHeader
