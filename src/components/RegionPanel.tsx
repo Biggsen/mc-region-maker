@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { copyToClipboard, calculatePolygonArea, formatArea } from '../utils/polygonUtils'
-import { worldToPixel } from '../utils/coordinateUtils'
-import { SIDEBAR_WIDTH } from '../utils/constants'
+import { calculateZoomToFitRegion } from '../utils/zoomUtils'
 import { RegionCreationForm } from './RegionCreationForm'
 import { RegionDetailsView } from './RegionDetailsView'
 import { Button } from './Button'
@@ -72,64 +71,22 @@ export function RegionPanel() {
       alert('Cannot zoom to region: No map image is loaded. Please load a map image first from the Map tab.')
       return
     }
-    
-    if (region.points.length < 2) {
-      console.warn('Cannot zoom: Region has less than 2 points')
-      return
-    }
 
     try {
-      // Convert all region points from world coordinates to pixel coordinates
-      const pixelPoints = region.points.map(point => 
-        worldToPixel(point.x, point.z, mapState.image!.width, mapState.image!.height, mapState.originOffset)
+      const zoomResult = calculateZoomToFitRegion(
+        region.points,
+        mapState.image.width,
+        mapState.image.height,
+        mapState.originOffset
       )
 
-      // Calculate bounding box in pixel coordinates
-      const minX = Math.min(...pixelPoints.map(p => p.x))
-      const maxX = Math.max(...pixelPoints.map(p => p.x))
-      const minY = Math.min(...pixelPoints.map(p => p.y))
-      const maxY = Math.max(...pixelPoints.map(p => p.y))
-
-      const width = maxX - minX
-      const height = maxY - minY
-      
-      if (width <= 0 || height <= 0) {
-        console.warn('Cannot zoom: Invalid region dimensions', { width, height })
-        return
-      }
-      
-      const centerX = (minX + maxX) / 2
-      const centerY = (minY + maxY) / 2
-
-      // Calculate available canvas space (accounting for sidebar)
-      const canvasWidth = window.innerWidth - SIDEBAR_WIDTH // Sidebar width
-      const canvasHeight = window.innerHeight // Full window height
-
-      // Add padding (20% on each side)
-      const padding = 0.2
-      const availableWidth = canvasWidth * (1 - padding * 2)
-      const availableHeight = canvasHeight * (1 - padding * 2)
-
-      // Calculate scale to fit the region
-      const scaleX = availableWidth / width
-      const scaleY = availableHeight / height
-      const newScale = Math.max(0.1, Math.min(scaleX, scaleY, 5)) // Cap at 5x zoom, min 0.1x
-
-      if (!isFinite(newScale) || newScale <= 0) {
-        console.warn('Cannot zoom: Invalid scale calculated', { scaleX, scaleY, newScale })
+      if (!zoomResult) {
+        console.warn('Cannot zoom: Invalid region or calculation failed')
         return
       }
 
-      // Calculate offset to center the region on canvas
-      // We want the center of the region (in pixel space) to be at the center of the canvas
-      // offset = canvasCenter - (pixelCenter * scale)
-      const canvasCenterX = canvasWidth / 2
-      const canvasCenterY = canvasHeight / 2
-      const newOffsetX = canvasCenterX - centerX * newScale
-      const newOffsetY = canvasCenterY - centerY * newScale
-
-      setScale(newScale)
-      setOffset(newOffsetX, newOffsetY)
+      setScale(zoomResult.scale)
+      setOffset(zoomResult.offsetX, zoomResult.offsetY)
     } catch (error) {
       console.error('Error zooming to region:', error)
     }

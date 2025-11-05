@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { generateAchievementsYAML, generateEventConditionsYAML, generateLevelledMobsRulesYAML, importMapData } from '../utils/exportUtils'
 import { clearSavedData } from '../utils/persistenceUtils'
+import { ChallengeLevel } from '../types'
 import { RegionActions } from './RegionActions'
 import { SpawnButton } from './SpawnButton'
 import { Button } from './Button'
@@ -462,7 +463,7 @@ export function AdvancedPanel() {
                   <div className="space-y-2">
                     <select
                       value={regions.regions.find(r => r.id === regions.selectedRegionId)?.challengeLevel || 'Vanilla'}
-                      onChange={(e) => regions.updateRegion(regions.selectedRegionId!, { challengeLevel: e.target.value as any })}
+                      onChange={(e) => regions.updateRegion(regions.selectedRegionId!, { challengeLevel: e.target.value as ChallengeLevel })}
                       className="w-full bg-input-bg text-input-text px-3 py-2 rounded border border-input-border focus:border-lapis-lighter focus:outline-none placeholder:text-gray-500"
                     >
                       <option value="Vanilla">Vanilla</option>
