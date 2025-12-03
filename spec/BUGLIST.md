@@ -2,26 +2,6 @@
 
 ## Open Issues
 
-### Region Creation Without Map Import
-**Priority:** High  
-**Status:** Open
-
-**Description:** Users can start creating a region even when no map has been imported, which should be prevented.
-
-**Issue:**
-- Region creation should be disabled or blocked until a map is loaded
-- Currently allows users to attempt region creation without a map context
-
-**Affected Components:**
-- Region creation functionality (likely `RegionCreationForm.tsx` or related components)
-- Map state management (likely `useMapState.ts` or `AppContext.tsx`)
-
-**Expected Behavior:**
-- Region creation UI should be disabled/grayed out when no map is loaded
-- Or show a clear message prompting user to import a map first
-
----
-
 ### World Size Slider for Nether and End Dimensions
 **Priority:** Medium  
 **Status:** Open
@@ -43,6 +23,33 @@
 ---
 
 ## Resolved Issues
+
+### Region Creation Without Map Import
+**Priority:** High  
+**Status:** Resolved
+
+**Description:** Users can start creating a region even when no map has been imported, which should be prevented.
+
+**Original Issue:**
+- Region creation should be disabled or blocked until a map is loaded
+- Currently allows users to attempt region creation without a map context
+
+**Solution Implemented:**
+- "Create New Region" button is disabled when no map is loaded (`RegionCreationForm.tsx`)
+- Clear message displayed: "To create regions, you need to import a map first."
+- Tooltip on disabled button: "Please import a map first from the Map tab"
+- Button state controlled by `hasMap` prop, which checks `mapState.image`
+
+**Affected Components:**
+- `src/components/RegionCreationForm.tsx` - Button disabled state and messaging
+- `src/components/RegionPanel.tsx` - Passes `hasMap={!!mapState.image}` to form
+
+**Notes:**
+- The fix prevents users from starting region creation without a map
+- If a map is removed after regions are created, regions remain valid and can be used once a map is added again
+- This approach is sufficient as regions can always be associated with a map later
+
+---
 
 ### Image Validation
 **Priority:** High  
